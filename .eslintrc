@@ -1,0 +1,5 @@
+{
+  "ecmaFeatures": {
+    "blockBindings": true
+  }
+}
