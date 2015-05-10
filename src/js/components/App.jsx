@@ -2,21 +2,10 @@ const React = require('react');
 const mui = require('material-ui');
 const RouterMixin = require('react-mini-router').RouterMixin;
 
-require('whatwg-fetch'); // polyfill
-
-/* Stores */
-const BookStore = require('../stores/BookStore');
-/* Actions */
-const ActionCreator = require('../actions/TodoActionCreators');
-const TaskList = require('./TaskList.jsx');
 /* Components */
 let {RaisedButton} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
-
-/* Other */
-const BookUtilities = require('../constants/BookUtilities');
-
 
 let App = React.createClass({
   mixins: [RouterMixin],
@@ -36,52 +25,45 @@ let App = React.createClass({
     return this.renderCurrentRoute();
   },
 
-  getInitialState() {
-    return {
-      books: [],
-      book: {
-        pages: {
-          'en': [],
-          'fr': []
-        }
-      }
-    }
-  },
-
-  componentDidMount() {
-    //TodoStore.addChangeListener(this._onChange);
-    //this._onChange();
-    BookStore.getAll().then((books) => {
-      this.setState({ books: books });
-    });
-  },
-
-  componentWillUnmount() {
-    //TodoStore.removeChangeListener(this._onChange);
-  },
-
-  handleAddNewClick(e) {
-    let title = prompt('Enter task title:');
-    if (title) {
-      ActionCreator.addItem(title);
-    }
-  },
-
-  handleClearListClick(e) {
-    ActionCreator.clearList();
-  },
-
   selectLanguage(book) {
     return <div><LanguageList book={book} /></div>;
   },
 
   selectBook() {
-    let {books} = this.state;
-    return <BookList books={books} />;
+    return <BookList />;
   },
 
   showHome(book,language) {
-    return <h1>HOME - {book} - {language}</h1>;
+    return (
+    <div>
+      <h1>HOME - {book} - {language}</h1>
+      <ul>
+        <li>
+          UI.PAGE_HOME
+          <ul>
+            <li>
+              BUTTONS
+              <ul>
+                <li>games</li>
+                <li>readAudio</li>
+                <li>read</li>
+              </ul>
+            </li>
+            <li>
+              IMAGE
+              <ul>
+                <li>title_[lang]</li>
+                <li>subtitle_[lang]</li>
+                <li>RBMbutton_[lang]</li>
+                <li>PGbutton_[lang]</li>
+                <li>RTMbutton_[lang]</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    );
   },
 
 });

@@ -2,19 +2,28 @@ const React = require('react');
 const mui = require('material-ui');
 const navigate = require('react-mini-router').navigate;
 
+const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
 let {RaisedButton,Dialog} = mui;
 
 let BookList = React.createClass({
+  componentDidMount() {
+    BookStore.getAll().then((books) => {
+      this.setState({ books: books });
+    });
+  },
+  getInitialState() {
+    return {
+      books: []
+    }
+  },
   render: function() {
-    let {books} = this.props;
-    let booksStr = books.map((book,i) => {
-      let icon = BookStore.getIcon(book);
+    let booksStr = this.state.books.map((book,i) => {
       return (
         <div id={book.id}>
-          <RaisedButton onClick={this.handleSelectBookClick.bind(this,i)}>
-            <img src={icon} />
+          <RaisedButton onClick={this.handleSelectBookClick.bind(this,book.id)}>
+            <img src={book.icon} />
             <span className="mui-raised-button-label">
               {book.title}
             </span>
@@ -32,8 +41,8 @@ let BookList = React.createClass({
     );
   },
 
-  handleSelectBookClick(i) {
-    navigate('/book/' + this.props.books[i].id);
+  handleSelectBookClick(book) {
+    BookActionCreators.chooseBook(book)
   }
 });
 

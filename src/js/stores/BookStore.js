@@ -35,7 +35,7 @@ let BookStore = assign({}, BaseStore, {
         .then((json) => {
           json.forEach((book, i) => {
             _urls[book.id] = 'books/' + book.url;
-            _icons[book.id] = 'books/' + book.icon;
+            book.icon = 'books/' + book.icon;
           });
           resolve(json);
           /*
@@ -51,10 +51,6 @@ let BookStore = assign({}, BaseStore, {
           console.log('parsing failed', ex);
         });
     });
-  },
-
-  getIcon(book) {
-    return _icons[book];
   },
 
   getBook(book) {

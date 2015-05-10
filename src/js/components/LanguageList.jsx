@@ -1,6 +1,6 @@
 const React = require('react');
 const mui = require('material-ui');
-const navigate = require('react-mini-router').navigate;
+const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
 let {RaisedButton,Dialog} = mui;
@@ -39,7 +39,7 @@ let LanguageList = React.createClass({
   },
 
   handleSelectLanguageClick(language) {
-    navigate('/book/' + this.props.book + '/lang/' + language);
+    BookActionCreators.chooseLanguage(this.props.book, language)
   }
 });
 
