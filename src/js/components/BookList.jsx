@@ -19,6 +19,10 @@ let BookList = React.createClass({
     }
   },
   render: function() {
+    if (this.state.books.length === 1) {
+      return this.handleSelectBookClick(this.state.books[0].id);
+    }
+
     let booksStr = this.state.books.map((book,i) => {
       return (
         <div id={book.id}>
@@ -31,14 +35,7 @@ let BookList = React.createClass({
         </div>
       );
     });
-    return (
-      <Dialog
-        title="Select a book"
-        openImmediately={true}
-      >
-        {booksStr}
-      </Dialog>
-    );
+    return <div>{booksStr}</div>;
   },
 
   handleSelectBookClick(book) {

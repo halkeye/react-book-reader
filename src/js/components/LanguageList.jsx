@@ -17,6 +17,10 @@ let LanguageList = React.createClass({
     }
   },
   render: function() {
+    if (this.state.languages.length === 1) {
+      return this.handleSelectLanguageClick(this.state.languages[0]);
+    }
+
     let languages = this.state.languages.map((language) => {
       return (
         <div key={language}>
@@ -28,14 +32,7 @@ let LanguageList = React.createClass({
         </div>
       );
     });
-    return (
-      <Dialog
-        title="Select a language"
-        openImmediately={true}
-      >
-        {languages}
-      </Dialog>
-    );
+    return <div>{languages}</div>;
   },
 
   handleSelectLanguageClick(language) {
