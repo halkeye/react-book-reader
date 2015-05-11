@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "es6-promise": "^2.1.1",
-    "flag-icon-css": "git+https://github.com/halkeye/flag-icon-css.git",
     "flux": "^2.0.3",
     "gulp-task-listing": "^1.0.0",
     "material-ui": "^0.7.5",
