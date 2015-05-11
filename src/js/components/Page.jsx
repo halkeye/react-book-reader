@@ -74,7 +74,7 @@ let Page = React.createClass({
         left: line.left + '%',
         color: this.state.page.pageStyle.unread.color,
         fontFamily: this.state.page.pageStyle.unread.font,
-        fontSize: this.state.page.pageStyle.unread.size
+        fontSize: this.state.page.pageStyle.unread.size + 'px'
       };
       return <div style={style}>{words}</div>;
     });

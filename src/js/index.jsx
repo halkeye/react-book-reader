@@ -7,4 +7,4 @@
 
 const React = require('react');
 const App = require('./components/App.jsx');
-React.render(<App lang="en" url='../books/Josephine/BookData.json' />, document.getElementById('main'));
+React.render(<App />, document.getElementById('main'));

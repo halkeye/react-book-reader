@@ -126,11 +126,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
         color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
         font: font,
         //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
-        size: bookData.STYLES[state.toUpperCase()].SIZE/1024
+        size: bookData.STYLES[state.toUpperCase()].SIZE
       };
-      //console.log(bookData.STYLES[state.toUpperCase()].SIZE);
-      //console.log(book.bookStyles[state].size);
-      book.bookStyles[state].size = '7vh'
       fonts[font] = {
         url: assetBaseUrl + '/' + font + '.ttf',
         family: font
