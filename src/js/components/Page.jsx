@@ -13,12 +13,15 @@ let Page = React.createClass({
 
   getInitialState() {
     return {
-      page: {}
+      page: {
+        images: []
+      }
     }
   },
 
   getDivStyle() {
     let ret = {
+      position: 'relative',
       width: '1024px', // fixme
       height: '768px', // fixme
     };
@@ -37,10 +40,22 @@ let Page = React.createClass({
       "page", this.props.page
     ].join("_");
 
+    let extraImages = this.state.page.images.map((image,idx) => {
+      var style = {
+        position: 'absolute',
+        top: image.top + '%',
+        left: image.left + '%',
+      };
+      return (
+        <span style={style}>
+          <img src={image.image} />
+        </span>
+      );
+    });
 
     return (
       <div key={key} style={divStyle}>
-
+        {extraImages}
       </div>
     )
   }

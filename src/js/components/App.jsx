@@ -68,16 +68,6 @@ let App = React.createClass({
                 <li>read</li>
               </ul>
             </li>
-            <li>
-              IMAGE
-              <ul>
-                <li>title_[lang]</li>
-                <li>subtitle_[lang]</li>
-                <li>RBMbutton_[lang]</li>
-                <li>PGbutton_[lang]</li>
-                <li>RTMbutton_[lang]</li>
-              </ul>
-            </li>
           </ul>
         </li>
       </ul>

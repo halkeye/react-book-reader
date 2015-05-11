@@ -20,7 +20,7 @@ let ucFirst = (str) => {
   return f + str.substr(1).toLowerCase();
 };
 
-let pageProcessor = (assetBaseUrl, parentStyle, page, idx) => {
+let pageProcessor = (assetBaseUrl, parentStyle, language, page, idx) => {
   // HOTSPOTS
   var pageData = {};
   if (idx > 0) {
@@ -35,6 +35,20 @@ let pageProcessor = (assetBaseUrl, parentStyle, page, idx) => {
   pageData.pageStyle = parentStyle; // FIXME
   pageData.lines = [];
   pageData.hotspots = [];
+  pageData.images = [];
+
+  if (page.IMAGE)
+  {
+    pageData.images = page.IMAGE.map((image,idx) => {
+      return {
+        image: assetBaseUrl + '/images/' + image.FILENAME.replace('[lang]', language) + '.png',
+        top: image.POS[0]*100,
+        left: image.POS[1]*100,
+        bottom: image.POS[2]*100,
+        right: image.POS[3]*100
+      };
+    });
+  }
   if (page.LINES)
   {
     page.LINES.forEach(function(line) {
@@ -111,7 +125,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.pages = {};
     book.languages.forEach(function(language) {
       book.pages[language] = bookData.PAGES[language].map((page, idx) => {
-        pageProcessor(assetBaseUrl,book.bookStyles,page,idx);
+        return pageProcessor(assetBaseUrl,book.bookStyles,language,page,idx);
       });
       if (bookData.UI) {
         Object.keys(bookData.UI).forEach((key) => {
@@ -119,6 +133,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
           book.pages[language][lckey] = pageProcessor(
             assetBaseUrl,
             book.bookStyles,
+            language,
             bookData.UI[key],
             lckey
           );
