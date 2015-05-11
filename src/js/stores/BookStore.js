@@ -27,7 +27,7 @@ let BookStore = assign({}, BaseStore, {
   getAll() {
     return new Promise((resolve,reject) => {
       if (_bookList != null) { return resolve(_bookList); }
-      fetch('books.json')
+      fetch('books/index.json')
         .then((response) => {
           _bookList = response.json();
           return _bookList;
