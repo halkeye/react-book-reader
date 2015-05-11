@@ -50,13 +50,13 @@ let App = React.createClass({
 
   showHome(book,language) {
     return (
-      <div><Page book={book} language={language} page="home" /></div>
+      <div><Page key="page_home" book={book} language={language} page="home" /></div>
     );
   },
 
   showPage(book,language,page) {
     return (
-      <div><Page book={book} language={language} page={page} /></div>
+      <div><Page key={'page_' + page} book={book} language={language} page={page} /></div>
     );
   }
 
