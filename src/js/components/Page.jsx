@@ -66,13 +66,15 @@ let Page = React.createClass({
 
     let extraLines = this.state.page.lines.map((line,idx) => {
       let words = line.words.map((word,idx) => {
-        return <span>{word.word}</span>;
+        return <span>{word.word} </span>;
       });
-      console.log(line);
       var style = {
         position: 'absolute',
         top: line.top + '%',
-        left: line.left + '%'
+        left: line.left + '%',
+        color: this.state.page.pageStyle.unread.color,
+        fontFamily: this.state.page.pageStyle.unread.font,
+        fontSize: this.state.page.pageStyle.unread.size
       };
       return <div style={style}>{words}</div>;
     });
