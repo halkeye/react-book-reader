@@ -1,9 +1,18 @@
 {
-  "name": "book-reader",
+  "name": "react-book-reader",
   "version": "0.1.0",
   "description": "Book Reader: ...",
-  "author": "",
+  "author": "Gavin Mogan <gavin@gavinmogan.com> (http://www.halkeye.net)",
   "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:halkeye/react-book-reader.git"
+  },
+  "bugs": {
+    "url" : "https://bitbucket.org/halkeye/react-book-reader/issues",
+    "email" : "book-reader@gavinmogan.com"
+  },
   "devDependencies": {
     "babel-jest": "^5.2.0",
     "babelify": "^6.0.2",
