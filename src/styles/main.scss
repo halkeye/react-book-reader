@@ -3,27 +3,8 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto:400,300,500);
 
 //Your custom app styles
-.example-page {
-  margin: auto;
-  padding: 50px;
-  width: 60%;
-  text-align: center;
+.language-selector-button {
+  margin-bottom: 16px;
 }
 
-#task-list {
-  width: 25%;
-  margin: 20px auto;
-  text-align: left;
 
-  label {
-    display: block;
-  }
-}
-
-.mui-checkbox {
-  display: inline-block;
-}
-
-.checkbox-label {
-  padding: 10px;
-}

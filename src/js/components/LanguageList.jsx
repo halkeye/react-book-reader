@@ -3,6 +3,8 @@ const mui = require('material-ui');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
+const LanguageIcon = require('./LanguageIcon.jsx');
+
 let {RaisedButton,Dialog} = mui;
 
 let LanguageList = React.createClass({
@@ -23,10 +25,10 @@ let LanguageList = React.createClass({
 
     let languages = this.state.languages.map((language) => {
       return (
-        <div key={language}>
+        <div key={language} className="language-selector-button">
           <RaisedButton onClick={this.handleSelectLanguageClick.bind(this,language)}>
             <span className="mui-raised-button-label">
-              {language}
+              <LanguageIcon language={language} />
             </span>
           </RaisedButton>
         </div>

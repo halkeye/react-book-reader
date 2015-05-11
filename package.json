@@ -40,15 +40,16 @@
   },
   "dependencies": {
     "es6-promise": "^2.1.1",
+    "flag-icon-css": "git+https://github.com/halkeye/flag-icon-css.git",
     "flux": "^2.0.3",
     "gulp-task-listing": "^1.0.0",
     "material-ui": "^0.7.5",
     "material-ui-sass": "^0.7.2",
     "object-assign": "^2.0.0",
     "react": "^0.13.3",
-    "react-tools": "^0.13.3",
     "react-mini-router": "^1.1.3",
     "react-tap-event-plugin": "^0.1.6",
+    "react-tools": "^0.13.3",
     "whatwg-fetch": "^0.8.1"
   }
 }

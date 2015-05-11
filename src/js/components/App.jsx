@@ -48,6 +48,10 @@ let App = React.createClass({
   },
 
   showHome(book,language) {
+    let BookStore = require('../stores/BookStore');
+    BookStore.getBook(book).then((bookData) => {
+      console.log(bookData);
+    });
     return (
     <div>
       <h1>HOME - {book} - {language}</h1>
