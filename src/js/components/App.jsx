@@ -49,31 +49,16 @@ let App = React.createClass({
   },
 
   showHome(book,language) {
-    let BookStore = require('../stores/BookStore');
-    BookStore.getBook(book).then((bookData) => {
-      console.log(bookData);
-    });
     return (
-    <div>
-      <Page book={book} language={language} page="home" />
-      <ul>
-        <li>
-          UI.PAGE_HOME
-          <ul>
-            <li>
-              BUTTONS
-              <ul>
-                <li>games</li>
-                <li>readAudio</li>
-                <li>read</li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+      <div><Page book={book} language={language} page="home" /></div>
     );
   },
+
+  showPage(book,language,page) {
+    return (
+      <div><Page book={book} language={language} page={page} /></div>
+    );
+  }
 
 });
 

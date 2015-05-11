@@ -2,6 +2,9 @@ const React = require('react');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
+const mui = require('material-ui');
+let {IconButton} = mui;
+
 let Page = React.createClass({
   componentDidMount() {
     BookStore.getPage(this.props.book, this.props.language, this.props.page).then((page) => {
@@ -45,12 +48,19 @@ let Page = React.createClass({
         position: 'absolute',
         top: image.top + '%',
         left: image.left + '%',
+        width: image.width + '%',
+        height: image.height + '%',
       };
-      return (
-        <span style={style}>
-          <img src={image.image} />
-        </span>
-      );
+      if (image.nextPage) {
+        style.border = 'none';
+        style.backgroundSize = 'contain';
+        style.backgroundColor = 'rgba(0,0,0,0.0)';
+        style.backgroundImage = 'url(' + image.image + ')';
+        return (
+          <IconButton style={style} onClick={this.onButtonClick.bind(this,image.nextPage)}></IconButton>
+        );
+      }
+      return <img style={style} src={image.image} />;
     });
 
     return (
@@ -58,6 +68,17 @@ let Page = React.createClass({
         {extraImages}
       </div>
     )
+  },
+
+  onButtonClick(page) {
+    if (page == 'read' || page == 'readAudio') {
+      page = 1;
+    }
+    BookActionCreators.choosePage(
+      this.props.book,
+      this.props.language,
+      page
+    );
   }
 })
 module.exports = Page;

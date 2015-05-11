@@ -20,16 +20,16 @@ let ucFirst = (str) => {
   return f + str.substr(1).toLowerCase();
 };
 
-let pageProcessor = (assetBaseUrl, parentStyle, language, page, idx) => {
+let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   // HOTSPOTS
   var pageData = {};
-  if (idx > 0) {
-    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".png";
-    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".hotspots.gif";
+  if (pageName > 0) {
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".png";
+    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".hotspots.gif";
   }
   else
   {
-    pageData.pageImage = assetBaseUrl + "/pages/pg" + ucFirst(idx) + ".png";
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + ucFirst(pageName) + ".png";
   }
 
   pageData.pageStyle = parentStyle; // FIXME
@@ -39,14 +39,28 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, idx) => {
 
   if (page.IMAGE)
   {
-    pageData.images = page.IMAGE.map((image,idx) => {
-      return {
+    page.IMAGE.forEach((image) => {
+      pageData.images.push({
         image: assetBaseUrl + '/images/' + image.FILENAME.replace('[lang]', language) + '.png',
         top: image.POS[0]*100,
         left: image.POS[1]*100,
-        bottom: image.POS[2]*100,
-        right: image.POS[3]*100
-      };
+        height: image.POS[2]*100,
+        width: image.POS[3]*100
+      });
+    });
+  }
+  if (page.BUTTONS)
+  {
+    Object.keys(page.BUTTONS).forEach((buttonName) => {
+      let image = page.BUTTONS[buttonName];
+      pageData.images.push({
+        nextPage: buttonName,
+        image: assetBaseUrl + '/buttons/pg' + ucFirst(pageName) + '_' + buttonName + '.png',
+        top: image.POS[0]*100,
+        left: image.POS[1]*100,
+        height: image.POS[2]*100,
+        width: image.POS[3]*100
+      });
     });
   }
   if (page.LINES)
