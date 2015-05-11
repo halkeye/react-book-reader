@@ -17,7 +17,8 @@ let Page = React.createClass({
   getInitialState() {
     return {
       page: {
-        images: []
+        images: [],
+        lines: []
       }
     }
   },
@@ -63,9 +64,23 @@ let Page = React.createClass({
       return <img style={style} src={image.image} />;
     });
 
+    let extraLines = this.state.page.lines.map((line,idx) => {
+      let words = line.words.map((word,idx) => {
+        return <span>{word.word}</span>;
+      });
+      console.log(line);
+      var style = {
+        position: 'absolute',
+        top: line.top + '%',
+        left: line.left + '%'
+      };
+      return <div style={style}>{words}</div>;
+    });
+
     return (
       <div key={key} style={divStyle}>
         {extraImages}
+        {extraLines}
       </div>
     )
   },
