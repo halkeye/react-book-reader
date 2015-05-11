@@ -6,6 +6,7 @@ const RouterMixin = require('react-mini-router').RouterMixin;
 let {RaisedButton,Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
+const Page = require('./Page.jsx');
 
 let App = React.createClass({
   mixins: [RouterMixin],
@@ -54,7 +55,7 @@ let App = React.createClass({
     });
     return (
     <div>
-      <h1>HOME - {book} - {language}</h1>
+      <Page book={book} language={language} page="home" />
       <ul>
         <li>
           UI.PAGE_HOME

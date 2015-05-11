@@ -77,9 +77,16 @@ let BookStore = assign({}, BaseStore, {
   getLanguages(book) {
     return new Promise((resolve,reject) => {
       BookStore.getBook(book).then((bookData) => {
-        console.log('getBook', bookData.languages);
         return resolve(bookData.languages);
       });
+    });
+  },
+
+  getPage(book, language, page) {
+    return new Promise((resolve,reject) => {
+      BookStore.getBook(book).then((bookData) => {
+        return resolve(bookData.pages[language][page]);
+      }).catch(reject);
     });
   },
 

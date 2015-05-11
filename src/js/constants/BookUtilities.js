@@ -14,6 +14,60 @@ let dirname = (path) => {
     .replace(/\/[^\/]*\/?$/, '');
 };
 
+let ucFirst = (str) => {
+  str += '';
+  var f = str.charAt(0).toUpperCase();
+  return f + str.substr(1).toLowerCase();
+};
+
+let pageProcessor = (assetBaseUrl, parentStyle, page, idx) => {
+  // HOTSPOTS
+  var pageData = {};
+  if (idx > 0) {
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".png";
+    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".hotspots.gif";
+  }
+  else
+  {
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + ucFirst(idx) + ".png";
+  }
+
+  pageData.pageStyle = parentStyle; // FIXME
+  pageData.lines = [];
+  pageData.hotspots = [];
+  if (page.LINES)
+  {
+    page.LINES.forEach(function(line) {
+      var lineData = {
+        //top: line.POS[0]*settings.height*settings.heightOffset,
+  //                  left: line.POS[1]*settings.width*settings.widthOffset,
+        top: (line.POS[0]*100) + '%',
+        left: (line.POS[1]*100) + '%',
+        words: []
+      };
+      pageData.lines.push(lineData);
+      line.WORDS.forEach(function(word) {
+        var wordData = {
+          word: word[0],
+          start: word[1],
+          end: word[2]
+        };
+        lineData.words.push(wordData);
+      });
+    });
+  }
+  if (page.HOTSPOTS)
+  {
+    Object.keys(page.HOTSPOTS).forEach(function(color) {
+      pageData.hotspots[color] = [];
+      page.HOTSPOTS[color].forEach(function(hotspot) {
+        pageData.hotspots[color].push({ text: hotspot[0], filename: hotspot[1] });
+      });
+    });
+  }
+  return pageData;
+};
+
 let pad = (value, width, pad) => {
   pad = pad || '0';
   value = value + '';
@@ -45,8 +99,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
         font: font,
         size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
       };
-      console.log(bookData.STYLES[state.toUpperCase()].SIZE);
-      console.log(book.bookStyles[state].size);
+      //console.log(bookData.STYLES[state.toUpperCase()].SIZE);
+      //console.log(book.bookStyles[state].size);
       book.bookStyles[state].size = '7vh'
       fonts[font] = {
         url: assetBaseUrl + '/' + font + '.ttf',
@@ -56,41 +110,20 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.fonts = Object.keys(fonts).map(function(val) { return fonts[val]; });
     book.pages = {};
     book.languages.forEach(function(language) {
-      book.pages[language] = bookData.PAGES[language].map(function(page, idx) {
-        // HOTSPOTS
-        var pageData = {
-          pageImage: assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".png",
-          hotspotImage: assetBaseUrl + "/pages/pg" + pad(idx+1, 2) + ".hotspots.gif"
-        };
-        pageData.pageStyle = book.bookStyles; // FIXME
-        pageData.lines = [];
-        pageData.hotspots = [];
-        page.LINES.forEach(function(line) {
-          var lineData = {
-            //top: line.POS[0]*settings.height*settings.heightOffset,
-//                  left: line.POS[1]*settings.width*settings.widthOffset,
-            top: (line.POS[0]*100) + '%',
-            left: (line.POS[1]*100) + '%',
-            words: []
-          };
-          pageData.lines.push(lineData);
-          line.WORDS.forEach(function(word) {
-            var wordData = {
-              word: word[0],
-              start: word[1],
-              end: word[2]
-            };
-            lineData.words.push(wordData);
-          });
-        });
-        Object.keys(page.HOTSPOTS).forEach(function(color) {
-          pageData.hotspots[color] = [];
-          page.HOTSPOTS[color].forEach(function(hotspot) {
-            pageData.hotspots[color].push({ text: hotspot[0], filename: hotspot[1] });
-          });
-        });
-        return pageData;
+      book.pages[language] = bookData.PAGES[language].map((page, idx) => {
+        pageProcessor(assetBaseUrl,book.bookStyles,page,idx);
       });
+      if (bookData.UI) {
+        Object.keys(bookData.UI).forEach((key) => {
+          let lckey = key.replace(/^PAGE_/, '').toLowerCase();
+          book.pages[language][lckey] = pageProcessor(
+            assetBaseUrl,
+            book.bookStyles,
+            bookData.UI[key],
+            lckey
+          );
+        });
+      }
     });
     return book;
 };
