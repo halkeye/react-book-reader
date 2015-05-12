@@ -23,7 +23,7 @@ let ucFirst = (str) => {
 let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   // HOTSPOTS
   var pageData = {};
-  if (pageName > 0) {
+  if (!isNaN(pageName)) {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".png";
     pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".hotspots.gif";
   }
@@ -136,8 +136,9 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.fonts = Object.keys(fonts).map(function(val) { return fonts[val]; });
     book.pages = {};
     book.languages.forEach(function(language) {
-      book.pages[language] = bookData.PAGES[language].map((page, idx) => {
-        return pageProcessor(assetBaseUrl,book.bookStyles,language,page,idx);
+      book.pages[language] = [];
+      bookData.PAGES[language].forEach((page, idx) => {
+        book.pages[language][idx+1] = pageProcessor(assetBaseUrl,book.bookStyles,language,page,idx);
       });
       if (bookData.UI) {
         Object.keys(bookData.UI).forEach((key) => {

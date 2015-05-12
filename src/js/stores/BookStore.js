@@ -38,21 +38,13 @@ let BookStore = assign({}, BaseStore, {
             book.icon = 'books/' + book.icon;
           });
           resolve(json);
-          /*
-          let book = BookUtilities.processBookData(
-            {},
-            BookUtilities.dirname(this.props.url),
-            json
-          );
-          console.log('book', book);
-          this.setState({book: book});
-          */
         }).catch(function(ex) {
           console.log('parsing failed', ex);
         });
     });
   },
 
+  /* FIXME - return book object */
   getBook(book) {
     return new Promise((resolve,reject) => {
       if (_currentBook == book) { return resolve(_bookData); }
@@ -86,6 +78,17 @@ let BookStore = assign({}, BaseStore, {
     return new Promise((resolve,reject) => {
       BookStore.getBook(book).then((bookData) => {
         return resolve(bookData.pages[language][page]);
+      }).catch(reject);
+    });
+  },
+
+  hasPage(book, language, page) {
+    return new Promise((resolve,reject) => {
+      BookStore.getBook(book).then((bookData) => {
+        if (page in bookData.pages[language]) {
+          return resolve(true);
+        }
+        return resolve(false);
       }).catch(reject);
     });
   },

@@ -7,6 +7,7 @@ let {RaisedButton,Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Page = require('./Page.jsx');
+const BookPage = require('./BookPage.jsx');
 
 let App = React.createClass({
   mixins: [RouterMixin],
@@ -55,9 +56,19 @@ let App = React.createClass({
   },
 
   showPage(book,language,page) {
-    return (
-      <div><Page key={'page_' + page} book={book} language={language} page={page} /></div>
-    );
+    if (isNaN(page))
+    {
+      return (
+        <div><Page key={'page_' + page} book={book} language={language} page={page} /></div>
+      );
+    }
+    else
+    {
+      page = parseInt(page,10);
+      return (
+        <div><BookPage key={'page_' + page} book={book} language={language} page={page} /></div>
+      );
+    }
   }
 
 });
