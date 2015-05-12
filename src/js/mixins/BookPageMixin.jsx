@@ -18,10 +18,7 @@ let BookPageMixin = {
 
   getInitialState() {
     return {
-      page: {
-        images: [],
-        lines: []
-      }
+      page: null
     };
   },
 
@@ -39,13 +36,15 @@ let BookPageMixin = {
   },
 
   render() {
-    let pageStyle = this.getPageStyle();
-
     let key = [
       'book', this.props.book,
       'language', this.props.language,
       'page', this.props.page
     ].join('_');
+
+    if ( this.state.page === null ) { return <div key={key} />; }
+
+    let pageStyle = this.getPageStyle();
 
     let extraImages = this.state.page.images.map((image) => {
       var style = {
@@ -84,12 +83,12 @@ let BookPageMixin = {
 
     return (
       <div key={key} style={pageStyle}>
-        <ImageButton id="homeButton" top="0" left="0" image="/books/Josephine/buttons/control_home.png" enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
-        <ImageButton id="playPauseButton" top="0" right="0" image="/books/Josephine/buttons/control_play.png" enabled={this.hasPlayButton()} onClick={this.onHomeButtonClick} />
+        <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_play.png"} enabled={this.hasPlayButton()} onClick={this.onHomeButtonClick} />
         {extraImages}
         {extraLines}
       </div>
-    )
+    );
   },
 
   hasHomeButton() {

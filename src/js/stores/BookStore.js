@@ -1,3 +1,4 @@
+'use strict';
 const AppDispatcher = require('../dispatchers/AppDispatcher');
 const Constants = require('../constants/AppConstants');
 const BaseStore = require('./BaseStore');
@@ -16,8 +17,7 @@ const BookUtilities = require('../constants/BookUtilities');
 let _bookList = null;
 let _currentBook = null;
 let _bookData = {};
-let _urls = {};
-let _icons = {};
+let _urls = null;
 let _titles = {};
 
 // Facebook style store creation.
@@ -27,6 +27,7 @@ let BookStore = assign({}, BaseStore, {
   getAll() {
     return new Promise((resolve,reject) => {
       if (_bookList != null) { return resolve(_bookList); }
+      _urls = {};
       fetch('books/index.json')
         .then((response) => {
           _bookList = response.json();
@@ -47,17 +48,19 @@ let BookStore = assign({}, BaseStore, {
   /* FIXME - return book object */
   getBook(book) {
     return new Promise((resolve,reject) => {
-      if (_currentBook == book) { return resolve(_bookData); }
-      BookStore.getAll().then((books) => {
+      if (_currentBook === book) { return resolve(_bookData); }
+      BookStore.getAll().then(() => {
         fetch(_urls[book])
-          .then((response) => { return response.json() })
+          .then((response) => { return response.json(); })
           .then((json) => {
+            let assetBaseUrl = BookUtilities.dirname(_urls[book]);
             _currentBook = book;
             _bookData = BookUtilities.processBookData(
               {},
-              BookUtilities.dirname(_urls[book]),
+              assetBaseUrl,
               json
             );
+            _bookData.assetBaseUrl = assetBaseUrl;
             resolve(_bookData);
           }).catch(function(ex) {
             console.log('parsing failed', ex);
@@ -77,6 +80,7 @@ let BookStore = assign({}, BaseStore, {
   getPage(book, language, page) {
     return new Promise((resolve,reject) => {
       BookStore.getBook(book).then((bookData) => {
+        bookData.pages[language][page].assetBaseUrl = _bookData.assetBaseUrl;
         return resolve(bookData.pages[language][page]);
       }).catch(reject);
     });
