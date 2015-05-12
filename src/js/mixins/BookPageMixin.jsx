@@ -1,6 +1,8 @@
+'use strict';
 const React = require('react');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
+const ImageButton = require('../components/ImageButton.jsx');
 
 const mui = require('material-ui');
 let {IconButton} = mui;
@@ -20,10 +22,10 @@ let BookPageMixin = {
         images: [],
         lines: []
       }
-    }
+    };
   },
 
-  getDivStyle() {
+  getPageStyle() {
     let ret = {
       position: 'relative',
       width: '1024px', // fixme
@@ -37,15 +39,15 @@ let BookPageMixin = {
   },
 
   render() {
-    let divStyle = this.getDivStyle();
+    let pageStyle = this.getPageStyle();
 
     let key = [
-      "book", this.props.book,
-      "language", this.props.language,
-      "page", this.props.page
-    ].join("_");
+      'book', this.props.book,
+      'language', this.props.language,
+      'page', this.props.page
+    ].join('_');
 
-    let extraImages = this.state.page.images.map((image,idx) => {
+    let extraImages = this.state.page.images.map((image) => {
       var style = {
         position: 'absolute',
         top: image.top + '%',
@@ -65,9 +67,9 @@ let BookPageMixin = {
       return <img style={style} src={image.image} />;
     });
 
-    let extraLines = this.state.page.lines.map((line,idx) => {
-      let words = line.words.map((word,idx) => {
-        return <span>{word.word} </span>;
+    let extraLines = this.state.page.lines.map((line,lineIdx) => {
+      let words = line.words.map((word,wordIdx) => {
+        return <span key={ 'word' + wordIdx }>{word.word} </span>;
       });
       var style = {
         position: 'absolute',
@@ -77,15 +79,32 @@ let BookPageMixin = {
         fontFamily: this.state.page.pageStyle.unread.font,
         fontSize: this.state.page.pageStyle.unread.size + 'px'
       };
-      return <div style={style}>{words}</div>;
+      return <div key={ 'line' + lineIdx } style={style}>{words}</div>;
     });
 
     return (
-      <div key={key} style={divStyle}>
+      <div key={key} style={pageStyle}>
+        <ImageButton id="homeButton" top="0" left="0" image="/books/Josephine/buttons/control_home.png" enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+        <ImageButton id="playPauseButton" top="0" right="0" image="/books/Josephine/buttons/control_play.png" enabled={this.hasPlayButton()} onClick={this.onHomeButtonClick} />
         {extraImages}
         {extraLines}
       </div>
     )
+  },
+
+  hasHomeButton() {
+    return this.props.page != "home";
+  },
+
+  hasPlayButton() {
+    return !isNaN(this.props.page);
+  },
+
+  onHomeButtonClick() {
+    BookActionCreators.chooseLanguage(
+      this.props.book,
+      this.props.language
+    );
   },
 
   onButtonClick(page) {

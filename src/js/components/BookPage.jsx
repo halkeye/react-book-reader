@@ -1,3 +1,4 @@
+'use strict';
 const React = require('react');
 const BookPageMixin = require('../mixins/BookPageMixin.jsx');
 const MousetrapMixins = require('../mixins/MousetrapMixins.js');
@@ -17,11 +18,11 @@ let BookPage = React.createClass({
     });
   },
   componentDidMount() {
-    this.bindShortcut('left', (e) => {
+    this.bindShortcut('left', () => {
       var newPage = this.props.page-1;
       this.switchPage(newPage);
     });
-    this.bindShortcut('right', (e) => {
+    this.bindShortcut('right', () => {
       var newPage = this.props.page+1;
       this.switchPage(newPage);
     });
