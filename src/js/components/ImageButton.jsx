@@ -1,5 +1,6 @@
 "use strict";
 const React = require('react');
+const AppConstants = require('../constants/AppConstants.js');
 const mui = require('material-ui');
 let {IconButton} = mui;
 
@@ -7,8 +8,8 @@ let ImageButton = React.createClass({
   render() {
     if (this.props.enabled === false) { return <div/>; }
 
-    var buttonWidth = Math.round((112/1024)*1024);
-    var buttonHeight = Math.round((112/768)*768);
+    var buttonWidth = AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
+    var buttonHeight = AppConstants.Dimensions.BUTTON_HEIGHT;
 
     var style = {
       position: "absolute",

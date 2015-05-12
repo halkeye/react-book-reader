@@ -1,5 +1,6 @@
 'use strict';
 const React = require('react');
+const AppConstants = require('../constants/AppConstants.js');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 const ImageButton = require('../components/ImageButton.jsx');
@@ -25,8 +26,8 @@ let BookPageMixin = {
   getPageStyle() {
     let ret = {
       position: 'relative',
-      width: '1024px', // fixme
-      height: '768px', // fixme
+      width: AppConstants.Dimensions.WIDTH + 'px', // fixme
+      height: AppConstants.Dimensions.HEIGHT + 'px', // fixme
     };
     if (this.state.page.pageImage) {
       ret.backgroundSize = 'contain';
@@ -84,7 +85,7 @@ let BookPageMixin = {
     return (
       <div key={key} style={pageStyle}>
         <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
-        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_play.png"} enabled={this.hasPlayButton()} onClick={this.onHomeButtonClick} />
+        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_play.png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
         {extraImages}
         {extraLines}
       </div>
@@ -115,6 +116,11 @@ let BookPageMixin = {
       this.props.language,
       page
     );
+  },
+
+  onPlayPauseButtonClick() {
+    // FIXME
+    // BookActionCreators.PlayPause
   }
 };
 
