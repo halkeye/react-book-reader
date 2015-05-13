@@ -1,4 +1,5 @@
 var assign = require('object-assign');
+var diacritics = require('diacritics');
 
 let dirname = (path) => {
   //  discuss at: http://phpjs.org/functions/dirname/
@@ -83,7 +84,8 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
           word: word[0],
           start: word[1],
           end: word[2],
-          styles: parentStyle
+          styles: parentStyle, // fixme
+          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + diacritics.remove(word[0]) + '.mp3'
         };
         lineData.words.push(wordData);
       });
@@ -94,7 +96,10 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     Object.keys(page.HOTSPOTS).forEach(function(color) {
       pageData.hotspots[color] = [];
       page.HOTSPOTS[color].forEach(function(hotspot) {
-        pageData.hotspots[color].push({ text: hotspot[0], filename: hotspot[1] });
+        pageData.hotspots[color].push({
+          text: hotspot[0],
+          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + diacritics.remove(hotspot[1]) + '.mp3'
+        });
       });
     });
   }
