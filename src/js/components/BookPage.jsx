@@ -13,7 +13,8 @@ let BookPage = React.createClass({
       BookActionCreators.choosePage(
         this.props.book,
         this.props.language,
-        page
+        page,
+        this.props.autoplay
       );
     });
   },

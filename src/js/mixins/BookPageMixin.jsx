@@ -14,7 +14,7 @@ let BookPageMixin = {
   componentDidMount() {
     BookStore.getPage(this.props.book, this.props.language, this.props.page).then((page) => {
       this.setState({ page: page });
-      if (this.props.autoplay) {
+      if (this.props.autoplay === true) {
         this.onPlayPauseButtonClick();
       }
     }).catch((ex) => {
@@ -114,13 +114,16 @@ let BookPageMixin = {
   },
 
   onButtonClick(page) {
+    let autoplay = false;
     if (page == 'read' || page == 'readAudio') {
+      if (page === 'readAudio') { autoplay = true; }
       page = 1;
     }
     BookActionCreators.choosePage(
       this.props.book,
       this.props.language,
-      page
+      page,
+      autoplay
     );
   },
 
@@ -142,17 +145,23 @@ let BookPageMixin = {
     });
     audio.on('ended', () => {
       this.setState({ playButton: 'play' });
+      this.state.audio.remove();
       this.setState({ audio: null });
     });
     audio.on('timeupdate', () => {
       this.setState({ audioTime: this.state.audio.currentTime() });
     });
     this.setState({ audio: audio });
-    // FIXME
-    // BookActionCreators.PlayPause
   },
 
   onWordClick(word) {
+  },
+
+  componentWillUnmount() {
+    if (this.state.audio) {
+      this.state.audio.pause();
+      this.state.audio.remove();
+    }
   }
 };
 

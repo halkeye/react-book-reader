@@ -11,8 +11,8 @@ module.exports = {
     navigate('/book/' + book + '/lang/' + language);
   },
 
-  choosePage: function(book, language, page) {
-    navigate('/book/' + book + '/lang/' + language + '/page/' + page);
+  choosePage: function(book, language, page, autoplay) {
+    navigate('/book/' + book + '/lang/' + language + '/page/' + page + (autoplay ? '/autoplay' : ''));
   }
 
 };

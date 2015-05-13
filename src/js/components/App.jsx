@@ -60,7 +60,7 @@ let App = React.createClass({
     return this.showPage(book,language,page,true);
   },
 
-  showPage(book,language,page, autoplay) {
+  showPage(book, language, page, autoplay) {
     if (isNaN(page))
     {
       return (
