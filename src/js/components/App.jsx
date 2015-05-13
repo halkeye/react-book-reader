@@ -17,6 +17,7 @@ let App = React.createClass({
     '/book/:book': 'selectLanguage',
     '/book/:book/lang/:language': 'showHome',
     '/book/:book/lang/:language/page/:page': 'showPage',
+    '/book/:book/lang/:language/page/:page/autoPlay': 'showAutoplayPage',
   },
 
   notFound: function(path) {
@@ -55,7 +56,11 @@ let App = React.createClass({
     );
   },
 
-  showPage(book,language,page) {
+  showAutoplayPage(book,language,page) {
+    return this.showPage(book,language,page,true);
+  },
+
+  showPage(book,language,page, autoplay) {
     if (isNaN(page))
     {
       return (
@@ -66,7 +71,7 @@ let App = React.createClass({
     {
       page = parseInt(page,10);
       return (
-        <div><BookPage key={'page_' + page} book={book} language={language} page={page} /></div>
+        <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
       );
     }
   }

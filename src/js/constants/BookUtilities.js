@@ -23,9 +23,11 @@ let ucFirst = (str) => {
 let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   // HOTSPOTS
   var pageData = {};
-  if (!isNaN(pageName)) {
+  if (!isNaN(pageName)) // if is number
+  {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".png";
     pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".hotspots.gif";
+    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad(pageName+1, 2) + '.mp3';
   }
   else
   {

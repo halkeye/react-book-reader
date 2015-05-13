@@ -5,6 +5,7 @@ const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
+const play = require('play-audio');
 
 const mui = require('material-ui');
 let {IconButton} = mui;
@@ -13,6 +14,9 @@ let BookPageMixin = {
   componentDidMount() {
     BookStore.getPage(this.props.book, this.props.language, this.props.page).then((page) => {
       this.setState({ page: page });
+      if (this.props.autoplay) {
+        this.onPlayPauseButtonClick();
+      }
     }).catch((ex) => {
       console.log('getPage error: ' + ex);
     });
@@ -20,6 +24,7 @@ let BookPageMixin = {
 
   getInitialState() {
     return {
+      playButton: 'play',
       page: null
     };
   },
@@ -70,7 +75,7 @@ let BookPageMixin = {
 
     let extraLines = this.state.page.lines.map((line,lineIdx) => {
       let words = line.words.map((word,wordIdx) => {
-        return <BookWord key={ 'word' + wordIdx }>{word.word}</BookWord>;
+        return <BookWord key={ 'word' + wordIdx } onClick={this.onWordClick.bind(this, word.word)}>{word.word}</BookWord>;
       });
       var style = {
         position: 'absolute',
@@ -86,7 +91,7 @@ let BookPageMixin = {
     return (
       <div key={key} style={pageStyle}>
         <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
-        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_play.png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
+        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
         {extraImages}
         {extraLines}
       </div>
@@ -120,8 +125,34 @@ let BookPageMixin = {
   },
 
   onPlayPauseButtonClick() {
+    if (this.state.audio) {
+      if (this.state.playButton == 'play') {
+        this.state.audio.play();
+      } else {
+        this.state.audio.pause();
+      }
+      return;
+    }
+    let audio = play(this.state.page.pageAudio).preload().autoplay();
+    audio.on('play', () => {
+      this.setState({ playButton: 'pause' });
+    });
+    audio.on('pause', () => {
+      this.setState({ playButton: 'play' });
+    });
+    audio.on('ended', () => {
+      this.setState({ playButton: 'play' });
+      this.setState({ audio: null });
+    });
+    audio.on('timeupdate', () => {
+      this.setState({ audioTime: this.state.audio.currentTime() });
+    });
+    this.setState({ audio: audio });
     // FIXME
     // BookActionCreators.PlayPause
+  },
+
+  onWordClick(word) {
   }
 };
 
