@@ -26,7 +26,7 @@ let BookStore = assign({}, BaseStore, {
   // public methods used by Controller-View to operate on data
   getAll() {
     return new Promise((resolve,reject) => {
-      if (_bookList != null) { return resolve(_bookList); }
+      if (_bookList !== null) { return resolve(_bookList); }
       _urls = {};
       fetch('books/index.json')
         .then((response) => {

@@ -3,6 +3,7 @@ const React = require('react');
 const AppConstants = require('../constants/AppConstants.js');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
+const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
 
 const mui = require('material-ui');
@@ -69,7 +70,7 @@ let BookPageMixin = {
 
     let extraLines = this.state.page.lines.map((line,lineIdx) => {
       let words = line.words.map((word,wordIdx) => {
-        return <span key={ 'word' + wordIdx }>{word.word} </span>;
+        return <BookWord key={ 'word' + wordIdx }>{word.word}</BookWord>;
       });
       var style = {
         position: 'absolute',

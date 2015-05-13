@@ -4,6 +4,10 @@ const React = require('react');
 //let {IconButton} = mui;
 
 let BookWord = React.createClass({
+  propTypes: {
+    children: React.PropTypes.string.isRequired
+  },
+
   getInitialState() {
     return {
       state: 'unread'
@@ -13,7 +17,7 @@ let BookWord = React.createClass({
   render() {
     var style = {};
     return (
-      <span style={style}>{this.props.word} </span>
+      <span style={style}>{this.props.children} </span>
     );
   },
 });
