@@ -75,7 +75,7 @@ let BookPageMixin = {
 
     let extraLines = this.state.page.lines.map((line,lineIdx) => {
       let words = line.words.map((word,wordIdx) => {
-        return <BookWord key={ 'word' + wordIdx } onClick={this.onWordClick.bind(this, word.word)}>{word.word}</BookWord>;
+        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word.word)}>{word.word}</BookWord>;
       });
       var style = {
         position: 'absolute',

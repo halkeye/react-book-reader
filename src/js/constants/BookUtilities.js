@@ -1,3 +1,5 @@
+var assign = require('object-assign');
+
 let dirname = (path) => {
   //  discuss at: http://phpjs.org/functions/dirname/
   // original by: Ozh
@@ -80,7 +82,8 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
         var wordData = {
           word: word[0],
           start: word[1],
-          end: word[2]
+          end: word[2],
+          styles: parentStyle
         };
         lineData.words.push(wordData);
       });
@@ -122,6 +125,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   book.languages = Object.keys(bookData.PAGES);
     book.bookStyles = {};
     var fonts = {};
+
+/* FIXME - refactor to have a function so it can be assign() for every level */
     ['read','reading','unread'].forEach(function(state) {
       var font = bookData.STYLES[state.toUpperCase()].FONT;
       book.bookStyles[state] = {
@@ -140,7 +145,13 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.languages.forEach(function(language) {
       book.pages[language] = [];
       bookData.PAGES[language].forEach((page, idx) => {
-        book.pages[language][idx+1] = pageProcessor(assetBaseUrl,book.bookStyles,language,page,idx);
+        book.pages[language][idx+1] = pageProcessor(
+          assetBaseUrl,
+          book.bookStyles,
+          language,
+          page,
+          idx
+        );
       });
       if (bookData.UI) {
         Object.keys(bookData.UI).forEach((key) => {
