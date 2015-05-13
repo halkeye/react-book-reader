@@ -71,8 +71,8 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
       var lineData = {
         //top: line.POS[0]*settings.height*settings.heightOffset,
   //                  left: line.POS[1]*settings.width*settings.widthOffset,
-        top: (line.POS[0]*100) + '%',
-        left: (line.POS[1]*100) + '%',
+        top: (line.POS[0]*100),
+        left: (line.POS[1]*100),
         words: []
       };
       pageData.lines.push(lineData);
