@@ -1,6 +1,9 @@
 'use strict';
 const React = require('react');
 const assign = require('object-assign');
+const AppDispatcher = require('../dispatchers/AppDispatcher.js');
+const Constants = require('../constants/AppConstants');
+
 //const mui = require('material-ui');
 //let {IconButton} = mui;
 //
@@ -10,8 +13,10 @@ let isDefined = (variable) => {
 
 let BookWord = React.createClass({
   propTypes: {
-    children: React.PropTypes.string.isRequired
+    word: React.PropTypes.string.isRequired
+//    children: React.PropTypes.string.isRequired
   },
+
   getInitialProps() {
     return {
       styles: {}
@@ -22,6 +27,20 @@ let BookWord = React.createClass({
     return {
       state: 'unread'
     };
+  },
+
+  componentWillMount() {
+    Object.keys(this.props.styles).forEach((style) => {
+      /* Skip styles without fonts */
+      if (!this.props.styles[style].fontPath) { return; }
+
+      AppDispatcher.handleViewAction({
+        type: Constants.ActionTypes.ADD_FONT,
+        fontFamily: this.props.styles[style].fontFamily,
+        fontPath: this.props.styles[style].fontPath,
+      });
+    });
+
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -38,9 +57,10 @@ let BookWord = React.createClass({
 
   render() {
     var style = assign({}, this.props.styles[this.state.state]);
-    return (
-      <span style={style}>{this.props.children} </span>
-    );
+    style.fontSize = style.fontSize + 'px';
+    delete style.fontPath;
+
+    return <span style={style}>{this.props.word + " "}</span>;
   },
 });
 module.exports = BookWord;

@@ -75,15 +75,12 @@ let BookPageMixin = {
 
     let extraLines = this.state.page.lines.map((line,lineIdx) => {
       let words = line.words.map((word,wordIdx) => {
-        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word.word)}>{word.word}</BookWord>;
+        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word.word)} />;
       });
       var style = {
         position: 'absolute',
         top: line.top + '%',
-        left: line.left + '%',
-        color: this.state.page.pageStyle.unread.color,
-        fontFamily: this.state.page.pageStyle.unread.font,
-        fontSize: this.state.page.pageStyle.unread.size + 'px'
+        left: line.left + '%'
       };
       return <div key={ 'line' + lineIdx } style={style}>{words}</div>;
     });

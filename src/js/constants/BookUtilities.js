@@ -124,23 +124,19 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   var book = {};
   book.languages = Object.keys(bookData.PAGES);
     book.bookStyles = {};
-    var fonts = {};
 
-/* FIXME - refactor to have a function so it can be assign() for every level */
+    /* FIXME - refactor to have a function so it can be assign() for every level */
     ['read','reading','unread'].forEach(function(state) {
       var font = bookData.STYLES[state.toUpperCase()].FONT;
       book.bookStyles[state] = {
         color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
-        font: font,
+        fontPath: assetBaseUrl + '/' + font,
+        fontFamily: font,
         //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
-        size: bookData.STYLES[state.toUpperCase()].SIZE
-      };
-      fonts[font] = {
-        url: assetBaseUrl + '/' + font + '.ttf',
-        family: font
+        fontSize: bookData.STYLES[state.toUpperCase()].SIZE
       };
     });
-    book.fonts = Object.keys(fonts).map(function(val) { return fonts[val]; });
+
     book.pages = {};
     book.languages.forEach(function(language) {
       book.pages[language] = [];

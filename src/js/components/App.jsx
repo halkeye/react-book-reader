@@ -9,8 +9,27 @@ const LanguageList = require('./LanguageList.jsx');
 const Page = require('./Page.jsx');
 const BookPage = require('./BookPage.jsx');
 
+/* Dispatchers */
+const AppDispatcher = require('../dispatchers/AppDispatcher.js');
+
+/* Constants */
+const Constants = require('../constants/AppConstants');
+
+let fontTypes = [
+  ['eot#iefix', 'embedded-opentype'],
+  ['woff', 'woff'],
+  ['ttf', 'truetype'],
+  ['svg', 'svg'],
+];
+
 let App = React.createClass({
   mixins: [RouterMixin],
+
+  getInitialState() {
+    return {
+      fonts: {}
+    };
+  },
 
   routes: {
     '/': 'selectBook',
@@ -74,6 +93,52 @@ let App = React.createClass({
         <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
       );
     }
+  },
+
+  componentDidMount() {
+    AppDispatcher.register((payload) => {
+      let action = payload.action;
+
+      switch(action.type) {
+        case Constants.ActionTypes.ADD_FONT:
+          let fonts = this.state.fonts || {};
+          if (!fonts[action.fontFamily]) {
+            fonts[action.fontFamily] = action.fontPath;
+            this.setState({fonts: fonts});
+            this.updateFonts();
+          }
+          break;
+
+        // add more cases for other actionTypes...
+      }
+    })
+  },
+
+  updateFonts() {
+
+    let css = Object.keys(this.state.fonts).map((font) => {
+      return "@font-face {"+
+        "  font-family: '" + font + "';" +
+        "  src: url(" + this.state.fonts[font] + ".eot'); " +
+        "  src: " + fontTypes.map((type) => {
+            return "url('" + this.state.fonts[font] + '.' + type[0] + "') format('" + type[1] + "')";
+          }).join(', ') + ";" +
+        "}";
+    }).join('');
+
+    let styleId = 'ReactHtmlReaderFonts';
+    let style = document.getElementById(styleId);
+    if (style) { style.parentNode.removeChild(style); }
+
+    style = document.createElement('style');
+    style.id = styleId;
+    style.type = 'text/css';
+    if (style.styleSheet){
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+    document.getElementsByTagName('head')[0].appendChild(style);
   }
 
 });
