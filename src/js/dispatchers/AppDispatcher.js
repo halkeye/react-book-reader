@@ -1,8 +1,9 @@
+'use strict';
 const Dispatcher = require('flux').Dispatcher;
 const Constants = require('../constants/AppConstants');
 const assign = require('object-assign');
 
-let AppDispatcher = assign(new Dispatcher(), {
+var AppDispatcher = assign(new Dispatcher(), {
 
   handleServerAction(action) {
     let payload = {
