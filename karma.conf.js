@@ -26,7 +26,8 @@ module.exports = function(config) {
 
         browserify: {
             debug: true,
-            transform: [ ['reactify', {'es6': true}] ]
+            //transform: [ ['reactify', {'es6': true}] ]
+            transform: [ 'reactify', 'babelify' ],
         },
         extensions: ['.js', '.jsx' ],
 
@@ -50,8 +51,8 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome'],
-        //browsers: ['Chrome', 'PhantomJS'],
+        //browsers: ['Chrome'],
+        browsers: ['Chrome', 'PhantomJS'],
         //browsers: ['Chrome', 'Firefox'],
 
         // Continuous Integration mode
