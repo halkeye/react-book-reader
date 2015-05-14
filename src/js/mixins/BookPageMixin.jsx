@@ -1,5 +1,9 @@
 'use strict';
 const React = require('react');
+const HammerJS = require('hammerjs');
+
+const Hammer = require('react-hammerjs');
+
 const AppConstants = require('../constants/AppConstants.js');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
@@ -86,13 +90,23 @@ let BookPageMixin = {
     });
 
     return (
-      <div key={key} style={pageStyle}>
-        <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
-        <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
-        {extraImages}
-        {extraLines}
-      </div>
+      <Hammer key={key}onSwipe={this.onSwipe} onSwipeLeft={this.pageRight} onSwipeRight={this.pageLeft}>
+        <div style={pageStyle}>
+          <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+          <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
+          {extraImages}
+          {extraLines}
+        </div>
+      </Hammer>
     );
+  },
+  onSwipe(e) {
+    if (e.direction & HammerJS.DIRECTION_LEFT) {
+      if (this.pageRight) { this.pageRight(); }
+    }
+    else if (e.direction & HammerJS.DIRECTION_RIGHT) {
+      if (this.pageLeft) { this.pageLeft(); }
+    }
   },
 
   hasHomeButton() {

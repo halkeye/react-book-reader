@@ -18,15 +18,17 @@ let BookPage = React.createClass({
       );
     });
   },
+  pageLeft() {
+    var newPage = this.props.page-1;
+    this.switchPage(newPage);
+  },
+  pageRight() {
+    var newPage = this.props.page+1;
+    this.switchPage(newPage);
+  },
   componentDidMount() {
-    this.bindShortcut('left', () => {
-      var newPage = this.props.page-1;
-      this.switchPage(newPage);
-    });
-    this.bindShortcut('right', () => {
-      var newPage = this.props.page+1;
-      this.switchPage(newPage);
-    });
+    this.bindShortcut('left', this.pageLeft);
+    this.bindShortcut('right', this.pageRight);
   }
 });
 module.exports = BookPage;
