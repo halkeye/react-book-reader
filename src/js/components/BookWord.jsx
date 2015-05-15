@@ -1,26 +1,45 @@
 'use strict';
 const React = require('react');
 const assign = require('object-assign');
+const _ = require('lodash');
+
 const AppDispatcher = require('../dispatchers/AppDispatcher.js');
 const Constants = require('../constants/AppConstants');
 
 //const mui = require('material-ui');
 //let {IconButton} = mui;
-//
-let isDefined = (variable) => {
-  return typeof variable !== 'undefined';
+
+let isValidStyle = (obj) => {
+  //if (!isDictionary(obj)) { return false; }
+  if (!_.isPlainObject(obj)) { return false; }
+  let stateNames = ['reading', 'read', 'unread'].sort();
+  // check for extra or missing keys
+  if (!_.isEqual(Object.keys(obj).sort(), stateNames)) { return false; }
+  return _.every(stateNames, (state) => {
+    return _.every(['fontFamily', 'fontSize', 'color'], (styleField) => {
+      return !_.isNull(obj[state][styleField]);
+    });
+  });
+};
+
+let stylePropType = function (props, propName, component) {
+  if (!isValidStyle(props)) { return new Error('Invalid styles!'); }
 };
 
 let BookWord = React.createClass({
   propTypes: {
-    word: React.PropTypes.string.isRequired
-//    children: React.PropTypes.string.isRequired
+    // http://rjzaworski.com/2015/01/putting-react-custom-proptypes-to-work
+    audioTime: React.PropTypes.number,
+    end: React.PropTypes.number,
+    start: React.PropTypes.number,
+    word: React.PropTypes.string.isRequired,
+    styles: React.PropTypes.objectOf(stylePropType).isRequired
   },
 
   getInitialProps() {
     return {
       styles: {}
-    }
+    };
   },
 
   getInitialState() {
@@ -37,14 +56,14 @@ let BookWord = React.createClass({
       AppDispatcher.handleViewAction({
         type: Constants.ActionTypes.ADD_FONT,
         fontFamily: this.props.styles[style].fontFamily,
-        fontPath: this.props.styles[style].fontPath,
+        fontPath: this.props.styles[style].fontPath
       });
     });
 
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if (isDefined(this.props.start) && isDefined(this.props.end)) {
+    if (_.isNull(this.props.start) && _.isNull(this.props.end)) {
       if (nextProps.audioTime > this.props.end) {
         this.setState({state: 'read'});
       } else if (nextProps.audioTime > this.props.start) {
@@ -61,6 +80,6 @@ let BookWord = React.createClass({
     delete style.fontPath;
 
     return <span style={style}>{this.props.word + " "}</span>;
-  },
+  }
 });
 module.exports = BookWord;
