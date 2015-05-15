@@ -6,8 +6,8 @@ const _ = require('lodash');
 const AppDispatcher = require('../dispatchers/AppDispatcher.js');
 const Constants = require('../constants/AppConstants');
 
-//const mui = require('material-ui');
-//let {IconButton} = mui;
+const mui = require('material-ui');
+let {FlatButton} = mui;
 
 let isValidStyle = (obj) => {
   //if (!isDictionary(obj)) { return false; }
@@ -29,11 +29,13 @@ let stylePropType = function (props, propName, component) {
 let BookWord = React.createClass({
   propTypes: {
     // http://rjzaworski.com/2015/01/putting-react-custom-proptypes-to-work
+    audio: React.PropTypes.string,
     audioTime: React.PropTypes.number,
     end: React.PropTypes.number,
+    onClick: React.PropTypes.func,
     start: React.PropTypes.number,
-    word: React.PropTypes.string.isRequired,
-    styles: React.PropTypes.objectOf(stylePropType).isRequired
+    styles: React.PropTypes.objectOf(stylePropType).isRequired,
+    word: React.PropTypes.string.isRequired
   },
 
   getInitialProps() {
@@ -75,11 +77,19 @@ let BookWord = React.createClass({
   },
 
   render() {
-    var style = assign({}, this.props.styles[this.state.state]);
+    var style = assign({
+      cursor: 'pointer',
+      backgroundColor: 'transparent',
+      textTransform: 'none',
+      padding: '4px',
+      minWidth: 'initial'
+    }, this.props.styles[this.state.state]);
     style.fontSize = style.fontSize + 'px';
     delete style.fontPath;
 
-    return <span style={style}>{this.props.word + " "}</span>;
+    return (
+      <FlatButton style={style} onClick={this.props.onClick}> {this.props.word + " "} </FlatButton>
+    );
   }
 });
 module.exports = BookWord;

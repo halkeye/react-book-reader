@@ -79,7 +79,7 @@ let BookPageMixin = {
 
     let extraLines = this.state.page.lines.map((line, lineIdx) => {
       let words = line.words.map((word, wordIdx) => {
-        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word.word)} />;
+        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word)} />;
       });
       var style = {
         position: 'absolute',
@@ -166,6 +166,18 @@ let BookPageMixin = {
   },
 
   onWordClick(word) {
+    if (!word.audio) { return false; }
+    if (this.state.audio)
+    {
+      this.state.audio.pause();
+      this.state.audio.remove();
+    }
+    let audio = play(word.audio).preload().autoplay();
+    audio.on('ended', () => {
+      this.state.audio.remove();
+      this.setState({ audio: null });
+    });
+    this.setState({audio: audio });
   },
 
   componentWillUnmount() {

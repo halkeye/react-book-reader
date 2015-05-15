@@ -1,6 +1,11 @@
 var assign = require('object-assign');
 var diacritics = require('diacritics');
 
+let audioFilename = (filename) => {
+  filename += '';
+  return diacritics.remove(filename).toLowerCase().replace(/[^\w ]/g, "");
+};
+
 let dirname = (path) => {
   //  discuss at: http://phpjs.org/functions/dirname/
   // original by: Ozh
@@ -85,7 +90,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
           start: word[1],
           end: word[2],
           styles: parentStyle, // fixme
-          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + diacritics.remove(word[0]) + '.mp3'
+          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + audioFilename(word[0]) + '.mp3'
         };
         lineData.words.push(wordData);
       });
@@ -98,7 +103,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
       page.HOTSPOTS[color].forEach(function(hotspot) {
         pageData.hotspots[color].push({
           text: hotspot[0],
-          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + diacritics.remove(hotspot[1]) + '.mp3'
+          audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + audioFilename(hotspot[1]) + '.mp3'
         });
       });
     });
