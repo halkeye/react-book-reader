@@ -37,7 +37,7 @@ let BookPageMixin = {
     let ret = {
       position: 'relative',
       width: AppConstants.Dimensions.WIDTH + 'px', // fixme
-      height: AppConstants.Dimensions.HEIGHT + 'px', // fixme
+      height: AppConstants.Dimensions.HEIGHT + 'px' // fixme
     };
     if (this.state.page.pageImage) {
       ret.backgroundSize = 'contain';
@@ -63,7 +63,7 @@ let BookPageMixin = {
         top: image.top + '%',
         left: image.left + '%',
         width: image.width + '%',
-        height: image.height + '%',
+        height: image.height + '%'
       };
       if (image.nextPage) {
         style.border = 'none';
@@ -71,14 +71,14 @@ let BookPageMixin = {
         style.backgroundColor = 'rgba(0,0,0,0.0)';
         style.backgroundImage = 'url(' + image.image + ')';
         return (
-          <IconButton style={style} onClick={this.onButtonClick.bind(this,image.nextPage)}></IconButton>
+          <IconButton style={style} onClick={this.onButtonClick.bind(this, image.nextPage)}></IconButton>
         );
       }
       return <img style={style} src={image.image} />;
     });
 
-    let extraLines = this.state.page.lines.map((line,lineIdx) => {
-      let words = line.words.map((word,wordIdx) => {
+    let extraLines = this.state.page.lines.map((line, lineIdx) => {
+      let words = line.words.map((word, wordIdx) => {
         return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word.word)} />;
       });
       var style = {
@@ -110,7 +110,7 @@ let BookPageMixin = {
   },
 
   hasHomeButton() {
-    return this.props.page != "home";
+    return this.props.page !== "home";
   },
 
   hasPlayButton() {
@@ -126,7 +126,7 @@ let BookPageMixin = {
 
   onButtonClick(page) {
     let autoplay = false;
-    if (page == 'read' || page == 'readAudio') {
+    if (page === 'read' || page === 'readAudio') {
       if (page === 'readAudio') { autoplay = true; }
       page = 1;
     }
@@ -140,7 +140,7 @@ let BookPageMixin = {
 
   onPlayPauseButtonClick() {
     if (this.state.audio) {
-      if (this.state.playButton == 'play') {
+      if (this.state.playButton === 'play') {
         this.state.audio.play();
       } else {
         this.state.audio.pause();
