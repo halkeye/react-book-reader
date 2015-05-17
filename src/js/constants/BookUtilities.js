@@ -33,9 +33,9 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   var pageData = {};
   if (!isNaN(pageName)) // if is number
   {
-    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".png";
-    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad(pageName+1, 2) + ".hotspots.gif";
-    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad(pageName+1, 2) + '.mp3';
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad_func(pageName+1, 2) + ".png";
+    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad_func(pageName+1, 2) + ".hotspots.gif";
+    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(pageName+1, 2) + '.mp3';
   }
   else
   {
@@ -52,10 +52,10 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     page.IMAGE.forEach((image) => {
       pageData.images.push({
         image: assetBaseUrl + '/images/' + image.FILENAME.replace('[lang]', language) + '.png',
-        top: image.POS[0]*100,
-        left: image.POS[1]*100,
-        height: image.POS[2]*100,
-        width: image.POS[3]*100
+        top: (image.POS[0] * 100),
+        left: (image.POS[1] * 100),
+        height: (image.POS[2] * 100),
+        width: (image.POS[3] * 100)
       });
     });
   }
@@ -66,10 +66,10 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
       pageData.images.push({
         nextPage: buttonName,
         image: assetBaseUrl + '/buttons/pg' + ucFirst(pageName) + '_' + buttonName + '.png',
-        top: image.POS[0]*100,
-        left: image.POS[1]*100,
-        height: image.POS[2]*100,
-        width: image.POS[3]*100
+        top: (image.POS[0] * 100),
+        left: (image.POS[1] * 100),
+        height: (image.POS[2] * 100),
+        width: (image.POS[3] * 100)
       });
     });
   }
@@ -77,10 +77,8 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   {
     page.LINES.forEach(function(line) {
       var lineData = {
-        //top: line.POS[0]*settings.height*settings.heightOffset,
-  //                  left: line.POS[1]*settings.width*settings.widthOffset,
-        top: (line.POS[0]*100),
-        left: (line.POS[1]*100),
+        top: (line.POS[0] * 100),
+        left: (line.POS[1] * 100),
         words: []
       };
       pageData.lines.push(lineData);
@@ -111,7 +109,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   return pageData;
 };
 
-let pad = (value, width, pad) => {
+let pad_func = (value, width, pad) => {
   pad = pad || '0';
   value = value + '';
   return value.length >= width ? value : new Array(width - value.length + 1).join(pad) + value;
@@ -122,7 +120,7 @@ let colorToInt = (color) => {
 };
 
 let intToRGBA = (colorInt) => {
-  var alpha = ((colorInt >> 24) & 255)/255;
+  var alpha = ((colorInt >> 24) & 255) / 255;
   var red = (colorInt >> 16) & 255;
   var green = (colorInt >> 8) & 255;
   var blue = (colorInt >> 0) & 255;
@@ -136,7 +134,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.bookStyles = {};
 
     /* FIXME - refactor to have a function so it can be assign() for every level */
-    ['read','reading','unread'].forEach(function(state) {
+    ['read', 'reading', 'unread'].forEach(function(state) {
       var font = bookData.STYLES[state.toUpperCase()].FONT;
       book.bookStyles[state] = {
         color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
@@ -177,8 +175,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
 
 module.exports = {
   dirname: dirname,
-  pad: pad,
+  pad: pad_func,
   colorToInt: colorToInt,
   intToRGBA: intToRGBA,
-  processBookData: processBookData,
+  processBookData: processBookData
 };
