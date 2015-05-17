@@ -14,8 +14,8 @@ module.exports = {
   Dimensions: {
     WIDTH: 1024,
     HEIGHT: 768,
-    BUTTON_WIDTH: Math.round((112/1024)*1024),
-    BUTTON_HEIGHT: Math.round((112/768)*768)
+    BUTTON_WIDTH: Math.round((112 / 1024) * 1024),
+    BUTTON_HEIGHT: Math.round((112 / 768) * 768)
   }
 
 };

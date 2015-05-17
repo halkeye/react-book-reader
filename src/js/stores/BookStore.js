@@ -25,7 +25,7 @@ let BookStore = assign({}, BaseStore, {
 
   // public methods used by Controller-View to operate on data
   getAll() {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       if (_bookList !== null) { return resolve(_bookList); }
       _urls = {};
       fetch('books/index.json')
@@ -47,7 +47,7 @@ let BookStore = assign({}, BaseStore, {
 
   /* FIXME - return book object */
   getBook(book) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       if (_currentBook === book) { return resolve(_bookData); }
       BookStore.getAll().then(() => {
         fetch(_urls[book])
@@ -70,7 +70,7 @@ let BookStore = assign({}, BaseStore, {
   },
 
   getLanguages(book) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       BookStore.getBook(book).then((bookData) => {
         return resolve(bookData.languages);
       });
@@ -78,7 +78,7 @@ let BookStore = assign({}, BaseStore, {
   },
 
   getPage(book, language, page) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       BookStore.getBook(book).then((bookData) => {
         bookData.pages[language][page].assetBaseUrl = _bookData.assetBaseUrl;
         return resolve(bookData.pages[language][page]);
@@ -87,7 +87,7 @@ let BookStore = assign({}, BaseStore, {
   },
 
   hasPage(book, language, page) {
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
       BookStore.getBook(book).then((bookData) => {
         if (page in bookData.pages[language]) {
           return resolve(true);
@@ -95,8 +95,9 @@ let BookStore = assign({}, BaseStore, {
         return resolve(false);
       }).catch(reject);
     });
-  },
+  }
 
+/*
   // register store with dispatcher, allowing actions to flow through
   dispatcherIndex: AppDispatcher.register(function(payload) {
     let action = payload.action;
@@ -116,6 +117,7 @@ let BookStore = assign({}, BaseStore, {
       // add more cases for other actionTypes...
     }
   })
+*/
 
 });
 

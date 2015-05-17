@@ -5,9 +5,8 @@
 // NOTE: This file is formatted for React.js + Browserify
 // You might need to make some changes to use it without Browserify
 
-var MousetrapMixin,
-
-    Mousetrap = require('br-mousetrap');
+var MousetrapMixin;
+var Mousetrap = require('br-mousetrap');
 
 MousetrapMixin = {
     /**
@@ -39,7 +38,7 @@ MousetrapMixin = {
             this.mousetrapBindings.splice(index, 1);
         }
 
-        Mousetrap.unbind(binding);
+        Mousetrap.unbind(key);
     },
 
     /**
