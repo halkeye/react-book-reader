@@ -8,11 +8,9 @@ const assign = require('object-assign');
 let {RaisedButton, Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
-const Page = require('./Page.jsx');
-const BookPage = require('./BookPage.jsx');
-const Screen = require('./Screen.jsx');
 const Book = require('./Book.jsx');
 
+/* Stores */
 const BookStore = require('../stores/BookStore');
 
 /* Dispatchers */
