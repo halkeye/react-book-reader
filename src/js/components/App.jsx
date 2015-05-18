@@ -3,6 +3,7 @@ const mui = require('material-ui');
 const RouterMixin = require('react-mini-router').RouterMixin;
 const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
+const DocumentTitle = require('react-document-title');
 
 /* Components */
 let {RaisedButton, Dialog} = mui;
@@ -54,23 +55,23 @@ let App = React.createClass({
 
   selectLanguage(book) {
     return (
-      <Dialog
-        title="Select a language"
-        openImmediately={true}
-      >
-        <LanguageList book={book} />
-      </Dialog>
+      <DocumentTitle title="Select a language">
+        <div>
+          <h1>Select a language</h1>
+          <LanguageList book={book} />
+        </div>
+      </DocumentTitle>
     );
   },
 
   selectBook() {
     return (
-      <Dialog
-        title="Select a book"
-        openImmediately={true}
-      >
-        <BookList />
-      </Dialog>
+      <DocumentTitle title="Select a book">
+        <div>
+          <h1>Select a book</h1>
+          <BookList />
+        </div>
+      </DocumentTitle>
     );
   },
 
