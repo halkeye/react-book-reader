@@ -24,6 +24,7 @@ class BookAudio extends EventEmitter {
 
   stop() {
     if (!this.audio) { return this; }
+    this.pause();
     this.audio.onEnded();
     return this;
   }
@@ -55,7 +56,10 @@ class BookAudio extends EventEmitter {
     };
     audio.on('ended', audio.onEnded );
     audio.on('timeupdate', () => {
-      this.emit(type + '-timeupdate', audio.currentTime() );
+      // ignore leftovers if we've moved onto a new soundclip
+      if (audio === this.audio) {
+        this.emit(type + '-timeupdate', audio.currentTime() );
+      }
     });
 
     this.audio = audio;

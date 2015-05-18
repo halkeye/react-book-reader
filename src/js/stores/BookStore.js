@@ -3,6 +3,7 @@ const AppDispatcher = require('../dispatchers/AppDispatcher');
 const Constants = require('../constants/AppConstants');
 const BaseStore = require('./BaseStore');
 const assign = require('object-assign');
+const _ = require('lodash');
 
 require('whatwg-fetch'); // polyfill
 require('es6-promise').polyfill();
@@ -15,7 +16,6 @@ const BookUtilities = require('../constants/BookUtilities');
 // data storage
 
 let _bookList = null;
-let _currentBook = null;
 let _bookData = {};
 let _urls = null;
 let _titles = {};
@@ -48,19 +48,23 @@ let BookStore = assign({}, BaseStore, {
   /* FIXME - return book object */
   getBook(book) {
     return new Promise((resolve, reject) => {
-      if (_currentBook === book) { return resolve(_bookData); }
-      BookStore.getAll().then(() => {
+      if (_bookData && _bookData.id === book) { return resolve(_bookData); }
+      BookStore.getAll().then((allBooks) => {
+        let extraData = _.find(allBooks, function(data) { return data.id === book; });
+
         fetch(_urls[book])
           .then((response) => { return response.json(); })
           .then((json) => {
             let assetBaseUrl = BookUtilities.dirname(_urls[book]);
-            _currentBook = book;
             _bookData = BookUtilities.processBookData(
               {},
               assetBaseUrl,
               json
             );
+            _bookData.id = book;
             _bookData.assetBaseUrl = assetBaseUrl;
+            _bookData.title = _bookData.title || extraData.title;
+            _bookData.icon = _bookData.icon || extraData.icon;
             resolve(_bookData);
           }).catch(function(ex) {
             console.log('parsing failed', ex);

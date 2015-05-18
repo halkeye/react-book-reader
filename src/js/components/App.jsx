@@ -1,13 +1,19 @@
 const React = require('react');
 const mui = require('material-ui');
 const RouterMixin = require('react-mini-router').RouterMixin;
+const navigate = require('react-mini-router').navigate;
+const assign = require('object-assign');
 
 /* Components */
-let {RaisedButton,Dialog} = mui;
+let {RaisedButton, Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Page = require('./Page.jsx');
 const BookPage = require('./BookPage.jsx');
+const Screen = require('./Screen.jsx');
+const Book = require('./Book.jsx');
+
+const BookStore = require('../stores/BookStore');
 
 /* Dispatchers */
 const AppDispatcher = require('../dispatchers/AppDispatcher.js');
@@ -19,7 +25,7 @@ let fontTypes = [
   ['eot#iefix', 'embedded-opentype'],
   ['woff', 'woff'],
   ['ttf', 'truetype'],
-  ['svg', 'svg'],
+  ['svg', 'svg']
 ];
 
 let App = React.createClass({
@@ -27,16 +33,17 @@ let App = React.createClass({
 
   getInitialState() {
     return {
-      fonts: {}
+      fonts: {},
+      book: {}
     };
   },
 
   routes: {
     '/': 'selectBook',
     '/book/:book': 'selectLanguage',
-    '/book/:book/lang/:language': 'showHome',
+    '/book/:book/lang/:language': 'showPage',
     '/book/:book/lang/:language/page/:page': 'showPage',
-    '/book/:book/lang/:language/page/:page/autoPlay': 'showAutoplayPage',
+    '/book/:book/lang/:language/page/:page/autoplay': 'showAutoPage'
   },
 
   notFound: function(path) {
@@ -69,29 +76,25 @@ let App = React.createClass({
     );
   },
 
-  showHome(book,language) {
-    return (
-      <div><Page key="page_home" book={book} language={language} page="home" /></div>
-    );
-  },
-
-  showAutoplayPage(book,language,page) {
-    return this.showPage(book,language,page,true);
+  showAutoPage(book, language, page) {
+    return this.showPage(book, language, page, true);
   },
 
   showPage(book, language, page, autoplay) {
-    if (isNaN(page))
-    {
-      return (
-        <div><Page key={'page_' + page} book={book} language={language} page={page} /></div>
-      );
+    page = typeof page === 'object' ? 'home' : page;
+    autoplay = typeof autoplay === 'object' ? false : autoplay;
+
+    if (this.state.book.id !== book) {
+      BookStore.getBook(book).then((bookData) => {
+        this.setState({ book: bookData });
+      }).catch((ex) => {
+        console.log('getBook error: ', ex);
+      });
     }
-    else
-    {
-      page = parseInt(page,10);
-      return (
-        <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
-      );
+    if (this.state.book.id) {
+      return <Book book={this.state.book} language={language} page={page} autoplay={autoplay}></Book>;
+    } else {
+      return <div>Loading...</div>;
     }
   },
 
@@ -108,10 +111,37 @@ let App = React.createClass({
             this.updateFonts();
           }
           break;
-
+        case Constants.ActionTypes.NAVIGATE_PAGE:
+          let parts = this.state.path.split('/');
+          parts = assign(
+            {
+              book: parts[2],
+              language: parts[4],
+              page: parts[6],
+              autoplay: parts[7]
+            },
+            action.data
+          );
+          if (parts.page === 0) { delete parts.page; }
+          if (parts.page) {
+            if (this.state.book.hasPage(parts.language, parts.page)) {
+              navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
+            } else if (!isNaN(parts.page)) {
+              navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/end' + (parts.autoplay ? '/autoplay' : ''));
+            }
+          } else if (parts.language) {
+            navigate('/book/' + parts.book + '/lang/' + parts.language);
+          } else if (parts.book) {
+            navigate('/book/' + parts.book);
+          } else {
+            navigate('/');
+          }
+          // navigate('/book/' + book + '/lang/' + language + '/page/' + page + (autoplay ? '/autoplay' : ''));
+          console.log('payload', action.data, this.state.path.split('/'));
+          break;
         // add more cases for other actionTypes...
       }
-    })
+    });
   },
 
   updateFonts() {

@@ -1,18 +1,26 @@
 var AppDispatcher = require('../dispatchers/AppDispatcher');
 var Constants = require('../constants/AppConstants');
-var navigate = require('react-mini-router').navigate;
 
 module.exports = {
   chooseBook: function(book) {
-    navigate('/book/' + book);
+    AppDispatcher.handleViewAction({
+      type: Constants.ActionTypes.NAVIGATE_PAGE,
+      data: { book: book, language: '', page: null }
+    });
   },
 
   chooseLanguage: function(book, language) {
-    navigate('/book/' + book + '/lang/' + language);
+    AppDispatcher.handleViewAction({
+      type: Constants.ActionTypes.NAVIGATE_PAGE,
+      data: { language: language, page: null }
+    });
   },
 
-  choosePage: function(book, language, page, autoplay) {
-    navigate('/book/' + book + '/lang/' + language + '/page/' + page + (autoplay ? '/autoplay' : ''));
+  changePage: function(payload) {
+    AppDispatcher.handleViewAction({
+      type: Constants.ActionTypes.NAVIGATE_PAGE,
+      data: payload
+    });
   }
 
 };

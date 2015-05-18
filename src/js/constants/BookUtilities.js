@@ -31,11 +31,13 @@ let ucFirst = (str) => {
 let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   // HOTSPOTS
   var pageData = {};
+  pageData.assetBaseUrl = assetBaseUrl;
+  pageData.id = pageName;
   if (!isNaN(pageName)) // if is number
   {
-    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad_func(pageName+1, 2) + ".png";
-    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad_func(pageName+1, 2) + ".hotspots.gif";
-    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(pageName+1, 2) + '.mp3';
+    pageData.pageImage = assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".png";
+    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".hotspots.gif";
+    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(pageName, 2) + '.mp3';
   }
   else
   {
@@ -64,7 +66,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     Object.keys(page.BUTTONS).forEach((buttonName) => {
       let image = page.BUTTONS[buttonName];
       pageData.images.push({
-        nextPage: buttonName,
+        nextPage: buttonName.replace('readToMe', 'readAudio').replace('readAgain', 'read'),
         image: assetBaseUrl + '/buttons/pg' + ucFirst(pageName) + '_' + buttonName + '.png',
         top: (image.POS[0] * 100),
         left: (image.POS[1] * 100),
@@ -154,7 +156,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
           book.bookStyles,
           language,
           page,
-          idx
+          idx+1
         );
       });
       if (bookData.UI) {
@@ -170,6 +172,9 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
         });
       }
     });
+    book.hasPage = function(language, page) {
+      return typeof book.pages[language][page] !== 'undefined';
+    };
     return book;
 };
 

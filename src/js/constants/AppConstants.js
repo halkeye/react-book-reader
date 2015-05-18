@@ -3,7 +3,8 @@ const keyMirror = require('react/lib/keyMirror');
 module.exports = {
 
   ActionTypes: keyMirror({
-    ADD_FONT: null
+    ADD_FONT: null,
+    NAVIGATE_PAGE: null
   }),
 
   ActionSources: keyMirror({
