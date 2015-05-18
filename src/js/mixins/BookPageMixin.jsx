@@ -9,7 +9,8 @@ const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
-const play = require('play-audio');
+
+const BookAudio = require('../models/BookAudio.jsx');
 
 const mui = require('material-ui');
 let {IconButton} = mui;
@@ -27,7 +28,14 @@ let BookPageMixin = {
   },
 
   getInitialState() {
+    let audio = new BookAudio();
+    audio.bind('page', 'play', this.onPagePlay);
+    audio.bind('page', 'pause', this.onPagePause);
+    audio.bind('page', 'ended', this.onPageEnded);
+    audio.bind('page', 'timeupdate', this.onPageTime);
+
     return {
+      audio: audio,
       playButton: 'play',
       page: null
     };
@@ -138,53 +146,32 @@ let BookPageMixin = {
     );
   },
 
+
+  onPagePlay() { this.setState({ playButton: 'pause' }); },
+  onPagePause() { this.setState({ playButton: 'play' }); },
+  onPageEnded() {
+    this.setState({
+      playButton: 'play',
+      audioTime: 10000000 // hack to force all text to pretend its been read
+    });
+  },
+  onPageTime(time) { this.setState({ audioTime: time }); },
+
   onPlayPauseButtonClick() {
-    if (this.state.audio) {
-      if (this.state.playButton === 'play') {
-        this.state.audio.play();
-      } else {
-        this.state.audio.pause();
-      }
-      return;
+    if (this.state.playButton === 'play') {
+      this.state.audio.play('page', this.state.page.pageAudio);
+    } else {
+      this.state.audio.pause();
     }
-    let audio = play(this.state.page.pageAudio).preload().autoplay();
-    audio.on('play', () => {
-      this.setState({ playButton: 'pause' });
-    });
-    audio.on('pause', () => {
-      this.setState({ playButton: 'play' });
-    });
-    audio.on('ended', () => {
-      this.setState({ playButton: 'play' });
-      this.state.audio.remove();
-      this.setState({ audio: null });
-    });
-    audio.on('timeupdate', () => {
-      this.setState({ audioTime: this.state.audio.currentTime() });
-    });
-    this.setState({ audio: audio });
   },
 
   onWordClick(word) {
-    if (!word.audio) { return false; }
-    if (this.state.audio)
-    {
-      this.state.audio.pause();
-      this.state.audio.remove();
-    }
-    let audio = play(word.audio).preload().autoplay();
-    audio.on('ended', () => {
-      this.state.audio.remove();
-      this.setState({ audio: null });
-    });
-    this.setState({audio: audio });
+    this.state.audio.stop();
+    this.state.audio.play('word', word.audio);
   },
 
   componentWillUnmount() {
-    if (this.state.audio) {
-      this.state.audio.pause();
-      this.state.audio.remove();
-    }
+    this.state.audio.removeAll();
   }
 };
 

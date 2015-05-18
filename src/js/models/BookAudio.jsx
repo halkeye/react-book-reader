@@ -1,33 +1,65 @@
 'use strict';
 // require the core node events module
 const EventEmitter = require('events').EventEmitter;
-var _play = require('play-audio');
+var _media = require('media').audio;
 
 class BookAudio extends EventEmitter {
   constructor () {
     super();
+    this.currentFilename = null;
+    this.playMode = null;
+    this.state = 'paused';
   }
 
   bind(type, ev, func) {
     this.on(type + '-' + ev, func);
+    return this;
+  }
+
+  pause() {
+    if (!this.audio) { return this; }
+    this.audio.pause();
+    return this;
+  }
+
+  stop() {
+    if (!this.audio) { return this; }
+    this.audio.onEnded();
+    return this;
   }
 
   play(type, path) {
-    this.playMode = type;
+    // don't double play
+    if (this.playMode === type && this.currentFilename === path) {
+      if (this.audio) { this.audio.play(); }
+      return this;
+    }
 
-    this.audio = _play(path).preload().autoplay();
-    this.audio.on('play', () => {
+    this.playMode = type;
+    this.currentFilename = path;
+
+    let audio = _media(path).preload().autoplay();
+    audio.on('play', () => {
+      this.state = 'playing';
       this.emit(type + '-play');
     });
-    this.audio.on('pause', () => { this.emit(type + '-pause'); });
-    this.audio.on('ended', () => {
+    audio.on('pause', () => { this.emit(type + '-pause'); });
+    audio.onEnded = () => {
       this.emit(type + '-ended');
-      this.audio.remove();
-      this.audio = null;
+      audio.remove();
+      if (this.audio === audio) {
+        this.currentFilename = null;
+        this.playMode = null;
+        this.audio = null;
+      }
+    };
+    audio.on('ended', audio.onEnded );
+    audio.on('timeupdate', () => {
+      this.emit(type + '-timeupdate', audio.currentTime() );
     });
-    this.audio.on('timeupdate', () => {
-      this.emit(type + '-timeupdate', this.audio.currentTime() );
-    });
+
+    this.audio = audio;
+    return this;
   }
 
   removeAll() {
@@ -40,7 +72,7 @@ class BookAudio extends EventEmitter {
 }
 
 module.exports = BookAudio;
-BookAudio.setMock = function(AudioClass) { _play = AudioClass; };
+BookAudio.setMock = function(AudioClass) { _media = AudioClass; };
 
 
 /*
