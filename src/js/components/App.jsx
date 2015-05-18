@@ -3,13 +3,15 @@ const mui = require('material-ui');
 const RouterMixin = require('react-mini-router').RouterMixin;
 const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
-const DocumentTitle = require('react-document-title');
+
 
 /* Components */
 let {RaisedButton, Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Book = require('./Book.jsx');
+const DocumentTitle = require('react-document-title');
+const Loader = require('react-loader');
 
 /* Stores */
 const BookStore = require('../stores/BookStore');
@@ -93,7 +95,7 @@ let App = React.createClass({
     if (this.state.book.id) {
       return <Book book={this.state.book} language={language} page={page} autoplay={autoplay}></Book>;
     } else {
-      return <div>Loading...</div>;
+      return <Loader />;
     }
   },
 
