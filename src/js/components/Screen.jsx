@@ -198,6 +198,7 @@ let Screen = React.createClass({
   },
 
   onWordClick(word) {
+    this.setState({ audioTime: 0 });
     this.audio.stop();
     this.audio.play('word', word.audio);
   },
