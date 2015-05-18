@@ -124,18 +124,17 @@ let App = React.createClass({
           if (parts.page === 0) { delete parts.page; }
           if (parts.page) {
             if (this.state.book.hasPage(parts.language, parts.page)) {
-              navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
+              return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
             } else if (!isNaN(parts.page)) {
-              navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/end' + (parts.autoplay ? '/autoplay' : ''));
+              return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/end' + (parts.autoplay ? '/autoplay' : ''));
             }
           } else if (parts.language) {
-            navigate('/book/' + parts.book + '/lang/' + parts.language);
+            return navigate('/book/' + parts.book + '/lang/' + parts.language);
           } else if (parts.book) {
-            navigate('/book/' + parts.book);
+            return navigate('/book/' + parts.book);
           } else {
-            navigate('/');
+            return navigate('/');
           }
-          // navigate('/book/' + book + '/lang/' + language + '/page/' + page + (autoplay ? '/autoplay' : ''));
           console.log('payload', action.data, this.state.path.split('/'));
           break;
         // add more cases for other actionTypes...
