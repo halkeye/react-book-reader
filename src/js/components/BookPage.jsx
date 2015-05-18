@@ -14,7 +14,7 @@ let BookPage = React.createClass({
         this.props.book,
         this.props.language,
         page,
-        this.props.autoplay
+        this.props.autoplay === true
       );
     });
   },
