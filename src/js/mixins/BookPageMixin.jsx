@@ -96,10 +96,10 @@ let BookPageMixin = {
       };
       return <div key={ 'line' + lineIdx } style={style}>{words}</div>;
     });
-
+    //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
-      <Hammer key={key}onSwipe={this.onSwipe} onSwipeLeft={this.pageRight} onSwipeRight={this.pageLeft}>
-        <div style={pageStyle}>
+      <Hammer key={key} onSwipe={this.onSwipe} onTap={this.onTap}>
+        <div style={pageStyle} ref="bookpage">
           <ImageButton id="homeButton" top="0" left="0" image={this.state.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
           <ImageButton id="playPauseButton" top="0" right="0" image={this.state.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
@@ -108,6 +108,17 @@ let BookPageMixin = {
       </Hammer>
     );
   },
+
+  onTap(e) {
+    let width = this.refs.bookpage.getDOMNode().offsetWidth || this.refs.bookpage.getDOMNode().clientWidth;
+    if (e.center.x <= width * 0.10) {
+      if (this.pageLeft) { this.pageLeft(); }
+    }
+    else if (e.center.x >= width-(width * 0.10)) {
+      if (this.pageRight) { this.pageRight(); }
+    }
+  },
+
   onSwipe(e) {
     if (e.direction & HammerJS.DIRECTION_LEFT) {
       if (this.pageRight) { this.pageRight(); }
