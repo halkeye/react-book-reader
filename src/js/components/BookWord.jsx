@@ -65,7 +65,7 @@ let BookWord = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if (_.isNull(this.props.start) && _.isNull(this.props.end)) {
+    if (!_.isNull(this.props.start) && !_.isNull(this.props.end)) {
       if (nextProps.audioTime > this.props.end) {
         this.setState({state: 'read'});
       } else if (nextProps.audioTime > this.props.start) {
@@ -76,7 +76,7 @@ let BookWord = React.createClass({
     }
   },
 
-  render() {
+  getElementStyle() {
     var style = assign({
       cursor: 'pointer',
       backgroundColor: 'transparent',
@@ -86,6 +86,11 @@ let BookWord = React.createClass({
     }, this.props.styles[this.state.state]);
     style.fontSize = style.fontSize + 'px';
     delete style.fontPath;
+    return style;
+  },
+
+  render() {
+    var style = this.getElementStyle();
 
     return (
       <FlatButton style={style} onClick={this.props.onClick}> {this.props.word + " "} </FlatButton>
