@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 // https://gist.github.com/etcinit/7859b3380ea75020e130
 
 // NOTE: This file is formatted for React.js + Browserify
