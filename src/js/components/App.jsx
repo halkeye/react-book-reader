@@ -128,7 +128,7 @@ let App = React.createClass({
             },
             action.data
           );
-          if (parts.page === 0) { delete parts.page; }
+          if (parts.page === 0) { return null; }
           if (parts.page) {
             if (this.state.book.hasPage(parts.language, parts.page)) {
               return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
@@ -146,6 +146,7 @@ let App = React.createClass({
           break;
         // add more cases for other actionTypes...
       }
+      return null;
     });
   },
 

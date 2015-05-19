@@ -64,7 +64,7 @@ let Book = React.createClass({
       <DocumentTitle title={this.getPageTitle()}>
         <div>
           <DocumentMeta {...docMeta} />
-          <Screen key={"screen_" + page} page={page} autoplay={this.props.autoplay} />
+          <Screen key={"screen_" + this.props.page} page={page} autoplay={this.props.autoplay} />
         </div>
       </DocumentTitle>
     );
