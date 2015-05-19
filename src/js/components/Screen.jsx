@@ -10,11 +10,15 @@ const Constants = require('../constants/AppConstants');
 
 const BookAudio = require('../models/BookAudio.jsx');
 
+const BookHotspotMap = require('../components/BookHotspotMap.jsx');
+const BookHotspotPhrase = require('../components/BookHotspotPhrase.jsx');
+
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
 const mui = require('material-ui');
 
 let {IconButton} = mui;
+let clickThreshold = 5;
 
 let Screen = React.createClass({
   mixins: [MousetrapMixins], // FIXME - move later
@@ -82,6 +86,12 @@ let Screen = React.createClass({
     return ret;
   },
 
+  onClickPage(ev) {
+    if (this.refs.hotspotMap) {
+      this.refs.hotspotMap.onClickImage(ev);
+    }
+  },
+
   render() {
     let key = [
       'book', this.props.book,
@@ -124,17 +134,28 @@ let Screen = React.createClass({
     });
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
-      <Hammer key={key} onSwipe={this.onSwipe}>
-        <div style={pageStyle} ref="bookpage">
-          <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: '10%'}} onClick={this.pagePrev}></div>
-          <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: '10%'}} onClick={this.pageNext}></div>
+      <div>
+        <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
+          <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
+          <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.pageStyle.unread} />
+          <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
+          <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
           <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
           <ImageButton id="playPauseButton" top="0" right="0" image={this.props.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
           {extraLines}
         </div>
-      </Hammer>
+      </div>
     );
+      //<Hammer key={key} onSwipe={this.onSwipe}>
+      //</Hammer>
+  },
+
+  onHotspot(hotspot, x, y) {
+    this.setState({ audioTime: 0 });
+    this.audio.stop();
+    this.refs.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
+    this.audio.play('hotspot', hotspot.audio);
   },
 
   getPageHeight() {
