@@ -32,6 +32,10 @@ let fontTypes = [
 let App = React.createClass({
   mixins: [RouterMixin],
 
+  handleResize: function () {
+    this.forceUpdate();
+  },
+
   getInitialState() {
     return {
       fonts: {},
@@ -100,6 +104,7 @@ let App = React.createClass({
   },
 
   componentDidMount() {
+    window.addEventListener('resize', this.handleResize, true);
     AppDispatcher.register((payload) => {
       let action = payload.action;
 
