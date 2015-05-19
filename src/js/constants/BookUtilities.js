@@ -36,7 +36,6 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   if (!isNaN(pageName)) // if is number
   {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".png";
-    pageData.hotspotImage = assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".hotspots.gif";
     pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(pageName, 2) + '.mp3';
   }
   else
@@ -98,10 +97,14 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   }
   if (page.HOTSPOTS)
   {
+    pageData.hotspot = {
+      image: assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".hotspots.gif",
+      hotspots: {}
+    };
     Object.keys(page.HOTSPOTS).forEach(function(color) {
-      pageData.hotspots[color] = [];
+      pageData.hotspot.hotspots[color] = [];
       page.HOTSPOTS[color].forEach(function(hotspot) {
-        pageData.hotspots[color].push({
+        pageData.hotspot.hotspots[color].push({
           text: hotspot[0],
           audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + audioFilename(hotspot[1]) + '.mp3'
         });

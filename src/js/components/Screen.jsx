@@ -8,12 +8,12 @@ const BookActionCreators = require('../actions/BookActionCreators');
 
 const Constants = require('../constants/AppConstants');
 
-const BookWord = require('../components/BookWord.jsx');
-const ImageButton = require('../components/ImageButton.jsx');
-
 const BookAudio = require('../models/BookAudio.jsx');
 
+const BookWord = require('../components/BookWord.jsx');
+const ImageButton = require('../components/ImageButton.jsx');
 const mui = require('material-ui');
+
 let {IconButton} = mui;
 
 let Screen = React.createClass({
@@ -44,8 +44,8 @@ let Screen = React.createClass({
     this.audio = audio;
 
     /* FIXME */
-    this.bindShortcut('left', this.pageLeft);
-    this.bindShortcut('right', this.pageRight);
+    this.bindShortcut('left', this.pagePrev);
+    this.bindShortcut('right', this.pageNext);
 
     this.onNewPage(this.props);
   },
@@ -72,8 +72,8 @@ let Screen = React.createClass({
   getPageStyle() {
     let ret = {
       position: 'relative',
-      width: Constants.Dimensions.WIDTH + 'px', // FIXME
-      height: Constants.Dimensions.HEIGHT + 'px' // FIXME
+      width: this.getPageWidth() + 'px',
+      height: this.getPageHeight() + 'px'
     };
     if (this.props.page.pageImage) {
       ret.backgroundSize = 'contain';
@@ -124,8 +124,10 @@ let Screen = React.createClass({
     });
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
-      <Hammer key={key} onSwipe={this.onSwipe} onTap={this.onTap}>
+      <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage">
+          <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: '10%'}} onClick={this.pagePrev}></div>
+          <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: '10%'}} onClick={this.pageNext}></div>
           <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
           <ImageButton id="playPauseButton" top="0" right="0" image={this.props.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
@@ -135,25 +137,28 @@ let Screen = React.createClass({
     );
   },
 
-  onTap(e) {
+  getPageHeight() {
+    return Constants.Dimensions.HEIGHT;
+    /*
     let dom = this.refs.bookpage.getDOMNode();
-    if (e.target !== dom) { return; }
+    return dom.offsetHeight || dom.clientHeight;
+    */
+  },
 
-    let width = dom.offsetWidth || dom.clientWidth;
-    if (e.center.x <= width * 0.10) {
-      if (this.pageLeft) { this.pageLeft(); }
-    }
-    else if (e.center.x >= width-(width * 0.10)) {
-      if (this.pageRight) { this.pageRight(); }
-    }
+  getPageWidth() {
+    return Constants.Dimensions.WIDTH;
+    /*
+    let dom = this.refs.bookpage.getDOMNode();
+    return dom.offsetWidth || dom.clientWidth;
+    */
   },
 
   onSwipe(e) {
     if (e.direction & HammerJS.DIRECTION_LEFT) {
-      if (this.pageRight) { this.pageRight(); }
+      if (this.pageNext) { this.pageNext(); }
     }
     else if (e.direction & HammerJS.DIRECTION_RIGHT) {
-      if (this.pageLeft) { this.pageLeft(); }
+      if (this.pagePrev) { this.pagePrev(); }
     }
   },
 
@@ -205,13 +210,17 @@ let Screen = React.createClass({
 
 
   /* FIXME */
-  pageLeft() {
+  pagePrev() {
+    if (isNaN(this.props.page.id)) { return; }
+
     var newPage = this.props.page.id-1;
-    return BookActionCreators.changePage({ page: newPage });
+    BookActionCreators.changePage({ page: newPage });
   },
-  pageRight() {
+  pageNext() {
+    if (isNaN(this.props.page.id)) { return; }
+
     var newPage = this.props.page.id+1;
-    return BookActionCreators.changePage({ page: newPage });
+    BookActionCreators.changePage({ page: newPage });
   }
 });
 module.exports = Screen;
