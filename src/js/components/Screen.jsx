@@ -134,7 +134,7 @@ let Screen = React.createClass({
     });
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
-      <div>
+      <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
           <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
           <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.pageStyle.unread} />
@@ -145,10 +145,8 @@ let Screen = React.createClass({
           {extraImages}
           {extraLines}
         </div>
-      </div>
+      </Hammer>
     );
-      //<Hammer key={key} onSwipe={this.onSwipe}>
-      //</Hammer>
   },
 
   onHotspot(hotspot, x, y) {
