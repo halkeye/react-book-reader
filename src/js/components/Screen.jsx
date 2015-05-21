@@ -101,6 +101,7 @@ let Screen = React.createClass({
 
     let pageStyle = this.getPageStyle();
 
+console.log('page', this.props.page);
     let extraImages = this.props.page.images.map((image) => {
       var style = {
         position: 'absolute',

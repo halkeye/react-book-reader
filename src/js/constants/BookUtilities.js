@@ -134,51 +134,65 @@ let intToRGBA = (colorInt) => {
 };
 
 let processBookData = (settings, assetBaseUrl, bookData) => {
-  var book = {};
+  var book = {
+    pages: {},
+    games: {}
+  };
   book.languages = Object.keys(bookData.PAGES);
-    book.bookStyles = {};
+  book.bookStyles = {};
 
-    /* FIXME - refactor to have a function so it can be assign() for every level */
-    ['read', 'reading', 'unread'].forEach(function(state) {
-      var font = bookData.STYLES[state.toUpperCase()].FONT;
-      book.bookStyles[state] = {
-        color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
-        fontPath: assetBaseUrl + '/' + font,
-        fontFamily: font,
-        //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
-        fontSize: bookData.STYLES[state.toUpperCase()].SIZE
-      };
+  /* FIXME - refactor to have a function so it can be assign() for every level */
+  ['read', 'reading', 'unread'].forEach(function(state) {
+    var font = bookData.STYLES[state.toUpperCase()].FONT;
+    book.bookStyles[state] = {
+      color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
+    fontPath: assetBaseUrl + '/' + font,
+    fontFamily: font,
+    //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
+    fontSize: bookData.STYLES[state.toUpperCase()].SIZE
+    };
+  });
+
+  book.languages.forEach(function(language) {
+    book.pages[language] = [];
+    bookData.PAGES[language].forEach((page, idx) => {
+      book.pages[language][idx+1] = pageProcessor(
+        assetBaseUrl,
+        book.bookStyles,
+        language,
+        page,
+        idx+1
+        );
     });
+    if (bookData.UI) {
+      Object.keys(bookData.UI).forEach((key) => {
+        /* Ignore GAMES key, its not a page - HAACK */
+        if (key === 'GAMES') { return; }
+        let lckey = key.replace(/^PAGE_/, '').toLowerCase().replace(/^games$/, 'game');
 
-    book.pages = {};
-    book.languages.forEach(function(language) {
-      book.pages[language] = [];
-      bookData.PAGES[language].forEach((page, idx) => {
-        book.pages[language][idx+1] = pageProcessor(
+        book.pages[language][lckey] = pageProcessor(
           assetBaseUrl,
           book.bookStyles,
           language,
-          page,
-          idx+1
-        );
-      });
-      if (bookData.UI) {
-        Object.keys(bookData.UI).forEach((key) => {
-          let lckey = key.replace(/^PAGE_/, '').toLowerCase();
-          book.pages[language][lckey] = pageProcessor(
-            assetBaseUrl,
-            book.bookStyles,
-            language,
-            bookData.UI[key],
-            lckey
+          bookData.UI[key],
+          lckey
           );
+      });
+      if (bookData.UI.GAMES) {
+        Object.keys(bookData.UI.GAMES).forEach((key) => {
+          /* FIXME */
+          book.games[key] = bookData.UI.GAMES[key];
         });
       }
-    });
-    book.hasPage = function(language, page) {
-      return typeof book.pages[language][page] !== 'undefined';
-    };
-    return book;
+    }
+  });
+  book.hasGame = function(page) {
+    return typeof book.games[page] !== 'undefined';
+  };
+  book.hasPage = function(language, page) {
+    return typeof book.pages[language][page] !== 'undefined' || typeof book.games[page] !== 'undefined';
+  };
+  return book;
 };
 
 module.exports = {

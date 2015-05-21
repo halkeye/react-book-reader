@@ -14,6 +14,14 @@ let Book = React.createClass({
     page: React.PropTypes.string.isRequired
   },
 
+  getInitialProps() {
+    return {
+      book: {
+        pages: {}
+      }
+    };
+  },
+
   getPageTitle() {
     let str = this.props.book.title || 'Untitled';
     // if numeric page number
@@ -56,15 +64,18 @@ let Book = React.createClass({
         <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
       );
     }*/
-    let page = {};
-    if (this.props.book.pages) {
-      page = this.props.book.pages[this.props.language][this.props.page];
+    let body = '';
+    if (this.props.book.hasGame(this.props.page)) {
+      body = <div>THIS IS A GAME YO</div>;
+    } else {
+      let page = page = this.props.book.pages[this.props.language][this.props.page];
+      body = <Screen key={"screen_" + this.props.page} page={page} autoplay={this.props.autoplay} />;
     }
     return (
       <DocumentTitle title={this.getPageTitle()}>
         <div>
           <DocumentMeta {...docMeta} />
-          <Screen key={"screen_" + this.props.page} page={page} autoplay={this.props.autoplay} />
+          {body}
         </div>
       </DocumentTitle>
     );
