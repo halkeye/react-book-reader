@@ -28,6 +28,42 @@ let ucFirst = (str) => {
   return f + str.substr(1).toLowerCase();
 };
 
+let pad_func = (value, width, pad) => {
+  pad = pad || '0';
+  value = value + '';
+  return value.length >= width ? value : new Array(width - value.length + 1).join(pad) + value;
+};
+
+let colorToInt = (color) => {
+  return (color.a << 24) | (color.r << 16) | (color.g << 8) | (color.b << 0);
+};
+
+let intToRGBA = (colorInt) => {
+  var alpha = ((colorInt >> 24) & 255) / 255;
+  var red = (colorInt >> 16) & 255;
+  var green = (colorInt >> 8) & 255;
+  var blue = (colorInt >> 0) & 255;
+
+  return 'rgba(' + [red, green, blue].join(',') + ', ' + alpha + ')';
+};
+
+let processStyleData = (assetBaseUrl, styleData) => {
+  var style = {};
+  if (!styleData) { return {}; }
+
+  ['read', 'reading', 'unread'].forEach(function(state) {
+    var font = styleData[state.toUpperCase()].FONT;
+    style[state] = {
+      color: intToRGBA(styleData[state.toUpperCase()].COLOR),
+      fontPath: assetBaseUrl + '/' + font,
+      fontFamily: font,
+      //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
+      fontSize: styleData[state.toUpperCase()].SIZE
+    };
+  });
+
+};
+
 let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   // HOTSPOTS
   var pageData = {};
@@ -43,7 +79,11 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pageName + ".png";
   }
 
-  pageData.pageStyle = parentStyle; // FIXME
+  pageData.pageStyle = assign(
+    {},
+    parentStyle,
+    processStyleData(assetBaseUrl, page.STYLES)
+  );
   pageData.lines = [];
   pageData.hotspots = [];
   pageData.images = [];
@@ -114,44 +154,13 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   return pageData;
 };
 
-let pad_func = (value, width, pad) => {
-  pad = pad || '0';
-  value = value + '';
-  return value.length >= width ? value : new Array(width - value.length + 1).join(pad) + value;
-};
-
-let colorToInt = (color) => {
-  return (color.a << 24) | (color.r << 16) | (color.g << 8) | (color.b << 0);
-};
-
-let intToRGBA = (colorInt) => {
-  var alpha = ((colorInt >> 24) & 255) / 255;
-  var red = (colorInt >> 16) & 255;
-  var green = (colorInt >> 8) & 255;
-  var blue = (colorInt >> 0) & 255;
-
-  return 'rgba(' + [red, green, blue].join(',') + ', ' + alpha + ')';
-};
-
 let processBookData = (settings, assetBaseUrl, bookData) => {
   var book = {
     pages: {},
     games: {}
   };
   book.languages = Object.keys(bookData.PAGES);
-  book.bookStyles = {};
-
-  /* FIXME - refactor to have a function so it can be assign() for every level */
-  ['read', 'reading', 'unread'].forEach(function(state) {
-    var font = bookData.STYLES[state.toUpperCase()].FONT;
-    book.bookStyles[state] = {
-      color: intToRGBA(bookData.STYLES[state.toUpperCase()].COLOR),
-    fontPath: assetBaseUrl + '/' + font,
-    fontFamily: font,
-    //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
-    fontSize: bookData.STYLES[state.toUpperCase()].SIZE
-    };
-  });
+  book.bookStyles = processStyleData(assetBaseUrl, bookData.STYLES);
 
   book.languages.forEach(function(language) {
     book.pages[language] = [];
