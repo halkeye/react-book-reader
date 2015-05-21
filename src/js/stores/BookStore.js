@@ -10,7 +10,7 @@ require('es6-promise').polyfill();
 
 const Promise = require('es6-promise').Promise;
 /* Other */
-const BookUtilities = require('../constants/BookUtilities');
+const BookUtilities = require('../constants/BookUtilities.jsx');
 
 
 // data storage

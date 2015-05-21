@@ -1,7 +1,7 @@
 const React = require('react');
 
 //const invariant = require('react/lib/invariant');
-const BookUtilities = require('../constants/BookUtilities');
+const BookUtilities = require('../constants/BookUtilities.jsx');
 
 const BookHotspotMap = React.createClass({
   getInitialProps() {

@@ -6,6 +6,7 @@ const DocumentMeta = require('react-document-meta');
 const DocumentTitle = require('react-document-title');
 
 const Screen = require('./Screen.jsx');
+const GameScreen = require('./GameScreen.jsx');
 
 let Book = React.createClass({
   propTypes: {
@@ -65,10 +66,11 @@ let Book = React.createClass({
       );
     }*/
     let body = '';
-    if (this.props.book.hasGame(this.props.page)) {
-      body = <div>THIS IS A GAME YO</div>;
+    if (this.props.book.hasGame(this.props.language, this.props.page)) {
+      let page = this.props.book.games[this.props.language][this.props.page];
+      body = <GameScreen key={"screen_" + this.props.page} page={page}></GameScreen>;
     } else {
-      let page = page = this.props.book.pages[this.props.language][this.props.page];
+      let page = this.props.book.pages[this.props.language][this.props.page];
       body = <Screen key={"screen_" + this.props.page} page={page} autoplay={this.props.autoplay} />;
     }
     return (
