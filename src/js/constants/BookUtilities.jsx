@@ -61,7 +61,7 @@ let processStyleData = (assetBaseUrl, styleData) => {
       fontSize: styleData[state.toUpperCase()].SIZE
     };
   });
-
+  return style;
 };
 
 let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
@@ -79,13 +79,12 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pageName + ".png";
   }
 
-  pageData.pageStyle = assign(
+  pageData.styles = assign(
     {},
     parentStyle,
     processStyleData(assetBaseUrl, page.STYLES)
   );
   pageData.lines = [];
-  pageData.hotspots = [];
   pageData.images = [];
 
   if (page.IMAGE)
@@ -117,6 +116,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
   if (page.LINES)
   {
     page.LINES.forEach(function(line) {
+      var lineStyle = assign({}, pageData.styles, processStyleData(assetBaseUrl, line.STYLES));
       var lineData = {
         top: (line.POS[0] * 100),
         left: (line.POS[1] * 100),
@@ -124,11 +124,12 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
       };
       pageData.lines.push(lineData);
       line.WORDS.forEach(function(word) {
+        var wordStyle = assign({}, lineStyle, processStyleData(assetBaseUrl, word.STYLES));
         var wordData = {
           word: word[0],
           start: word[1],
           end: word[2],
-          styles: parentStyle, // fixme
+          styles: wordStyle,
           audio: assetBaseUrl + '/voice/' + language.toUpperCase() + '/spliced/' + audioFilename(word[0]) + '.mp3'
         };
         lineData.words.push(wordData);

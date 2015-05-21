@@ -138,7 +138,7 @@ console.log('page', this.props.page);
       <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
           <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
-          <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.pageStyle.unread} />
+          <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
           <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
           <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
