@@ -5,10 +5,11 @@ let rewritePageName = (pageName) => {
   pageName += '';
   return pageName.replace(/^WP$/, 'gameDifficultyWP')
         .replace(/^PP$/, 'gameDifficultyPP')
-        .replace(/^fullMonty$/, 'gameDifficultyFullMonty')
+        .replace(/^fullMonty$/, 'gameDifficultyfullMonty')
         .replace('readToMe', 'readAudio')
         .replace('readAgain', 'read')
-        .replace(/^games$/, 'game');
+        .replace(/^games$/, 'game')
+  ;
 };
 
 let audioFilename = (filename) => {
@@ -74,7 +75,9 @@ let processStyleData = (assetBaseUrl, styleData) => {
   return style;
 };
 
-let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
+let pageProcessor = (options) => {
+  let {assetBaseUrl, parentStyle, language, page, pageName, nextPageRewriter} = options;
+
   // HOTSPOTS
   var pageData = {};
   pageData.assetBaseUrl = assetBaseUrl;
@@ -114,6 +117,7 @@ let pageProcessor = (assetBaseUrl, parentStyle, language, page, pageName) => {
     Object.keys(page.BUTTONS).forEach((buttonName) => {
       let image = page.BUTTONS[buttonName];
       let nextPageName = rewritePageName(buttonName);
+      if (nextPageRewriter) { nextPageName = nextPageRewriter(nextPageName); }
       pageData.images.push({
         nextPage: nextPageName,
         image: assetBaseUrl + '/buttons/pg' + pageName + '_' + buttonName + '.png',
@@ -178,39 +182,60 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     book.pages[language] = [];
     book.games[language] = [];
     bookData.PAGES[language].forEach((page, idx) => {
-      book.pages[language][idx+1] = pageProcessor(
-        assetBaseUrl,
-        book.bookStyles,
-        language,
-        page,
-        idx+1
-        );
+      book.pages[language][idx+1] = pageProcessor({
+        assetBaseUrl: assetBaseUrl,
+        parentStyle: book.bookStyles,
+        language: language,
+        page: page,
+        pageName: idx+1
+        });
     });
     if (bookData.UI) {
       Object.keys(bookData.UI).forEach((key) => {
         /* Ignore GAMES key, its not a page - HAACK */
         if (key === 'GAMES') { return; }
-        let lckey = key.replace(/^PAGE_/, '').toLowerCase();
+        let lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
-        book.pages[language][lckey] = pageProcessor(
-          assetBaseUrl,
-          book.bookStyles,
-          language,
-          bookData.UI[key],
-          ucFirst(rewritePageName(lckey))
-        );
+        book.pages[language][lckey] = pageProcessor({
+          assetBaseUrl: assetBaseUrl,
+          parentStyle: book.bookStyles,
+          language: language,
+          page: bookData.UI[key],
+          pageName: ucFirst(lckey)
+        });
       });
       if (bookData.UI.GAMES) {
-        Object.keys(bookData.UI.GAMES).forEach((key) => {
-          let gameDifficultyKey = `gameDifficulty${key}`;
-          book.games[language][gameDifficultyKey] = pageProcessor(
-            assetBaseUrl,
-            book.bookStyles,
-            language,
-            bookData.UI.GAMES[key],
-            'GameDifficulty'
-          );
-          book.games[language][gameDifficultyKey].pageImage = `${assetBaseUrl}/pages/pgGameDifficulty_${key}.png`;
+        Object.keys(bookData.UI.GAMES).forEach((gameName) => {
+          let gameDifficultyKey = `gameDifficulty${gameName}`;
+          book.games[language][gameDifficultyKey] = pageProcessor({
+            assetBaseUrl: assetBaseUrl,
+            parentStyle: book.bookStyles,
+            language: language,
+            page: bookData.UI.GAMES[gameName],
+            pageName: 'GameDifficulty',
+            nextPageRewriter: (name) => {
+              return `game${gameName}${ucFirst(name)}`;
+            }
+          });
+          book.games[language][gameDifficultyKey].pageImage = `${assetBaseUrl}/pages/pgGameDifficulty_${gameName}.png`;
+
+          book.games[language][`game${gameName}Tutorial`] = pageProcessor({
+            assetBaseUrl: assetBaseUrl, parentStyle: book.bookStyles,
+            language: language, page: {}, pageName: ''
+          });
+          book.games[language][`game${gameName}Tutorial`].pageImage = `${assetBaseUrl}/pages/tutorial_${gameName}_${language}.png`;
+
+          ['easy', 'medium', 'hard'].forEach((difficulty) => {
+            let gameKey = `game${gameName}${ucFirst(difficulty)}`;
+            book.games[language][gameKey] = pageProcessor({
+              assetBaseUrl: assetBaseUrl,
+              parentStyle: book.bookStyles,
+              language: language,
+              page: bookData.UI.GAMES[gameName][difficulty],
+              pageName: gameKey
+            });
+            book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
+          });
           // ,bookData.UI.GAMES[key] easy, hard, medium
         });
       }
