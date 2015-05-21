@@ -20,19 +20,37 @@ $ npm run build
 
 ## Generating Additional Code
 
-You can add additional functionality to your application by invoking the subgenerators included in the Flux Generator. You can add components using the following commands:
+```xml
+<DocumentTitle title="Select A Book">
+	<BookList />
+</DocumentTitle>
 
-#### Components
-```bash
-$ yo flux:component ComponentName
+<!-- Language Selection-->
+<DocumentTitle title={book.title + " - Select A Language"}>
+	<LanguageSelection book="josephine" />
+</DocumentTitle>
+
+<!-- Book -->
+<Book name="josephine" language="en" page="1">
+	<DocumentTitle title={book.title}>
+		<Screen />
+		<!-- OR -->
+		<BookPage>
+			<canvas>
+				<BookLine>
+					<BookWord/>
+				</BookLine>
+			</canvas>
+		</BookPage>
+	</DocumentTitle>
+</DocumentTitle>
 ```
 
-#### Actions
-```bash
-$ yo flux:action ActionCreatorName
 ```
-
-#### Stores
-```bash
-$ yo flux:store StoreName
+* App just has <Page>
+* <Page> has its normal stuff, plus <BookPage> (which includes hammer js)
+* <BookPage> Also has on swipe and on tap
+* App.transitionPage => Checks to make sure its a valid target
+*   If page > pageCount, then goto 'end'
 ```
+https://github.com/goldfire/howler.js/blob/1dad25cdd9d6982232050454e8b45411902efe65/howler.js
