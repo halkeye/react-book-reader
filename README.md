@@ -57,5 +57,3 @@ https://github.com/goldfire/howler.js/blob/1dad25cdd9d6982232050454e8b45411902ef
 https://github.com/humanhighway/react-audio-player/blob/master/js/components/AudioPlayer.js#L201
 
 * Migrate more code out of Screen class so we don't have play audio on game pages
-* if pageData.back
-*   Back button - control_back

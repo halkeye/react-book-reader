@@ -101,7 +101,6 @@ let Screen = React.createClass({
 
     let pageStyle = this.getPageStyle();
 
-console.log('page', this.props.page);
     let extraImages = this.props.page.images.map((image) => {
       var style = {
         position: 'absolute',
@@ -133,6 +132,16 @@ console.log('page', this.props.page);
       };
       return <div key={ 'line' + lineIdx } style={style}>{words}</div>;
     });
+    let homeBackButton = '';
+    if (this.hasBackButton()) {
+      homeBackButton = (
+          <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_back.png"} onClick={this.onBackButtonClick} />
+      );
+    } else {
+      homeBackButton = (
+          <ImageButton id="backButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+      );
+    }
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
       <Hammer key={key} onSwipe={this.onSwipe}>
@@ -141,7 +150,7 @@ console.log('page', this.props.page);
           <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
           <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
-          <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+          {homeBackButton}
           <ImageButton id="playPauseButton" top="0" right="0" image={this.props.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
           {extraLines}
@@ -186,10 +195,17 @@ console.log('page', this.props.page);
     return this.props.page.id !== "home";
   },
 
+  hasBackButton() {
+    return this.hasHomeButton() && this.props.page.back;
+  },
+
   hasPlayButton() {
     return !!this.props.page.pageAudio;
   },
 
+  onBackButtonClick() {
+    return BookActionCreators.changePage({ page: this.props.page.back });
+  },
   onHomeButtonClick() {
     return BookActionCreators.changePage({ page: '', autoplay: false });
   },

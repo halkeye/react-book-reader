@@ -203,6 +203,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
           page: bookData.UI[key],
           pageName: ucFirst(lckey)
         });
+        book.pages[language][lckey].id = lckey;
       });
       if (bookData.UI.GAMES) {
         Object.keys(bookData.UI.GAMES).forEach((gameName) => {
@@ -218,12 +219,20 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
             }
           });
           book.games[language][gameDifficultyKey].pageImage = `${assetBaseUrl}/pages/pgGameDifficulty_${gameName}.png`;
+          book.games[language][gameDifficultyKey].back = 'game';
+
 
           book.games[language][`game${gameName}Tutorial`] = pageProcessor({
             assetBaseUrl: assetBaseUrl, parentStyle: book.bookStyles,
             language: language, page: {}, pageName: ''
           });
-          book.games[language][`game${gameName}Tutorial`].pageImage = `${assetBaseUrl}/pages/tutorial_${gameName}_${language}.png`;
+          assign(
+            book.games[language][`game${gameName}Tutorial`],
+            {
+              pageImage: `${assetBaseUrl}/pages/tutorial_${gameName}_${language}.png`,
+              back: `gameDifficulty${gameName}`
+            }
+          );
 
           ['easy', 'medium', 'hard'].forEach((difficulty) => {
             let gameKey = `game${gameName}${ucFirst(difficulty)}`;
@@ -235,6 +244,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
               pageName: gameKey
             });
             book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
+            book.games[language][gameKey].back = `gameDifficulty${gameName}`;
           });
           // ,bookData.UI.GAMES[key] easy, hard, medium
         });
