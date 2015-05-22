@@ -154,6 +154,7 @@ let Screen = React.createClass({
           <ImageButton id="playPauseButton" top="0" right="0" image={this.props.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
           {extraLines}
+          {this.props.children}
         </div>
       </Hammer>
     );
