@@ -8,7 +8,7 @@ const _ = require('lodash');
 require('whatwg-fetch'); // polyfill
 require('es6-promise').polyfill();
 
-const Promise = require('es6-promise').Promise;
+//const Promise = require('es6-promise').Promise;
 /* Other */
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
@@ -66,9 +66,9 @@ let BookStore = assign({}, BaseStore, {
             _bookData.title = _bookData.title || extraData.title;
             _bookData.icon = _bookData.icon || extraData.icon;
             resolve(_bookData);
-          }).catch(function(ex) {
+          })/*.catch(function(ex) {
             console.log('parsing failed', ex);
-          });
+          })*/;
       });
     });
   },
