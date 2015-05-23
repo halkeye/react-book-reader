@@ -346,7 +346,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
             });
 
             book.games[language][gameKey].boxes = {};
-            ['tries', 'match', 'reactionBox'].forEach((boxName) => {
+            ['tries', 'match', 'reactionBox', 'displayBox'].forEach((boxName) => {
               if (!bookData.UI.GAMES[gameName][difficulty][boxName]) { return; }
               let boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
               /* FIXME */

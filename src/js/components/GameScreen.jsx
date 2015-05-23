@@ -34,10 +34,71 @@ const GameScreen = React.createClass({
     let array = deck.drawRandom(Math.floor(size / 2));
     return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
   },
+  isEndGame() {
+    this.state.matchesScore == Math.floor(this.numberOfDoors()/2);
+  },
+  isPerfectGame() {
+    this.state.triesScore == Math.floor(this.numberOfDoors()/2);
+  },
+  clickedOnDoor() {
+/*
+   if (!hasStarted) {
+      closeAllDoors();
+      hasStarted = true;
+      return false;
+    }
+
+    // Ignore open doors
+    if (cupbardWithDoor.isOpen()) {
+      return false;
+    }
+
+    if (openDoor1 == null) {
+      openDoor1 = cupbardWithDoor;
+      return true;
+    }
+
+    // Don't click on the same door
+    if (openDoor1 == cupbardWithDoor) {
+      return false;
+    }
+
+    tryCount++;
+    triesLabel.setText(String.valueOf(tryCount));
+
+
+    // If contents match, then yay!
+    if (openDoor1.getContent().equals(cupbardWithDoor.getContent())) {
+      matchCount++;
+      matchLabel.setText(String.valueOf(matchCount));
+      openDoor1 = null;
+      endGame();
+      // Make Josephine look happy - FIXME
+      showGoodReaction();
+      return true;
+    }
+
+    // Bad match
+
+    // FIXME - Josephine look unhappy
+    showBadReaction();
+
+    closingDoorsTask = new CloseDoorsTask(this);
+    closingDoorsTask.execute(openDoor1,cupbardWithDoor);
+    openDoor1 = null;
+
+    return true;
+*/
+  },
+
   /* END GAME:PP*/
+  numberOfDoors() {
+    return this.props.page.boxes.matchLocs.length;
+  },
+
   resetGame(props) {
     let state = this.getInitialState();
-    let contents = Shuffle.shuffle({ "deck": this.getCupbardContents(this.props.page.boxes.matchLocs.length) });
+    let contents = Shuffle.shuffle({ "deck": this.getCupbardContents(this.numberOfDoors()) });
     /* this.props.cupbardContents ??? FIXME */
     this.props.page.boxes.matchLocs.map((loc, idx) => {
       let content = contents.draw();
