@@ -33,8 +33,10 @@ let BookStore = assign({}, BaseStore, {
           text.replace("\r", "\n").replace(/\n+/, "\n").split("\n").forEach((line) => {
             if (!line) { return; }
             let [frameNo, timing] = line.split(",");
+            let imageObj = new Image();
+            imageObj.src = assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png";
             array.push({
-              frame: assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png",
+              frame: imageObj,
               nextTiming: parseInt(timing, 10)
             });
           });
