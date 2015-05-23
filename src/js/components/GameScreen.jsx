@@ -76,7 +76,7 @@ const GameScreen = React.createClass({
         <Screen {...this.props}>
           <ScoreCardBox ref="triesBox" style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
           <ScoreCardBox ref="matchBox" style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
-          <ReactionBox ref="reactionBox" assetBaseUrl={this.props.page.assetBaseUrl} style={reactionBoxStyle} />
+          <ReactionBox ref="reactionBox" animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
           {cupboardLocations}
         </Screen>
       </div>

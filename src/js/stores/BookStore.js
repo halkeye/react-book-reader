@@ -6,9 +6,6 @@ const assign = require('object-assign');
 const _ = require('lodash');
 
 require('whatwg-fetch'); // polyfill
-require('es6-promise').polyfill();
-
-//const Promise = require('es6-promise').Promise;
 /* Other */
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
@@ -22,30 +19,6 @@ let _titles = {};
 
 // Facebook style store creation.
 let BookStore = assign({}, BaseStore, {
-  getAnimFile(assetBaseUrl, animName) {
-    return new Promise((resolve, reject) => {
-      fetch(assetBaseUrl + '/animations/' + animName + '/anim.txt')
-        .then((response) => {
-          return response.text();
-        })
-        .then((text) => {
-          var array = [];
-          text.replace("\r", "\n").replace(/\n+/, "\n").split("\n").forEach((line) => {
-            if (!line) { return; }
-            let [frameNo, timing] = line.split(",");
-            let imageObj = new Image();
-            imageObj.src = assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png";
-            array.push({
-              frame: imageObj,
-              nextTiming: parseInt(timing, 10)
-            });
-          });
-
-          resolve(array);
-        });
-    });
-  },
-
   // public methods used by Controller-View to operate on data
   getAll() {
     return new Promise((resolve, reject) => {

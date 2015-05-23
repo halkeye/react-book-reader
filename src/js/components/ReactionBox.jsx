@@ -7,16 +7,8 @@ const ReactionBox = React.createClass({
   getDefaultProps() { return { 'mode': 'neutral' }; },
 
   componentWillReceiveProps: function(nextProps) {
-    /* FIXME - ewwwww, shouldn't load stuff in the components */
-    let animName = nextProps.mode || 'neutral';
-    if (!this.cache) { this.cache = {}; }
-    if (this.cache[animName]) {
-      this.updateAnims(this.cache[animName]);
-    } else {
-      BookStore.getAnimFile(this.props.assetBaseUrl, nextProps.mode).then((anims) => {
-        this.cache[animName] = anims;
-        this.updateAnims(this.cache[animName]);
-      });
+    if (nextProps.mode !== this.props.mode) {
+      this.updateAnims(nextProps.animations[nextProps.mode]);
     }
   },
 
@@ -27,8 +19,8 @@ const ReactionBox = React.createClass({
   },
 
   getNextFrame() {
-    let frameNo = (this.state.frameNo+1) % this.state.anims.length;
-    let frame = this.state.anims[frameNo];
+    let frameNo = (this.state.frameNo+1) % this.props.animations[this.props.mode].length;
+    let frame = this.props.animations[this.props.mode][frameNo];
 
     let animInterval = setTimeout( this.getNextFrame, frame.nextTiming );
     this.setState({ frameNo: frameNo, animInterval: animInterval });
@@ -38,15 +30,15 @@ const ReactionBox = React.createClass({
     return this.refs.canvas.getDOMNode();
   },
   draw() {
-    if (!this.state.anims) { return; }
+    if (!this.props.animations) { return; }
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(this.state.anims[this.state.frameNo].frame, 0, 0);
+    ctx.drawImage(this.props.animations[this.props.mode][this.state.frameNo].frame, 0, 0);
   },
 
   componentDidMount() {
-    this.componentWillReceiveProps(this.props);
+    this.updateAnims(this.props.animations[this.props.mode]);
     this.draw();
   },
 

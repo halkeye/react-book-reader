@@ -1,7 +1,30 @@
 var assign = require('object-assign');
 var diacritics = require('diacritics');
+require('whatwg-fetch'); // polyfill
 
 const Constants = require('../constants/AppConstants.js');
+
+let getAnimFile = (assetBaseUrl, animName) => {
+  return new Promise((resolve, reject) => {
+    fetch(assetBaseUrl + '/animations/' + animName + '/anim.txt')
+      .then((response) => {
+        return response.text();
+      })
+      .then((text) => {
+        var array = [];
+        text.replace("\r", "\n").replace(/\n+/, "\n").split("\n").forEach((line) => {
+          if (!line) { return; }
+          let [frameNo, timing] = line.split(",");
+          array.push({
+            frame: assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png",
+            nextTiming: parseInt(timing, 10)
+          });
+        });
+
+        resolve(array);
+      });
+  });
+};
 
 let rewritePageName = (pageName) => {
   pageName += '';
@@ -181,6 +204,20 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   promises.push(book);
   book.languages = Object.keys(bookData.PAGES);
   book.bookStyles = processStyleData(assetBaseUrl, bookData.STYLES);
+  var gameAnimations = {};
+  ['bad', 'good', 'neutral', 'pointing'].forEach((animName) => {
+    getAnimFile(assetBaseUrl, animName).then((frames) => {
+      frames.forEach((frame) => {
+        let imageObj = new Image();
+        imageObj.src = frame.frame;
+        promises.push(new Promise((resolve, reject) => {
+          imageObj.onload = resolve;
+        }));
+        frame.frame = imageObj;
+      });
+      gameAnimations[animName] = frames;
+    });
+  });
   var gameBoardParts = {};
   book.languages.forEach((language) => {
 
@@ -294,6 +331,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
             book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
             book.games[language][gameKey].back = `gameDifficulty${gameName}`;
             book.games[language][gameKey].gameBoardParts = gameBoardParts[language];
+            book.games[language][gameKey].gameAnimations = gameAnimations;
             book.games[language][gameKey].gameAssets = {};
             Object.keys(gameAssets).forEach((value) => {
               let re = new RegExp("(.*)_(" + book.languages.map((elm) => { return elm; }).join("|") + ")$");
