@@ -7,6 +7,7 @@ const ReactionBox = React.createClass({
   getDefaultProps() { return { 'mode': 'neutral' }; },
 
   componentWillReceiveProps: function(nextProps) {
+    /* FIXME - ewwwww, shouldn't load stuff in the components */
     let animName = nextProps.mode || 'neutral';
     if (!this.cache) { this.cache = {}; }
     if (this.cache[animName]) {

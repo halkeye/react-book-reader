@@ -13,7 +13,8 @@ const BookUtilities = require('../constants/BookUtilities.jsx');
 const GameScreen = React.createClass({
   getInitialState() {
     return {
-      triesScore: 0
+      triesScore: 0,
+      matchesScore: 0
     };
   },
 /*  componentDidMount() {
@@ -39,7 +40,7 @@ const GameScreen = React.createClass({
       <div>
         <Screen {...this.props}>
           <ScoreCardBox ref="triesBox" style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
-          <ScoreCardBox ref="matchBox" style={matchBoxStyle} text='00'/>
+          <ScoreCardBox ref="matchBox" style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
           <ReactionBox ref="reactionBox" assetBaseUrl={this.props.page.assetBaseUrl} style={reactionBoxStyle} />
         </Screen>
       </div>
