@@ -5,80 +5,67 @@ const Shuffle = require('shuffle');
 const GameScreen = require('./GameScreen.jsx');
 
 let GamePP = React.createClass({
+  getInitialState() {
+    return { openDoor1: null };
+  },
   getCupbardContents(size) {
     let deck = Shuffle.shuffle({ "deck": this.props.page.gameBoardParts });
     let array = deck.drawRandom(Math.floor(size / 2));
     return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
   },
   isEndGame() {
-    return this.ref.gamescreen.state.matchesScore === Math.floor(this.ref.gamescreen.numberOfDoors() / 2);
+    return this.refs.gamescreen.state.matchesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
   },
   isPerfectGame() {
-    return this.ref.gamescreen.state.triesScore === Math.floor(this.ref.gamescreen.numberOfDoors() / 2);
+    return this.refs.gamescreen.state.triesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
   },
   clickedOnDoor(cupbard) {
-    /*if (!this.ref.gamescreen.hasStarted()) {
-      this.ref.gamescreen.startGame();
-      return false;
-    }*/
-
-    if (cupbard.isClosed()) {
-      console.log('door is already closed');
-      cupbard.open();
-      return false;
-    }
-
-    cupbard.close();
-
-    return true;
-/*
-   if (!hasStarted) {
-      closeAllDoors();
-      hasStarted = true;
+    if (!this.refs.gamescreen.hasStarted()) {
+      this.refs.gamescreen.start();
       return false;
     }
 
     // Ignore open doors
-    if (cupbardWithDoor.isOpen()) {
+    if (cupbard.isOpen()) {
       return false;
     }
 
-    if (openDoor1 == null) {
-      openDoor1 = cupbardWithDoor;
+    if (this.state.openDoor1 === null) {
+      this.setState({openDoor1: cupbard});
+      cupbard.open();
       return true;
     }
 
     // Don't click on the same door
-    if (openDoor1 == cupbardWithDoor) {
+    if (this.state.openDoor1 === cupbard) {
       return false;
     }
-
-    tryCount++;
-    triesLabel.setText(String.valueOf(tryCount));
-
+    this.refs.gamescreen.setState(function(previousState, currentProps) {
+      return { triesScore: previousState.triesScore + 1 };
+    });
 
     // If contents match, then yay!
-    if (openDoor1.getContent().equals(cupbardWithDoor.getContent())) {
-      matchCount++;
-      matchLabel.setText(String.valueOf(matchCount));
-      openDoor1 = null;
-      endGame();
-      // Make Josephine look happy - FIXME
-      showGoodReaction();
+    if (this.state.openDoor1.props.objectName === cupbard.props.objectName) {
+      cupbard.open();
+      this.refs.gamescreen.setState(function(previousState, currentProps) {
+        return { matchesScore: previousState.matchesScore + 1 };
+      });
+      this.setState({ openDoor1: null });
+      this.refs.gamescreen.showGoodReaction();
+      if (this.isEndGame()) {
+        this.refs.gamescreen.endGame();
+      }
       return true;
     }
-
-    // Bad match
-
     // FIXME - Josephine look unhappy
-    showBadReaction();
-
-    closingDoorsTask = new CloseDoorsTask(this);
-    closingDoorsTask.execute(openDoor1,cupbardWithDoor);
-    openDoor1 = null;
-
+    this.refs.gamescreen.showBadReaction();
+    setTimeout(() => {
+      this.state.openDoor1.close(false);
+      cupbard.close(false);
+      this.setState({ openDoor1: null });
+    }, 300);
+    cupbard.open();
     return true;
-*/
   },
 
   render() {

@@ -1,7 +1,7 @@
 'use strict';
 const React = require('react');
-require('howler');
-const Howl = window.Howl;
+const Howl = require('howler').Howl;
+
 const CupbardWithDoor = React.createClass({
   getInitialState() {
     return { 'status': 'open' };
@@ -40,6 +40,10 @@ const CupbardWithDoor = React.createClass({
     return <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style} onClick={this.props.onClick}></canvas>;
   },
 
+  playDoorSound() {
+    var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
+  },
+
   isOpen() {
     return this.state.status === 'open';
   },
@@ -51,16 +55,12 @@ const CupbardWithDoor = React.createClass({
   // Actions
   open(playSound=true) {
     this.setState({ status: 'open' });
-    if (playSound === true) {
-      var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
-    }
+    if (playSound === true) { this.playDoorSound(); }
   },
 
   close(playSound=true) {
     this.setState({ status: 'closed' });
-    if (playSound === true) {
-      var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
-    }
+    if (playSound === true) { this.playDoorSound(); }
   }
 
 });

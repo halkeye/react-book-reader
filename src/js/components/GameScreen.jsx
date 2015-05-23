@@ -21,9 +21,15 @@ const GameScreen = React.createClass({
   },
   getInitialState() {
     return {
+      started: false,
       triesScore: 0,
       matchesScore: 0
     };
+  },
+
+  getDefaultReaction() {
+    // FIXME - full monty has pointing animation when game has started
+    return 'neutral';
   },
 
   componentDidMount() {
@@ -78,6 +84,7 @@ const GameScreen = React.createClass({
       let openImage = this.props.page.gameAssets.game_cupbard_door_open;
       let closedImage = this.props.page.gameAssets.game_cupbard_door_closed;
       let objectImage = this.state[`cupbard_${idx}_image`];
+      let objectName = this.state[`cupbard_${idx}_name`];
 
       let props = {
         ref: `cupbard_${idx}`,
@@ -86,6 +93,7 @@ const GameScreen = React.createClass({
         openImage: openImage,
         closedImage: closedImage,
         objectImage: objectImage,
+        objectName: objectName,
         onClick: this.onCupbardClick.bind(this, idx)
       };
       return <CupbardWithDoor {...props} />;
@@ -95,7 +103,7 @@ const GameScreen = React.createClass({
         <Screen {...this.props}>
           <ScoreCardBox ref="triesBox" style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
           <ScoreCardBox ref="matchBox" style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
-          <ReactionBox ref="reactionBox" animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
+          <ReactionBox ref="reactionBox" onComplete={this.onCompleteReaction} mode={this.state.reaction} animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
           {cupboardLocations}
         </Screen>
       </div>
@@ -106,6 +114,34 @@ const GameScreen = React.createClass({
     var stateVar = {};
     var isClosed = this.state[`cupbard_${idx}_state`] === 'closed';
     this.props.clickedOnDoor(this.refs[`cupbard_${idx}`]);
+  },
+
+  hasStarted() {
+    return this.state.started;
+  },
+  closeAllDoors() {
+    Object.keys(this.refs).filter((key) => { return key.startsWith('cupbard_'); }).forEach((key) => {
+      this.refs[key].close(false);
+    });
+  },
+  start() {
+    this.closeAllDoors();
+    this.setState({ started: true });
+  },
+
+  onCompleteReaction(reaction) {
+    let defaultMode = this.getDefaultReaction();
+    if (reaction !== defaultMode) {
+      this.setState({ reaction: defaultMode });
+    }
+  },
+
+  showGoodReaction() {
+    this.setState({ reaction: 'good' });
+  },
+
+  showBadReaction() {
+    this.setState({ reaction: 'bad' });
   }
 });
 

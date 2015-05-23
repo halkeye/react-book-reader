@@ -19,9 +19,12 @@ const ReactionBox = React.createClass({
   },
 
   getNextFrame() {
-    let frameNo = (this.state.frameNo+1) % this.props.animations[this.props.mode].length;
+    let frameNo = this.state.frameNo+1;
+    if (frameNo >= this.props.animations[this.props.mode].length) {
+      frameNo = 0;
+      if (this.props.onComplete) { this.props.onComplete(this.props.mode); }
+    }
     let frame = this.props.animations[this.props.mode][frameNo];
-
     let animInterval = setTimeout( this.getNextFrame, frame.nextTiming );
     this.setState({ frameNo: frameNo, animInterval: animInterval });
   },
