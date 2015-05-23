@@ -172,25 +172,58 @@ let pageProcessor = (options) => {
 };
 
 let processBookData = (settings, assetBaseUrl, bookData) => {
+  var promises = [];
+
   var book = {
     pages: {},
     games: {}
   };
+  promises.push(book);
   book.languages = Object.keys(bookData.PAGES);
   book.bookStyles = processStyleData(assetBaseUrl, bookData.STYLES);
   var gameBoardParts = {};
   book.languages.forEach((language) => {
+
     gameBoardParts[language] = [
       "apples", "bread", "cereal", "cheese", "cherries", "cupcake", "ham", "hotdog",
       "milk", "mushrooms", "olives", "pbNj", "pears", "pie", "rice", "sardine", "soup",
       "sundae", "tomatoes", "waffles"
     ].map((piece) => {
+
+      let imageObj = new Image();
+      imageObj.src = `${assetBaseUrl}/game_board_assets/game_board_image_${piece}.png`;
+      promises.push(new Promise((resolve, reject) => {
+        imageObj.onload = resolve;
+      }));
+
+      let textImageObj = new Image();
+      textImageObj.src = `${assetBaseUrl}/game_board_assets/game_board_text_${piece}-${language}.png`;
+      promises.push(new Promise((resolve, reject) => {
+        textImageObj.onload = resolve;
+      }));
       return {
-        'image': `${assetBaseUrl}/game_board_assets/game_board_image_${piece}.png`,
-        'text': `${assetBaseUrl}/game_board_assets/game_board_text_${piece}-${language}.png`
+        'key': piece,
+        'image': imageObj,
+        'text': textImageObj
       };
     });
   });
+
+  var gameAssets = {};
+  [
+    'game_cupbard_door_closed',
+    'game_cupbard_door_open',
+    'gameEnd_title_en',
+    'gameEnd_title_fr'
+  ].forEach((filename) => {
+    let imageObj = new Image();
+    imageObj.src = assetBaseUrl + "/game/" + filename + ".png";
+    promises.push(new Promise((resolve, reject) => {
+      imageObj.onload = resolve;
+    }));
+    gameAssets[filename] = imageObj;
+  });
+  /* FIXME - move game anims to here so we can do promises with them */
 
   book.languages.forEach(function(language) {
     book.pages[language] = [];
@@ -261,6 +294,18 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
             book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
             book.games[language][gameKey].back = `gameDifficulty${gameName}`;
             book.games[language][gameKey].gameBoardParts = gameBoardParts[language];
+            book.games[language][gameKey].gameAssets = {};
+            Object.keys(gameAssets).forEach((value) => {
+              let re = new RegExp("(.*)_(" + book.languages.map((elm) => { return elm; }).join("|") + ")$");
+              let result = re.exec(value);
+              if (result) {
+                if (result[2] === language) {
+                  book.games[language][gameKey].gameAssets[result[1]] = gameAssets[value];
+                }
+              } else {
+                book.games[language][gameKey].gameAssets[value] = gameAssets[value];
+              }
+            });
 
             book.games[language][gameKey].boxes = {};
             ['tries', 'match', 'reactionBox'].forEach((boxName) => {
@@ -273,6 +318,19 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
                 height: (boxData[2] * Constants.Dimensions.HEIGHT),
                 width: (boxData[3] * Constants.Dimensions.WIDTH)
               };
+            });
+            ['matchLocs'].forEach((boxName) => {
+              if (!bookData.UI.GAMES[gameName][difficulty][boxName]) { return; }
+              let boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
+              /* FIXME */
+              book.games[language][gameKey].boxes[boxName] = boxData.map((data) => {
+                return {
+                  top: (data[0] * Constants.Dimensions.HEIGHT),
+                  left: (data[1] * Constants.Dimensions.WIDTH),
+                  height: (data[2] * Constants.Dimensions.HEIGHT),
+                  width: (data[3] * Constants.Dimensions.WIDTH)
+                };
+              });
             });
 
           });
@@ -287,7 +345,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   book.hasPage = function(language, page) {
     return typeof book.pages[language][page] !== 'undefined' || typeof book.games[language][page] !== 'undefined';
   };
-  return book;
+  return Promise.all(promises);
 };
 
 module.exports = {

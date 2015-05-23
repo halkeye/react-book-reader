@@ -79,16 +79,18 @@ let BookStore = assign({}, BaseStore, {
           .then((response) => { return response.json(); })
           .then((json) => {
             let assetBaseUrl = BookUtilities.dirname(_urls[book]);
-            _bookData = BookUtilities.processBookData(
+            BookUtilities.processBookData(
               {},
               assetBaseUrl,
               json
-            );
-            _bookData.id = book;
-            _bookData.assetBaseUrl = assetBaseUrl;
-            _bookData.title = _bookData.title || extraData.title;
-            _bookData.icon = _bookData.icon || extraData.icon;
-            resolve(_bookData);
+            ).then(function(values) {
+              _bookData = values[0];
+              _bookData.id = book;
+              _bookData.assetBaseUrl = assetBaseUrl;
+              _bookData.title = _bookData.title || extraData.title;
+              _bookData.icon = _bookData.icon || extraData.icon;
+              resolve(_bookData);
+            });
           })/*.catch(function(ex) {
             console.log('parsing failed', ex);
           })*/;

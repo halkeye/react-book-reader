@@ -84,6 +84,7 @@
     "react-tap-event-plugin": "^0.1.6",
     "react-tools": "^0.13.3",
     "should": "^6.0.1",
+    "shuffle": "^0.2.2",
     "whatwg-fetch": "^0.8.1"
   }
 }
