@@ -1,13 +1,22 @@
 'use strict';
 const React = require('react');
+require('howler');
+const Howl = window.Howl;
 const CupbardWithDoor = React.createClass({
-  getDefaultProps() { return { 'state': 'open' }; },
+  getInitialState() {
+    return { 'status': 'open' };
+  },
+
+  reset() {
+    this.replaceState(this.getInitialState());
+  },
 
   getCanvas() {
     return this.refs.canvas.getDOMNode();
   },
+
   draw() {
-    let img = this.props[this.props.state + "Image"];
+    let img = this.props[this.state.status + "Image"];
     if (!img) { return; }
 
     let canvas = this.getCanvas();
@@ -29,7 +38,31 @@ const CupbardWithDoor = React.createClass({
 
   render() {
     return <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style} onClick={this.props.onClick}></canvas>;
+  },
+
+  isOpen() {
+    return this.state.status === 'open';
+  },
+
+  isClosed() {
+    return !this.isOpen();
+  },
+
+  // Actions
+  open(playSound=true) {
+    this.setState({ status: 'open' });
+    if (playSound === true) {
+      var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
+    }
+  },
+
+  close(playSound=true) {
+    this.setState({ status: 'closed' });
+    if (playSound === true) {
+      var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
+    }
   }
+
 });
 module.exports = CupbardWithDoor;
 

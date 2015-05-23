@@ -329,6 +329,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
               pageName: gameKey
             });
             book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
+            book.games[language][gameKey].gameName = gameName;
             book.games[language][gameKey].back = `gameDifficulty${gameName}`;
             book.games[language][gameKey].gameBoardParts = gameBoardParts[language];
             book.games[language][gameKey].gameAnimations = gameAnimations;
@@ -370,9 +371,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
                 };
               });
             });
-
           });
-          // ,bookData.UI.GAMES[key] easy, hard, medium
         });
       }
     }

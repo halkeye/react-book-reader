@@ -13,6 +13,12 @@ const CupbardWithDoor = require('./CupbardWithDoor.jsx');
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
 const GameScreen = React.createClass({
+  getDefaultProps() {
+    return {
+      getCupbardContents: function() { return []; },
+      clickedOnDoor: function(isOpen) { return true; }
+    };
+  },
   getInitialState() {
     return {
       triesScore: 0,
@@ -24,86 +30,29 @@ const GameScreen = React.createClass({
     this.resetGame(this.props);
   },
 
+  /*
   componentWillReceiveProps(nextProps) {
+    // FIXME - only change when things change
     this.resetGame(nextProps);
   },
+  */
 
-  /* START GAME:PP*/
-  getCupbardContents(size) {
-    let deck = Shuffle.shuffle({ "deck": this.props.page.gameBoardParts });
-    let array = deck.drawRandom(Math.floor(size / 2));
-    return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
-  },
-  isEndGame() {
-    this.state.matchesScore == Math.floor(this.numberOfDoors()/2);
-  },
-  isPerfectGame() {
-    this.state.triesScore == Math.floor(this.numberOfDoors()/2);
-  },
-  clickedOnDoor() {
-/*
-   if (!hasStarted) {
-      closeAllDoors();
-      hasStarted = true;
-      return false;
-    }
-
-    // Ignore open doors
-    if (cupbardWithDoor.isOpen()) {
-      return false;
-    }
-
-    if (openDoor1 == null) {
-      openDoor1 = cupbardWithDoor;
-      return true;
-    }
-
-    // Don't click on the same door
-    if (openDoor1 == cupbardWithDoor) {
-      return false;
-    }
-
-    tryCount++;
-    triesLabel.setText(String.valueOf(tryCount));
-
-
-    // If contents match, then yay!
-    if (openDoor1.getContent().equals(cupbardWithDoor.getContent())) {
-      matchCount++;
-      matchLabel.setText(String.valueOf(matchCount));
-      openDoor1 = null;
-      endGame();
-      // Make Josephine look happy - FIXME
-      showGoodReaction();
-      return true;
-    }
-
-    // Bad match
-
-    // FIXME - Josephine look unhappy
-    showBadReaction();
-
-    closingDoorsTask = new CloseDoorsTask(this);
-    closingDoorsTask.execute(openDoor1,cupbardWithDoor);
-    openDoor1 = null;
-
-    return true;
-*/
-  },
-
-  /* END GAME:PP*/
   numberOfDoors() {
     return this.props.page.boxes.matchLocs.length;
   },
 
   resetGame(props) {
     let state = this.getInitialState();
-    let contents = Shuffle.shuffle({ "deck": this.getCupbardContents(this.numberOfDoors()) });
-    /* this.props.cupbardContents ??? FIXME */
+    let contents = Shuffle.shuffle({ "deck": props.getCupbardContents(this.numberOfDoors()) });
     this.props.page.boxes.matchLocs.map((loc, idx) => {
+      let cupbard = this.refs[`cupbard_${idx}`];
+      cupbard.reset();
+
       let content = contents.draw();
+      if (!content) { return; }
       state[`cupbard_${idx}_image`] = content.image;
       state[`cupbard_${idx}_name`] = content.key;
+
     });
     this.replaceState(state);
   },
@@ -122,7 +71,6 @@ const GameScreen = React.createClass({
       this.props.page.boxes.reactionBox
     );
     let cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-      let state = this.state[`cupbard_${idx}_state`];
       let style = assign(
         { 'position': 'absolute' },
         loc
@@ -130,7 +78,17 @@ const GameScreen = React.createClass({
       let openImage = this.props.page.gameAssets.game_cupbard_door_open;
       let closedImage = this.props.page.gameAssets.game_cupbard_door_closed;
       let objectImage = this.state[`cupbard_${idx}_image`];
-      return <CupbardWithDoor key={idx} state={state} style={style} openImage={openImage} closedImage={closedImage} objectImage={objectImage} onClick={this.onCupbardClick.bind(this, idx)} />;
+
+      let props = {
+        ref: `cupbard_${idx}`,
+        key: idx,
+        style: style,
+        openImage: openImage,
+        closedImage: closedImage,
+        objectImage: objectImage,
+        onClick: this.onCupbardClick.bind(this, idx)
+      };
+      return <CupbardWithDoor {...props} />;
     });
     return (
       <div>
@@ -146,12 +104,8 @@ const GameScreen = React.createClass({
 
   onCupbardClick(idx) {
     var stateVar = {};
-    if (this.state[`cupbard_${idx}_state`] === 'closed') {
-      stateVar[`cupbard_${idx}_state`] = 'open';
-    } else {
-      stateVar[`cupbard_${idx}_state`] = 'closed';
-    }
-    this.setState(stateVar);
+    var isClosed = this.state[`cupbard_${idx}_state`] === 'closed';
+    this.props.clickedOnDoor(this.refs[`cupbard_${idx}`]);
   }
 });
 
