@@ -87,7 +87,6 @@ let pageProcessor = (options) => {
   if (!isNaN(pageName)) // if is number
   {
     pageData.pageImage = assetBaseUrl + "/pages/pg" + pad_func(pageName, 2) + ".png";
-    pageData.pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(pageName, 2) + '.mp3';
   }
   else
   {
@@ -179,6 +178,19 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   };
   book.languages = Object.keys(bookData.PAGES);
   book.bookStyles = processStyleData(assetBaseUrl, bookData.STYLES);
+  var gameBoardParts = {};
+  book.languages.forEach((language) => {
+    gameBoardParts[language] = [
+      "apples", "bread", "cereal", "cheese", "cherries", "cupcake", "ham", "hotdog",
+      "milk", "mushrooms", "olives", "pbNj", "pears", "pie", "rice", "sardine", "soup",
+      "sundae", "tomatoes", "waffles"
+    ].map((piece) => {
+      return {
+        'image': `${assetBaseUrl}/game_board_assets/game_board_image_${piece}.png`,
+        'text': `${assetBaseUrl}/game_board_assets/game_board_text_${piece}-${language}.png`
+      };
+    });
+  });
 
   book.languages.forEach(function(language) {
     book.pages[language] = [];
@@ -190,7 +202,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
         language: language,
         page: page,
         pageName: idx+1
-        });
+      });
+      book.pages[language][idx+1].pageAudio = assetBaseUrl + '/voice/' + language.toUpperCase() + '/page' + pad_func(idx+1, 2) + '.mp3';
     });
     if (bookData.UI) {
       Object.keys(bookData.UI).forEach((key) => {
@@ -226,7 +239,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
 
           book.pages[language][`game${gameName}Tutorial`] = pageProcessor({
             assetBaseUrl: assetBaseUrl, parentStyle: book.bookStyles,
-            language: language, page: {}, pageName: ''
+            language: language, page: {}, pageName: `game${gameName}Tutorial`
           });
           assign(
             book.pages[language][`game${gameName}Tutorial`],
@@ -247,6 +260,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
             });
             book.games[language][gameKey].pageImage = `${assetBaseUrl}/pages/pgGame${gameName}_${difficulty}.png`;
             book.games[language][gameKey].back = `gameDifficulty${gameName}`;
+            book.games[language][gameKey].gameBoardParts = gameBoardParts[language];
+
             book.games[language][gameKey].boxes = {};
             ['tries', 'match', 'reactionBox'].forEach((boxName) => {
               if (!bookData.UI.GAMES[gameName][difficulty][boxName]) { return; }

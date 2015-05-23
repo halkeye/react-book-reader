@@ -22,6 +22,27 @@ let _titles = {};
 
 // Facebook style store creation.
 let BookStore = assign({}, BaseStore, {
+  getAnimFile(assetBaseUrl, animName) {
+    return new Promise((resolve, reject) => {
+      fetch(assetBaseUrl + '/animations/' + animName + '/anim.txt')
+        .then((response) => {
+          return response.text();
+        })
+        .then((text) => {
+          var array = [];
+          text.replace("\r", "\n").replace(/\n+/, "\n").split("\n").forEach((line) => {
+            if (!line) { return; }
+            let [frameNo, timing] = line.split(",");
+            array.push({
+              frame: assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png",
+              nextTiming: parseInt(timing, 10)
+            });
+          });
+
+          resolve(array);
+        });
+    });
+  },
 
   // public methods used by Controller-View to operate on data
   getAll() {
