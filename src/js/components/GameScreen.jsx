@@ -3,6 +3,7 @@ const React = require('react');
 const assign = require('object-assign');
 const Shuffle = require('shuffle');
 
+const BookActionCreators = require('../actions/BookActionCreators');
 const Constants = require('../constants/AppConstants');
 
 const Screen = require('./Screen.jsx');
@@ -12,6 +13,7 @@ const CupbardWithDoor = require('./CupbardWithDoor.jsx');
 const GameOverDialog = require('./GameOverDialog.jsx');
 
 const BookUtilities = require('../constants/BookUtilities.jsx');
+const Howl = require('howler').Howl;
 
 const GameScreen = React.createClass({
   getDefaultProps() {
@@ -36,13 +38,6 @@ const GameScreen = React.createClass({
   componentDidMount() {
     this.resetGame(this.props);
   },
-
-  /*
-  componentWillReceiveProps(nextProps) {
-    // FIXME - only change when things change
-    this.resetGame(nextProps);
-  },
-  */
 
   numberOfDoors() {
     return this.props.page.boxes.matchLocs.length;
@@ -99,7 +94,10 @@ const GameScreen = React.createClass({
       };
       return <CupbardWithDoor {...props} />;
     });
-    let gameOverDialog = <GameOverDialog />;
+    let gameOverDialog = "";
+    if (this.props.isEndGame()) {
+      gameOverDialog = <GameOverDialog onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
+    }
     return (
       <div>
         <Screen {...this.props}>
@@ -111,6 +109,16 @@ const GameScreen = React.createClass({
         </Screen>
       </div>
     );
+  },
+
+  onPlayAgain() {
+    this.resetGame(this.props);
+  },
+  onChangeDiff() {
+    return BookActionCreators.changePage({ page: this.props.page.back });
+  },
+  onBackGameMenu() {
+    return BookActionCreators.changePage({ page: 'game' });
   },
 
   onCupbardClick(idx) {
@@ -140,56 +148,13 @@ const GameScreen = React.createClass({
   },
 
   showGoodReaction() {
-    this.setState({ reaction: 'good' });
+    this.setState({ REACTION: 'good' });
+    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_correct.mp3'] }).play();
   },
 
   showBadReaction() {
     this.setState({ reaction: 'bad' });
-  },
-
-  endGame() {
-    if (this.isPerfectGame())
-    {
-      /* FIXME - Perfect Game
-       * Award "reward" based on game name + difficulty
-       */
-    }
-    /*
-    final RelativeLayout parentLayout = (RelativeLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-
-    OnClickListener playAgainClickListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        that.gameOverDialog.dismiss();
-        that.resetGame();
-      }
-    };
-
-    OnClickListener changeDiffClickListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        that.gameOverDialog.dismiss();
-        // Just go up one level
-        that.finish();
-      }
-    };
-
-    OnClickListener backToGameMenuClickListener = new OnClickListener() {
-          @Override
-      public void onClick(View v) {
-        that.gameOverDialog.dismiss();
-        Intent intent = new Intent(that, GameMenu.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-      }
-    };
-    gameOverDialog = new GameOverViewWindow(this, playAgainClickListener, changeDiffClickListener, backToGameMenuClickListener);
-    parentLayout.post(new Runnable() {
-      public void run() {
-        that.gameOverDialog.show(parentLayout);
-      }
-    });
-    */
+    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_incorrect.mp3'] }).play();
   }
 });
 

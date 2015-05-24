@@ -41,7 +41,7 @@ const CupbardWithDoor = React.createClass({
   },
 
   playDoorSound() {
-    var sound = new Howl({ urls: ['/books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
+    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
   },
 
   isOpen() {

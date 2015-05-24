@@ -14,6 +14,9 @@ let GamePP = React.createClass({
     return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
   },
   isEndGame() {
+    if (!this.refs) { return false; }
+    if (!this.refs.gamescreen) { return false; }
+    if (!this.refs.gamescreen.state) { return false; }
     return this.refs.gamescreen.state.matchesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
   },
   isPerfectGame() {
@@ -52,9 +55,6 @@ let GamePP = React.createClass({
       });
       this.setState({ openDoor1: null });
       this.refs.gamescreen.showGoodReaction();
-      if (this.isEndGame()) {
-        this.refs.gamescreen.endGame();
-      }
       return true;
     }
     // FIXME - Josephine look unhappy
