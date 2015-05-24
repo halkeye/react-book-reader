@@ -9,6 +9,7 @@ const Screen = require('./Screen.jsx');
 const ScoreCardBox = require('./ScoreCardBox.jsx');
 const ReactionBox = require('./ReactionBox.jsx');
 const CupbardWithDoor = require('./CupbardWithDoor.jsx');
+const GameOverDialog = require('./GameOverDialog.jsx');
 
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
@@ -98,6 +99,7 @@ const GameScreen = React.createClass({
       };
       return <CupbardWithDoor {...props} />;
     });
+    let gameOverDialog = <GameOverDialog />;
     return (
       <div>
         <Screen {...this.props}>
@@ -105,6 +107,7 @@ const GameScreen = React.createClass({
           <ScoreCardBox ref="matchBox" style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
           <ReactionBox ref="reactionBox" onComplete={this.onCompleteReaction} mode={this.state.reaction} animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
           {cupboardLocations}
+          {gameOverDialog}
         </Screen>
       </div>
     );
@@ -142,6 +145,51 @@ const GameScreen = React.createClass({
 
   showBadReaction() {
     this.setState({ reaction: 'bad' });
+  },
+
+  endGame() {
+    if (this.isPerfectGame())
+    {
+      /* FIXME - Perfect Game
+       * Award "reward" based on game name + difficulty
+       */
+    }
+    /*
+    final RelativeLayout parentLayout = (RelativeLayout) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+
+    OnClickListener playAgainClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        that.gameOverDialog.dismiss();
+        that.resetGame();
+      }
+    };
+
+    OnClickListener changeDiffClickListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        that.gameOverDialog.dismiss();
+        // Just go up one level
+        that.finish();
+      }
+    };
+
+    OnClickListener backToGameMenuClickListener = new OnClickListener() {
+          @Override
+      public void onClick(View v) {
+        that.gameOverDialog.dismiss();
+        Intent intent = new Intent(that, GameMenu.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+      }
+    };
+    gameOverDialog = new GameOverViewWindow(this, playAgainClickListener, changeDiffClickListener, backToGameMenuClickListener);
+    parentLayout.post(new Runnable() {
+      public void run() {
+        that.gameOverDialog.show(parentLayout);
+      }
+    });
+    */
   }
 });
 

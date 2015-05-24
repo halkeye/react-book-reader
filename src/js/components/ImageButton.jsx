@@ -8,25 +8,25 @@ let ImageButton = React.createClass({
   render() {
     if (this.props.enabled === false) { return <div/>; }
 
-    var buttonWidth = AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
-    var buttonHeight = AppConstants.Dimensions.BUTTON_HEIGHT;
+    var buttonWidth = this.props.width || AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
+    var buttonHeight = this.props.height || AppConstants.Dimensions.BUTTON_HEIGHT;
 
     var style = {
       position: "absolute",
       height: buttonHeight+'px',
       width: buttonWidth+'px',
-      backgroundSize: 'contain',
+      backgroundSize: '100% 100%',
       backgroundColor: 'rgba(0,0,0,0)',
       backgroundImage: "url(" + this.props.image + ")",
       border: 'none'
     };
-    ['top','left','right','bottom'].forEach((field) => {
+    ['top', 'left', 'right', 'bottom'].forEach((field) => {
       if (this.props[field]) { style[field] = this.props[field]; }
     });
     return (
       <IconButton style={style} onClick={this.props.onClick}></IconButton>
     );
-  },
+  }
 });
 module.exports = ImageButton;
 
