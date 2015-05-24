@@ -11,7 +11,14 @@ let GamePP = React.createClass({
   getCupbardContents(size) {
     let deck = Shuffle.shuffle({ "deck": this.props.page.gameBoardParts });
     let array = deck.drawRandom(Math.floor(size / 2));
-    return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
+    if (this.props.mode === 'PP') {
+      return array.concat(array).map((elm) => { return { key: elm.key, image: elm.image}; });
+    } else if (this.props.mode === 'WP') {
+      return []
+        .concat(array.map((elm) => { return { key: elm.key, image: elm.image}; }))
+        .concat(array.map((elm) => { return { key: elm.key, image: elm.text}; }));
+    }
+    return [];
   },
   isEndGame() {
     if (!this.refs) { return false; }

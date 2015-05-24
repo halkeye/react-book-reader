@@ -7,7 +7,6 @@ const DocumentTitle = require('react-document-title');
 
 const Screen = require('./Screen.jsx');
 const GamePP = require('./GamePP.jsx');
-const GameWP = require('./GameWP.jsx');
 
 let Book = React.createClass({
   propTypes: {
@@ -72,11 +71,10 @@ let Book = React.createClass({
       if (!page.gameName) {
         body = <h1>NO IDEA WHAT TO DO {this.props.page}</h1>;
       }
-      else if (page.gameName === 'PP') {
-        body = <GamePP key={"screen_" + this.props.page} page={page} />;
-      }
-      else if (page.gameName === 'WP') {
-        body = <GameWP key={"screen_" + this.props.page} page={page} />;
+      else if (page.gameName === 'PP' || page.gameName === 'WP') {
+        body = <GamePP key={"screen_" + this.props.page} page={page} mode={page.gameName} />;
+      } else if (page.gameName === 'fullMonty') {
+        body = <GamePP key={"screen_" + this.props.page} page={page} mode={page.gameName} />;
       }
     } else {
       let page = this.props.book.pages[this.props.language][this.props.page];
