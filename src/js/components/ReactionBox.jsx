@@ -19,7 +19,6 @@ const ReactionBox = React.createClass({
   },
 
   getNextFrame() {
-    if (!this.isMounted()) { return; }
     let frameNo = this.state.frameNo+1;
     if (frameNo >= this.props.animations[this.props.mode].length) {
       frameNo = 0;
@@ -52,6 +51,10 @@ const ReactionBox = React.createClass({
 
   render() {
     return <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style}></canvas>;
+  },
+
+  componentWillUnmount() {
+    if (this.state.animInterval) { clearInterval(this.state.animInterval); }
   }
 
 });
