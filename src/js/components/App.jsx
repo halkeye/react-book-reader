@@ -92,9 +92,7 @@ let App = React.createClass({
     if (this.state.book.id !== book) {
       BookStore.getBook(book).then((bookData) => {
         this.setState({ book: bookData });
-      })/*.catch((ex) => {
-        console.log('getBook error: ', ex);
-      });*/
+      });
     }
     if (this.state.book.id) {
       return <Book book={this.state.book} language={language} page={page} autoplay={autoplay}></Book>;

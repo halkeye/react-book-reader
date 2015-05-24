@@ -71,56 +71,14 @@ let BookStore = assign({}, BaseStore, {
     });
   },
 
-  getLanguages(book) {
+  getLanguages(bookName) {
     return new Promise((resolve, reject) => {
-      BookStore.getBook(book).then((bookData) => {
-        return resolve(bookData.languages);
+      BookStore.getAll().then((books) => {
+         let book = books.filter((bookElm) => { return bookElm.id === bookName; })[0];
+         resolve(book.languages);
       });
     });
-  },
-
-  getPage(book, language, page) {
-    return new Promise((resolve, reject) => {
-      BookStore.getBook(book).then((bookData) => {
-        bookData.pages[language][page].assetBaseUrl = _bookData.assetBaseUrl;
-        return resolve(bookData.pages[language][page]);
-      }).catch(reject);
-    });
-  },
-
-  hasPage(book, language, page) {
-    return new Promise((resolve, reject) => {
-      BookStore.getBook(book).then((bookData) => {
-        if (page in bookData.pages[language]) {
-          return resolve(true);
-        }
-        return resolve(false);
-      }).catch(reject);
-    });
   }
-
-/*
-  // register store with dispatcher, allowing actions to flow through
-  dispatcherIndex: AppDispatcher.register(function(payload) {
-    let action = payload.action;
-
-    switch(action.type) {
-      case Constants.ActionTypes.ADD_TASK:
-        let text = action.text.trim();
-        // NOTE: if this action needs to wait on another store:
-        // AppDispatcher.waitFor([OtherStore.dispatchToken]);
-        // For details, see: http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html#why-we-need-a-dispatcher
-        if (text !== '') {
-          addItem(text);
-          BookStore.emitChange();
-        }
-        break;
-
-      // add more cases for other actionTypes...
-    }
-  })
-*/
-
 });
 
 module.exports = BookStore;

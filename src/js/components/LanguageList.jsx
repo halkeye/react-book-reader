@@ -5,7 +5,7 @@ const BookStore = require('../stores/BookStore');
 
 const LanguageIcon = require('./LanguageIcon.jsx');
 
-let {RaisedButton,Dialog} = mui;
+let {RaisedButton, Dialog} = mui;
 
 let LanguageList = React.createClass({
   componentDidMount() {
@@ -16,7 +16,7 @@ let LanguageList = React.createClass({
   getInitialState() {
     return {
       languages: []
-    }
+    };
   },
   render: function() {
     if (this.state.languages.length === 1) {
@@ -26,7 +26,7 @@ let LanguageList = React.createClass({
     let languages = this.state.languages.map((language) => {
       return (
         <div key={language} className="language-selector-button">
-          <RaisedButton onClick={this.handleSelectLanguageClick.bind(this,language)}>
+          <RaisedButton onClick={this.handleSelectLanguageClick.bind(this, language)} labelStyle={{ width: '400px', height: '250px' }}>
             <span className="mui-raised-button-label">
               <LanguageIcon language={language} />
             </span>
