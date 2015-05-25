@@ -54,7 +54,6 @@ let GamePP = React.createClass({
       this.refs.gamescreen.showGoodReaction();
       return true;
     }
-    // FIXME - Josephine look unhappy
     this.refs.gamescreen.showBadReaction();
     setTimeout(() => { cupboard.close(false); }, 300);
     cupboard.open();
@@ -77,63 +76,3 @@ let GamePP = React.createClass({
 });
 
 module.exports = GamePP;
-/*
-  private void updateDisplayBox()
-  {
-    if (this.displayBox == null) return;
-    this.displayBox.setVisibility(View.VISIBLE);
-
-    Collections.shuffle(this.doors);
-    Iterator<CupboardWithDoor> doorsIter = this.doors.iterator();
-
-    while (doorsIter.hasNext())
-    {
-      CupboardWithDoor door = doorsIter.next();
-      if (door.isOpen()) continue;
-      // Ignore the door that is already opened/selected
-      if (door.getContent().equals(mDisplayBoxContents)) continue;
-
-      mDisplayBoxContents = door.getContent();
-      this.displayBox.setImageBitmap(door.getImage(true));
-      break;
-    }
-  }
-
-  @Override
-  public boolean clickedOnDoor(final CupboardWithDoor cupboardWithDoor) {
-
-    openDoor1 = cupboardWithDoor;
-
-    tryCount++;
-    triesLabel.setText(String.valueOf(tryCount));
-
-    // If contents match, then yay!
-    if (openDoor1.getContent().equals(mDisplayBoxContents)) {
-      matchCount++;
-      matchLabel.setText(String.valueOf(matchCount));
-      openDoor1 = null;
-      updateDisplayBox();
-      endGame();
-      // Make Josephine look happy
-      showGoodReaction();
-      return true;
-    }
-
-    // Bad match
-
-    // Josephine look unhappy
-    showBadReaction();
-    closingDoorsTask = new CloseDoorsTask(this);
-    closingDoorsTask.execute(openDoor1,cupboardWithDoor);
-      openDoor1 = null;
-
-    return true;
-  }
-
-  @Override
-  protected void initializeGameAnimations() {
-    this.mPointingAnim = new GameDisplayAnimation(this, "pointing");
-    super.initializeGameAnimations();
-  }
-}
-*/

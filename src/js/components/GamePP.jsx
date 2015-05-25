@@ -64,7 +64,6 @@ let GamePP = React.createClass({
       this.refs.gamescreen.showGoodReaction();
       return true;
     }
-    // FIXME - Josephine look unhappy
     this.refs.gamescreen.showBadReaction();
     setTimeout(() => {
       this.state.openDoor1.close(false);
