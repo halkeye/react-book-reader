@@ -6,6 +6,13 @@ const ReactionBox = React.createClass({
   getInitialState() { return { frameNo: 0 }; },
   getDefaultProps() { return { 'mode': 'neutral' }; },
 
+  stopAnimation() {
+    if (this._animInterval) {
+      clearTimeout(this._animInterval);
+      delete this._animInterval;
+    }
+  },
+
   componentWillReceiveProps: function(nextProps) {
     if (nextProps.mode !== this.props.mode) {
       this.updateAnims(nextProps.animations[nextProps.mode]);
@@ -13,8 +20,9 @@ const ReactionBox = React.createClass({
   },
 
   updateAnims(anims) {
-    if (this.state.animInterval) { clearInterval(this.state.animInterval); }
-    let animInterval = setTimeout( this.getNextFrame, anims[0].nextTiming );
+
+    this.stopAnimation();
+    this._animInterval = setTimeout( this.getNextFrame, anims[0].nextTiming );
     this.setState({ anims: anims, frameNo: 0 });
   },
 
@@ -25,13 +33,15 @@ const ReactionBox = React.createClass({
       if (this.props.onComplete) { this.props.onComplete(this.props.mode); }
     }
     let frame = this.props.animations[this.props.mode][frameNo];
-    let animInterval = setTimeout( this.getNextFrame, frame.nextTiming );
-    this.setState({ frameNo: frameNo, animInterval: animInterval });
+    this.stopAnimation();
+    this._animInterval = setTimeout( this.getNextFrame, frame.nextTiming );
+    this.setState({ frameNo: frameNo });
   },
 
   getCanvas() {
     return this.refs.canvas.getDOMNode();
   },
+
   draw() {
     if (!this.props.animations) { return; }
     let canvas = this.getCanvas();
@@ -56,7 +66,7 @@ const ReactionBox = React.createClass({
   },
 
   componentWillUnmount() {
-    if (this.state.animInterval) { clearInterval(this.state.animInterval); }
+    this.stopAnimation();
   }
 
 });
