@@ -2,7 +2,7 @@
 const React = require('react');
 const Howl = require('howler').Howl;
 
-const CupbardWithDoor = React.createClass({
+const CupboardWithDoor = React.createClass({
   getInitialState() {
     return { 'status': 'open' };
   },
@@ -16,16 +16,16 @@ const CupbardWithDoor = React.createClass({
   },
 
   draw() {
-    let img = this.props[this.state.status + "Image"];
-    if (!img) { return; }
-
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (this.props.objectImage) {
       ctx.drawImage(this.props.objectImage(), 0, 0);
     }
-    ctx.drawImage(img(), 0, 0);
+    let img = this.props[this.state.status + "Image"];
+    if (img) {
+      ctx.drawImage(img(), 0, 0);
+    }
   },
 
   componentDidMount() {
@@ -45,7 +45,7 @@ const CupbardWithDoor = React.createClass({
   },
 
   isOpen() {
-    return this.state.status === 'open';
+    return this.doorState === 'open';
   },
 
   isClosed() {
@@ -54,15 +54,17 @@ const CupbardWithDoor = React.createClass({
 
   // Actions
   open(playSound=true) {
-    this.setState({ status: 'open' });
+    this.doorState = 'open';
+    this.setState({ status: this.doorState });
     if (playSound === true) { this.playDoorSound(); }
   },
 
   close(playSound=true) {
-    this.setState({ status: 'closed' });
+    this.doorState = 'closed';
+    this.setState({ status: this.doorState });
     if (playSound === true) { this.playDoorSound(); }
   }
 
 });
-module.exports = CupbardWithDoor;
+module.exports = CupboardWithDoor;
 

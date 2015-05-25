@@ -8,7 +8,7 @@ let GamePP = React.createClass({
   getInitialState() {
     return { openDoor1: null };
   },
-  getCupbardContents(size) {
+  getCupboardContents(size) {
     let deck = Shuffle.shuffle({ "deck": this.props.page.gameBoardParts });
     let array = deck.drawRandom(Math.floor(size / 2));
     if (this.props.mode === 'PP') {
@@ -29,25 +29,25 @@ let GamePP = React.createClass({
   isPerfectGame() {
     return this.refs.gamescreen.state.triesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
   },
-  clickedOnDoor(cupbard) {
+  clickedOnDoor(cupboard) {
     if (!this.refs.gamescreen.hasStarted()) {
       this.refs.gamescreen.start();
       return false;
     }
 
     // Ignore open doors
-    if (cupbard.isOpen()) {
+    if (cupboard.isOpen()) {
       return false;
     }
 
     if (this.state.openDoor1 === null) {
-      this.setState({openDoor1: cupbard});
-      cupbard.open();
+      this.setState({openDoor1: cupboard});
+      cupboard.open();
       return true;
     }
 
     // Don't click on the same door
-    if (this.state.openDoor1 === cupbard) {
+    if (this.state.openDoor1 === cupboard) {
       return false;
     }
     this.refs.gamescreen.setState(function(previousState, currentProps) {
@@ -55,8 +55,8 @@ let GamePP = React.createClass({
     });
 
     // If contents match, then yay!
-    if (this.state.openDoor1.props.objectName === cupbard.props.objectName) {
-      cupbard.open();
+    if (this.state.openDoor1.props.objectName === cupboard.props.objectName) {
+      cupboard.open();
       this.refs.gamescreen.setState(function(previousState, currentProps) {
         return { matchesScore: previousState.matchesScore + 1 };
       });
@@ -68,10 +68,10 @@ let GamePP = React.createClass({
     this.refs.gamescreen.showBadReaction();
     setTimeout(() => {
       this.state.openDoor1.close(false);
-      cupbard.close(false);
+      cupboard.close(false);
       this.setState({ openDoor1: null });
     }, 300);
-    cupbard.open();
+    cupboard.open();
     return true;
   },
 
@@ -80,7 +80,7 @@ let GamePP = React.createClass({
       {},
       this.props,
       {
-        getCupbardContents: this.getCupbardContents,
+        getCupboardContents: this.getCupboardContents,
         isEndGame: this.isEndGame,
         isPerfectGame: this.isPerfectGame,
         clickedOnDoor: this.clickedOnDoor
