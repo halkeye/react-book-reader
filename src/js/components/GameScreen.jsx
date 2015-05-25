@@ -94,6 +94,13 @@ const GameScreen = React.createClass({
       };
       return <CupbardWithDoor {...props} />;
     });
+    if (this.props.page.boxes.displayBox) {
+      let style = assign(
+        { 'position': 'absolute' },
+        this.props.page.boxes.displayBox
+      );
+      cupboardLocations.push(<CupbardWithDoor key="displaybox" ref="displaybox" style={style} objectImage={this.state[`cupbard_0_image`]} />);
+    }
     let gameOverDialog = "";
     if (this.props.isEndGame()) {
       gameOverDialog = <GameOverDialog onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
@@ -148,7 +155,7 @@ const GameScreen = React.createClass({
   },
 
   showGoodReaction() {
-    this.setState({ REACTION: 'good' });
+    this.setState({ reaction: 'good' });
     var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_correct.mp3'] }).play();
   },
 

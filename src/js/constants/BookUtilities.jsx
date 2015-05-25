@@ -1,5 +1,6 @@
 var assign = require('object-assign');
 var diacritics = require('diacritics');
+const AssetManager = require('../AssetManager.js');
 require('whatwg-fetch'); // polyfill
 
 const Constants = require('../constants/AppConstants.js');
@@ -16,7 +17,7 @@ let getAnimFile = (assetBaseUrl, animName) => {
           if (!line) { return; }
           let [frameNo, timing] = line.split(",");
           array.push({
-            frame: assetBaseUrl + "/animations/" + animName + "/" + animName + frameNo + ".png",
+            filename: "animations/" + animName + "/" + animName + frameNo + ".png",
             nextTiming: parseInt(timing, 10)
           });
         });
@@ -93,7 +94,6 @@ let processStyleData = (assetBaseUrl, styleData) => {
       color: intToRGBA(styleData[state.toUpperCase()].COLOR),
       fontPath: assetBaseUrl + '/' + font,
       fontFamily: font,
-      //size: (bookData.STYLES[state.toUpperCase()].SIZE/1024) + 'vw'//*settings.widthOffset,
       fontSize: styleData[state.toUpperCase()].SIZE
     };
   });
@@ -198,6 +198,7 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   var promises = [];
 
   var book = {
+    asset_manager: new AssetManager(assetBaseUrl),
     pages: {},
     games: {}
   };
@@ -208,12 +209,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
   ['bad', 'good', 'neutral', 'pointing'].forEach((animName) => {
     getAnimFile(assetBaseUrl, animName).then((frames) => {
       frames.forEach((frame) => {
-        let imageObj = new Image();
-        imageObj.src = frame.frame;
-        promises.push(new Promise((resolve, reject) => {
-          imageObj.onload = resolve;
-        }));
-        frame.frame = imageObj;
+        promises.push(book.asset_manager.queueDownload('img', frame.filename));
+        frame.frame = book.asset_manager.getAsset.bind(book.asset_manager, frame.filename);
       });
       gameAnimations[animName] = frames;
     });
@@ -227,17 +224,12 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
       "sundae", "tomatoes", "waffles"
     ].map((piece) => {
 
-      let imageObj = new Image();
-      imageObj.src = `${assetBaseUrl}/game_board_assets/game_board_image_${piece}.png`;
-      promises.push(new Promise((resolve, reject) => {
-        imageObj.onload = resolve;
-      }));
+      promises.push(book.asset_manager.queueDownload('img', `game_board_assets/game_board_image_${piece}.png`));
+      let imageObj = function() { return book.asset_manager.getAsset(`game_board_assets/game_board_image_${piece}.png`); };
 
-      let textImageObj = new Image();
-      textImageObj.src = `${assetBaseUrl}/game_board_assets/game_board_text_${piece}-${language}.png`;
-      promises.push(new Promise((resolve, reject) => {
-        textImageObj.onload = resolve;
-      }));
+      promises.push(book.asset_manager.queueDownload('img', `game_board_assets/game_board_text_${piece}-${language}.png`));
+      let textImageObj = function() { return book.asset_manager.getAsset(`game_board_assets/game_board_text_${piece}-${language}.png`); };
+
       return {
         'key': piece,
         'image': imageObj,
@@ -253,12 +245,8 @@ let processBookData = (settings, assetBaseUrl, bookData) => {
     'gameEnd_title_en',
     'gameEnd_title_fr'
   ].forEach((filename) => {
-    let imageObj = new Image();
-    imageObj.src = assetBaseUrl + "/game/" + filename + ".png";
-    promises.push(new Promise((resolve, reject) => {
-      imageObj.onload = resolve;
-    }));
-    gameAssets[filename] = imageObj;
+    promises.push(book.asset_manager.queueDownload('img', "game/" + filename + ".png"));
+    gameAssets[filename] = function() { return book.asset_manager.getAsset("game/" + filename + ".png"); };
   });
   /* FIXME - move game anims to here so we can do promises with them */
 
