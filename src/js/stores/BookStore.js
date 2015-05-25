@@ -42,7 +42,7 @@ let BookStore = assign({}, BaseStore, {
   },
 
   /* FIXME - return book object */
-  getBook(book) {
+  getBook(book, language) {
     return new Promise((resolve, reject) => {
       if (_bookData && _bookData.id === book) { return resolve(_bookData); }
       BookStore.getAll().then((allBooks) => {
@@ -55,14 +55,17 @@ let BookStore = assign({}, BaseStore, {
             BookUtilities.processBookData(
               {},
               assetBaseUrl,
-              json
+              json,
+              language
             ).then(function(values) {
               _bookData = values[0];
               _bookData.id = book;
-              _bookData.assetBaseUrl = assetBaseUrl;
               _bookData.title = _bookData.title || extraData.title;
               _bookData.icon = _bookData.icon || extraData.icon;
               resolve(_bookData);
+            }, function(values) {
+              console.log('rejected processBookData', values);
+              reject(values);
             });
           })/*.catch(function(ex) {
             console.log('parsing failed', ex);

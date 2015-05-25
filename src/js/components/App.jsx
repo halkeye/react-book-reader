@@ -89,9 +89,11 @@ let App = React.createClass({
     page = typeof page === 'object' ? 'home' : page;
     autoplay = typeof autoplay === 'object' ? false : autoplay;
 
-    if (this.state.book.id !== book) {
-      BookStore.getBook(book).then((bookData) => {
+    if (this.state.book.id !== book || this.state.book.language !== language) {
+      BookStore.getBook(book, language).then((bookData) => {
         this.setState({ book: bookData });
+      }).catch(function(ex) {
+        console.log('error', ex);
       });
     }
     if (this.state.book.id) {
@@ -128,7 +130,7 @@ let App = React.createClass({
           );
           if (parts.page === 0) { return null; }
           if (parts.page) {
-            if (this.state.book.hasPage(parts.language, parts.page)) {
+            if (this.state.book.hasPage(parts.page)) {
               return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
             } else if (!isNaN(parts.page)) {
               return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/end' + (parts.autoplay ? '/autoplay' : ''));

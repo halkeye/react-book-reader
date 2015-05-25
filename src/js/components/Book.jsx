@@ -67,8 +67,8 @@ let Book = React.createClass({
       );
     }*/
     let body = '';
-    if (this.props.book.hasGame(this.props.language, this.props.page)) {
-      let page = this.props.book.games[this.props.language][this.props.page];
+    if (this.props.book.hasGame(this.props.page)) {
+      let page = this.props.book.games[this.props.page];
       if (!page.gameName) {
         body = <h1>NO IDEA WHAT TO DO {this.props.page}</h1>;
       }
@@ -78,7 +78,7 @@ let Book = React.createClass({
         body = <GameFullMonty key={"screen_" + this.props.page} page={page} />;
       }
     } else {
-      let page = this.props.book.pages[this.props.language][this.props.page];
+      let page = this.props.book.pages[this.props.page];
       body = <Screen key={"screen_" + this.props.page} page={page} autoplay={this.props.autoplay} />;
     }
     return (
