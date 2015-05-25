@@ -40,7 +40,7 @@ let Screen = React.createClass({
   },
 
   componentDidMount() {
-    let audio = new BookAudio();
+    let audio = new BookAudio(this.props.page.asset_manager);
     audio.bind('page', 'play', this.onPagePlay);
     audio.bind('page', 'pause', this.onPagePause);
     audio.bind('page', 'ended', this.onPageEnded);
@@ -81,7 +81,7 @@ let Screen = React.createClass({
     };
     if (this.props.page.pageImage) {
       ret.backgroundSize = 'contain';
-      ret.backgroundImage = 'url(' + this.props.page.pageImage + ')';
+      ret.backgroundImage = 'url(' + this.props.page.asset_manager.getAsset(this.props.page.pageImage).src + ')';
     }
     return ret;
   },
@@ -113,12 +113,12 @@ let Screen = React.createClass({
         style.border = 'none';
         style.backgroundSize = 'contain';
         style.backgroundColor = 'rgba(0,0,0,0.0)';
-        style.backgroundImage = 'url(' + image.image + ')';
+        style.backgroundImage = 'url(' + this.props.page.asset_manager.getAsset(image.image).src + ')';
         return (
           <IconButton key={"button_" + image.nextPage} style={style} onClick={this.onButtonClick.bind(this, image.nextPage)}></IconButton>
         );
       }
-      return <img key={"button_" + image.image} style={style} src={image.image} />;
+      return <img key={"button_" + image.image} style={style} src={this.props.page.asset_manager.getAsset(image.image).src} />;
     });
 
     let extraLines = this.props.page.lines.map((line, lineIdx) => {
@@ -135,23 +135,23 @@ let Screen = React.createClass({
     let homeBackButton = '';
     if (this.hasBackButton()) {
       homeBackButton = (
-          <ImageButton id="homeButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_back.png"} onClick={this.onBackButtonClick} />
+          <ImageButton id="homeButton" top="0" left="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_back.png"} onClick={this.onBackButtonClick} />
       );
     } else {
       homeBackButton = (
-          <ImageButton id="backButton" top="0" left="0" image={this.props.page.assetBaseUrl + "/buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+          <ImageButton id="backButton" top="0" left="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
       );
     }
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
       <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
-          <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
+          <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
           <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
           <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
           {homeBackButton}
-          <ImageButton id="playPauseButton" top="0" right="0" image={this.props.page.assetBaseUrl + "/buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
+          <ImageButton id="playPauseButton" top="0" right="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
           {extraImages}
           {extraLines}
           {this.props.children}

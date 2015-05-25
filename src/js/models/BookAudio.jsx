@@ -1,11 +1,11 @@
 'use strict';
 // require the core node events module
 const EventEmitter = require('events').EventEmitter;
-var _media = require('media').audio;
 
 class BookAudio extends EventEmitter {
-  constructor () {
+  constructor (asset_manager) {
     super();
+    this.asset_manager = asset_manager;
     this.currentFilename = null;
     this.playMode = null;
     this.state = 'paused';
@@ -17,75 +17,72 @@ class BookAudio extends EventEmitter {
   }
 
   pause() {
-    if (!this.audio) { return this; }
-    this.audio.pause();
+    this.stopUpdateCurrentDuration();
+    if (!this.asset) { return this; }
+    this.asset.pause();
     return this;
   }
 
   stop() {
-    if (!this.audio) { return this; }
-    this.pause();
-    this.audio.onEnded();
+    this.stopUpdateCurrentDuration();
+    if (!this.asset) { return this; }
+    this.asset.stop();
+    this.asset.onEnded();
     return this;
   }
 
   play(type, path) {
+    let asset = this.asset_manager.getAsset(path).audio;
     // don't double play
-    if (this.playMode === type && this.currentFilename === path) {
-      if (this.audio) { this.audio.play(); }
+    if (this.playMode === type && asset === this.asset && this.asset !== null) {
+      if (this.asset) {
+        this.interval = setInterval(this.updateCurrentDuration.bind(this, this.asset, type), 100);
+        this.asset.play();
+      }
       return this;
     }
 
     this.playMode = type;
-    this.currentFilename = path;
-
-    let audio = _media(path).preload().autoplay();
-    audio.on('play', () => {
+    asset.on('play', () => {
       this.state = 'playing';
       this.emit(type + '-play');
     });
-    audio.on('pause', () => { this.emit(type + '-pause'); });
-    audio.onEnded = () => {
+    asset.on('pause', () => { this.emit(type + '-pause'); });
+    asset.onEnded = () => {
+      asset.off('play');
+      asset.off('pause');
+      asset.off('end');
       this.emit(type + '-ended');
-      audio.remove();
-      if (this.audio === audio) {
-        this.currentFilename = null;
+      if (this.asset === asset) {
         this.playMode = null;
-        this.audio = null;
+        this.asset = null;
+        this.stopUpdateCurrentDuration();
       }
     };
-    audio.on('ended', audio.onEnded );
-    audio.on('timeupdate', () => {
-      // ignore leftovers if we've moved onto a new soundclip
-      if (audio === this.audio) {
-        this.emit(type + '-timeupdate', audio.currentTime() );
-      }
-    });
+    asset.on('end', asset.onEnded );
+    this.interval = setInterval(this.updateCurrentDuration.bind(this, asset, type), 100);
+    asset.play();
 
-    this.audio = audio;
+    this.asset = asset;
     return this;
   }
 
   removeAll() {
     this.removeAllListeners();
-    if (this.audio) {
-      this.audio.remove();
-      this.audio = null;
-    }
+    this.stop();
+    this.stopUpdateCurrentDuration();
+    if (this.asset) { this.stop(); }
   }
+
+  updateCurrentDuration(asset, type) {
+    this.emit(type + '-timeupdate', asset.pos() );
+  }
+
+  stopUpdateCurrentDuration() {
+    clearInterval(this.interval);
+    delete this.interval;
+  }
+
 }
 
 module.exports = BookAudio;
-BookAudio.setMock = function(AudioClass) { _media = AudioClass; };
-
-
-/*
- * let audio = new BookAudio();
- * audio.bind('word', 'ended', this.onWordEnded);
- * audio.bind('page', 'ended', this.onWordEnded);
- *
- * audio.play('word', '..path..to..mp3');
- * audio.play('page', '..path..to..mp3');
- *
- * audio.destroy();
- */

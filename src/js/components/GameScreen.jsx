@@ -107,7 +107,7 @@ const GameScreen = React.createClass({
     }
     let gameOverDialog = "";
     if (this.props.isEndGame()) {
-      gameOverDialog = <GameOverDialog onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
+      gameOverDialog = <GameOverDialog asset_manager={this.props.page.asset_manager} onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
     }
     return (
       <div>

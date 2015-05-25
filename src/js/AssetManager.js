@@ -11,6 +11,10 @@ function AssetManager(baseUrl) {
   this.downloadQueue = {};
 }
 
+AssetManager.prototype.getBaseUrl = function() {
+  return this.baseUrl;
+};
+
 AssetManager.prototype.addType = function(type, cls) {
   this.types[type] = cls;
 };
@@ -25,6 +29,7 @@ AssetManager.prototype.queueDownload = function(type, path) {
         resolve(img);
       }, false);
       img.addEventListener("error", () => {
+        console.log('reject', arguments);
         reject(img);
       }, false);
       img.src = this.baseUrl + path;
@@ -34,6 +39,7 @@ AssetManager.prototype.queueDownload = function(type, path) {
 };
 
 AssetManager.prototype.getAsset = function(path) {
+  if (!this.cache[path]) { throw new Error(`${path} was not cached`); }
   return this.cache[path];
 };
 
