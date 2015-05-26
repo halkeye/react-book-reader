@@ -11,7 +11,7 @@ const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Book = require('./Book.jsx');
 const DocumentTitle = require('react-document-title');
-const Loader = require('react-loader');
+const ProgressBar = require('react-progressbar');
 
 /* Stores */
 const BookStore = require('../stores/BookStore');
@@ -21,6 +21,7 @@ const AppDispatcher = require('../dispatchers/AppDispatcher.js');
 
 /* Constants */
 const Constants = require('../constants/AppConstants');
+const AssetManager = require('../AssetManager.js');
 
 let fontTypes = [
   ['eot#iefix', 'embedded-opentype'],
@@ -38,6 +39,8 @@ let App = React.createClass({
 
   getInitialState() {
     return {
+      assetsStarted: 0,
+      assetsEnded: 0,
       fonts: {},
       book: {}
     };
@@ -85,22 +88,62 @@ let App = React.createClass({
     return this.showPage(book, language, page, true);
   },
 
-  showPage(book, language, page, autoplay) {
-    page = typeof page === 'object' ? 'home' : page;
-    autoplay = typeof autoplay === 'object' ? false : autoplay;
-
-    if (this.state.book.id !== book || this.state.book.language !== language) {
-      BookStore.getBook(book, language).then((bookData) => {
+  loadBook(bookName, language) {
+    let key = ['book', bookName, 'lang', language].join('_');
+    if (key !== this.loadingBook) {
+      this.loadingBook = key;
+      this.startAssetTracking();
+      BookStore.getBook(bookName, language).then((bookData) => {
+        this.stopAssetTracking();
         this.setState({ book: bookData });
       }).catch(function(ex) {
         console.log('error', ex);
       });
     }
+  },
+
+  showPage(bookName, language, page, autoplay) {
+    page = typeof page === 'object' ? 'home' : page;
+    autoplay = typeof autoplay === 'object' ? false : autoplay;
+    this.loadBook(bookName, language);
+
     if (this.state.book.id) {
       return <Book book={this.state.book} language={language} page={page} autoplay={autoplay}></Book>;
     } else {
-      return <Loader />;
+      let percent = 0;
+      if (this.state.assetsStarted && this.state.assetsEnded) {
+        percent = (this.state.assetsEnded / this.state.assetsStarted) * 100;
+      }
+      return <ProgressBar completed={percent} height={100} />;
     }
+  },
+  onAssetStarted(asset) { this.started++; },
+  onAssetEnded(asset) { this.ended++; },
+  onAssetError(asset) { console.log('error', asset); },
+  startAssetTracking() {
+    this.started = this.ended = 0;
+
+    AssetManager.on('started', this.onAssetStarted);
+    AssetManager.on('error', this.onAssetError);
+    AssetManager.on('ended', this.onAssetEnded);
+    this.assetInterval = setInterval(() => {
+      if (this.state.assetsStarted === this.started && this.state.assetsEnded === this.ended) { return; }
+      this.setState({ assetsStarted: this.started, assetsEnded: this.ended });
+    }, 100);
+  },
+
+  stopAssetTracking() {
+    if (this.assetInterval) {
+      clearInterval(this.assetInterval);
+      delete this.assetInterval;
+    }
+    AssetManager.off('started', this.onAssetStarted);
+    AssetManager.off('error', this.onAssetError);
+    AssetManager.off('ended', this.onAssetEnded);
+  },
+
+  componentWillUnmount() {
+    this.stopAssetTracking();
   },
 
   componentDidMount() {
@@ -176,7 +219,6 @@ let App = React.createClass({
     }
     document.getElementsByTagName('head')[0].appendChild(style);
   }
-
 });
 
 module.exports = App;

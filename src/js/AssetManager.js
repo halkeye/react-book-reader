@@ -1,5 +1,30 @@
 //require('whatwg-fetch'); // polyfill
+var events = {};
 class AssetManager {
+
+  static on(eventName, func) {
+    if (!events[eventName]) {
+      events[eventName] = [];
+    }
+    events[eventName].push(func);
+  }
+
+  static off(eventName, func) {
+    if (!events[eventName]) {
+      events[eventName] = [];
+    }
+    events[eventName] = events[eventName].filter((elm) => {
+      return elm !== func;
+    });
+  }
+
+  static trigger(eventName, asset) {
+    if (!events[eventName]) { return; }
+    events[eventName].forEach(function(func) {
+      func(asset);
+    });
+  }
+
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
     if (!this.baseUrl.endsWith('/')) {
@@ -33,7 +58,13 @@ class AssetManager {
           reject(img);
         }, false);
         img.src = this.baseUrl + path;
+
+        AssetManager.trigger('started', img);
       });
+      this.downloadQueue[name].then(
+        (asset) => { AssetManager.trigger('ended', asset); },
+        (asset) => { AssetManager.trigger('error', asset); }
+      );
     }
     return this.downloadQueue[name];
   }
