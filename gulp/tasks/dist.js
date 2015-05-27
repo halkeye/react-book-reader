@@ -1,6 +1,9 @@
 'use strict';
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var browserify = require('browserify');
+var buffer = require( 'vinyl-buffer' );
+var rev = require( 'gulp-rev' );
 var sass = require('gulp-sass');
 var source = require('vinyl-source-stream');
 
@@ -17,15 +20,26 @@ var styles = function() {
     .pipe(gulp.dest(config.sass.dest));
 };
 
-var bundler = browserify(config.browserify.src);
-config.browserify.settings.transform.forEach(function(t) {
-  bundler.transform(t);
-});
-
 function bundle() {
-  return bundler.bundle()
-    .pipe(source(config.browserify.outputName))
-    .pipe(gulp.dest(config.browserify.dest));
+  var bundler = browserify(config.browserify.src);
+
+  bundler.transform( 'reactify' );
+  bundler.transform( 'babelify' );
+  bundler.transform({ global: true }, 'uglifyify' );
+
+  bundler.on( 'log', gutil.log ); // Help bundler log to the terminal
+
+  function bundle( dest, filename ) {
+    return bundler.bundle()
+      .on( 'error', gutil.log.bind( gutil, 'Browserify error' )) // Log errors during build
+      .pipe( source( filename ))
+      .pipe( buffer() )
+      //.pipe( rev() )
+      .pipe( gulp.dest( dest ))
+      //.pipe( rev.manifest() )
+      .pipe( gulp.dest( dest ));
+  }
+  return bundle( './dist/js', 'index.js' );
 }
 
 gulp.task('dist:bundle', bundle);

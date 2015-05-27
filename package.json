@@ -26,6 +26,7 @@
     "gulp-jsvalidate": "^2.0.0",
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.0.0",
+    "gulp-rev": "^4.0.0",
     "gulp-sass": "^2.0.0",
     "gulp-util": "^3.0.4",
     "karma": "^0.12.31",
@@ -39,6 +40,7 @@
     "reactify": "^1.1.1",
     "require-dir": "^0.3.0",
     "sinon": "^1.14.1",
+    "uglifyify": "^3.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.2.1"
