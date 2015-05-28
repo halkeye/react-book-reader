@@ -38,7 +38,7 @@ const config = {
   },
   output: {
     filename: "js/[name].js",
-    path: path.join(__dirname, "./build"),
+    path: path.join(__dirname, "./dist"),
     publicPath: "/"
   },
   plugins: [
