@@ -4,6 +4,7 @@ const RouterMixin = require('react-mini-router').RouterMixin;
 const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
 
+require('../../styles/main.scss');
 
 /* Components */
 let {RaisedButton, Dialog} = mui;
