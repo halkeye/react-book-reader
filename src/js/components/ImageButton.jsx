@@ -10,7 +10,7 @@ let ImageButton = React.createClass({
 
     var buttonWidth = this.props.width || AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
     var buttonHeight = this.props.height || AppConstants.Dimensions.BUTTON_HEIGHT;
-    var img = this.props.asset_manager.getAsset(this.props.image).src;
+    var img = this.props.asset_manager.getAssetSrc(this.props.image);
 
     var style = {
       position: "absolute",

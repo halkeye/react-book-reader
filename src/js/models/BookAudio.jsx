@@ -32,38 +32,40 @@ class BookAudio extends EventEmitter {
   }
 
   play(type, path) {
-    let asset = this.asset_manager.getAsset(path).audio;
     // don't double play
-    if (this.playMode === type && asset === this.asset && this.asset !== null) {
+    if (this.asset !== null && this.playMode === type && this.currentFilename === path) {
       if (this.asset) {
         this.interval = setInterval(this.updateCurrentDuration.bind(this, this.asset, type), 100);
         this.asset.play();
       }
       return this;
     }
+    this.asset_manager.getAsset(path).then((asset) => {
+      asset = asset.audio;
+      this.currentFilename = path;
+      this.playMode = type;
+      asset.on('play', () => {
+        this.state = 'playing';
+        this.emit(type + '-play');
+      });
+      asset.on('pause', () => { this.emit(type + '-pause'); });
+      asset.onEnded = () => {
+        asset.off('play');
+        asset.off('pause');
+        asset.off('end');
+        this.emit(type + '-ended');
+        if (this.asset === asset) {
+          this.playMode = null;
+          this.asset = null;
+          this.stopUpdateCurrentDuration();
+        }
+      };
+      asset.on('end', asset.onEnded );
+      this.interval = setInterval(this.updateCurrentDuration.bind(this, asset, type), 100);
+      asset.play();
 
-    this.playMode = type;
-    asset.on('play', () => {
-      this.state = 'playing';
-      this.emit(type + '-play');
+      this.asset = asset;
     });
-    asset.on('pause', () => { this.emit(type + '-pause'); });
-    asset.onEnded = () => {
-      asset.off('play');
-      asset.off('pause');
-      asset.off('end');
-      this.emit(type + '-ended');
-      if (this.asset === asset) {
-        this.playMode = null;
-        this.asset = null;
-        this.stopUpdateCurrentDuration();
-      }
-    };
-    asset.on('end', asset.onEnded );
-    this.interval = setInterval(this.updateCurrentDuration.bind(this, asset, type), 100);
-    asset.play();
-
-    this.asset = asset;
     return this;
   }
 

@@ -67,7 +67,7 @@ let Screen = React.createClass({
   onNewPage(props) {
     this.audio.stop();
     this.replaceState(this.getInitialState(), function() {
-      if (props.autoplay) {
+      if (props.autoplay && props.page.pageAudio) {
         this.audio.play('page', props.page.pageAudio);
       }
     });
@@ -81,7 +81,7 @@ let Screen = React.createClass({
     };
     if (this.props.page.pageImage) {
       ret.backgroundSize = 'contain';
-      ret.backgroundImage = 'url(' + this.props.page.asset_manager.getAsset(this.props.page.pageImage).src + ')';
+      ret.backgroundImage = 'url(' + this.props.page.asset_manager.getAssetSrc(this.props.page.pageImage) + ')';
     }
     return ret;
   },
@@ -113,12 +113,12 @@ let Screen = React.createClass({
         style.border = 'none';
         style.backgroundSize = 'contain';
         style.backgroundColor = 'rgba(0,0,0,0.0)';
-        style.backgroundImage = 'url(' + this.props.page.asset_manager.getAsset(image.image).src + ')';
+        style.backgroundImage = 'url(' + this.props.page.asset_manager.getAssetSrc(image.image) + ')';
         return (
           <IconButton key={"button_" + image.nextPage} style={style} onClick={this.onButtonClick.bind(this, image.nextPage)}></IconButton>
         );
       }
-      return <img key={"button_" + image.image} style={style} src={this.props.page.asset_manager.getAsset(image.image).src} />;
+      return <img key={"button_" + image.image} style={style} src={this.props.page.asset_manager.getAssetSrc(image.image)} />;
     });
 
     let extraLines = this.props.page.lines.map((line, lineIdx) => {

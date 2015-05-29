@@ -42,8 +42,10 @@ const BookHotspotMap = React.createClass({
   draw() {
     if (!this.props.image) { return; }
     let ctx = this.getCanvas().getContext('2d');
-    ctx.drawImage(this.props.asset_manager.getAsset(this.props.image), 0, 0);
-    this.imageData = ctx.getImageData(0, 0, this.props.width, this.props.height);
+    this.props.asset_manager.getAsset(this.props.image).then((img) => {
+      ctx.drawImage(img, 0, 0);
+      this.imageData = ctx.getImageData(0, 0, this.props.width, this.props.height);
+    });
   },
 
   componentDidMount() {
