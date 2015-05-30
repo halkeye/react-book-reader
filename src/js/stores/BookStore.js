@@ -21,7 +21,7 @@ let BookStore = assign({}, BaseStore, {
     return new Promise((resolve, reject) => {
       if (_bookList !== null) { return resolve(_bookList); }
       _urls = {};
-      fetch('books/index.json')
+      fetch('books/index.json?_cacheBust='+(new Date()).getTime())
         .then(response => response.json())
         .then((json) => {
           _bookList = json.map((book) => {
