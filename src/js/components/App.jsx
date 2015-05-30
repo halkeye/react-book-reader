@@ -116,7 +116,7 @@ let App = React.createClass({
       }
 
       var style = {
-        width: Math.min(0, Math.max(percent, 100)) + '%',
+        width: Math.max(0, Math.min(percent, 100)) + '%',
         transition: "width 200ms"
       };
 
