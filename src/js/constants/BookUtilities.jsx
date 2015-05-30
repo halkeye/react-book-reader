@@ -196,7 +196,7 @@ class AssetManagerAudioType {
     this.events = {};
   }
   set src(val) {
-    let urls = [val, val.replace(/.mp3$/, '.ogg')];
+    let urls = [val.replace(/.mp3$/, '.ogg'), val];
     this.urls = urls;
     setTimeout( () => {
       this.audio = new Howl({
