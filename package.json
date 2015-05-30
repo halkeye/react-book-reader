@@ -60,9 +60,8 @@
   },
   "scripts": {
     "test": "./node_modules/karma/bin/karma start karma.conf.js",
-    "dev": "gulp --type dev",
-    "start": "gulp",
-    "build": "gulp build"
+    "build_prod": "./node_modules/.bin/webpack --config webpack.config.js -p",
+    "build_dev": "./node_modules/.bin/webpack --config webpack.config.js -d"
   },
   "jest": {
     "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
@@ -80,6 +79,7 @@
     "br-mousetrap": "^1.1.3",
     "diacritics": "^1.2.1",
     "es6-promise": "^2.1.1",
+    "file-loader": "^0.8.4",
     "flux": "^2.0.3",
     "gulp-task-listing": "^1.0.0",
     "hammerjs": "^2.0.4",
