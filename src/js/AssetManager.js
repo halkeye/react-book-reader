@@ -46,10 +46,10 @@ class AssetManager {
       var img = new this.types[type]();
       img.addEventListener("load", () => {
         if (this.cache) { this.cache[name] = img; }
-        resolve(img);
+        resolve(img, path);
       }, false);
       img.addEventListener("error", () => {
-        reject(img);
+        reject(img, path);
       }, false);
       img.src = this.baseUrl + path;
     });

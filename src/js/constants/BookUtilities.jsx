@@ -205,7 +205,7 @@ class AssetManagerAudioType {
           if (this.events.load) { this.events.load(); }
           delete this.events;
         },
-        onloaderror: () => {
+        onloaderror: (args) => {
           if (this.events.error) { this.events.error(); }
           delete this.events;
         }

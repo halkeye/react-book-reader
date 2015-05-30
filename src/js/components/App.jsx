@@ -120,7 +120,10 @@ let App = React.createClass({
   },
   onAssetStarted(asset) { this.started++; },
   onAssetEnded(asset) { this.ended++; },
-  onAssetError(asset) { console.log('error', asset); },
+  onAssetError(asset, path) {
+    // FIXME - need to handle something here
+    console.log('error', asset);
+  },
   startAssetTracking() {
     this.started = this.ended = 0;
 
