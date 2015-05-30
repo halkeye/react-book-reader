@@ -1,4 +1,4 @@
-//require('whatwg-fetch'); // polyfill
+'use strict';
 var events = {};
 class AssetManager {
 
@@ -44,11 +44,11 @@ class AssetManager {
   _download(type, path) {
     return new Promise((resolve, reject) => {
       var img = new this.types[type]();
-      img.addEventListener("load", () => {
+      img.addEventListener('load', () => {
         if (this.cache) { this.cache[name] = img; }
         resolve(img, path);
       }, false);
-      img.addEventListener("error", () => {
+      img.addEventListener('error', () => {
         reject(img, path);
       }, false);
       img.src = this.baseUrl + path;

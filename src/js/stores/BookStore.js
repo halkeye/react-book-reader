@@ -1,6 +1,4 @@
 'use strict';
-const AppDispatcher = require('../dispatchers/AppDispatcher');
-const Constants = require('../constants/AppConstants');
 const BaseStore = require('./BaseStore');
 const assign = require('object-assign');
 const _ = require('lodash');
@@ -15,7 +13,6 @@ const BookUtilities = require('../constants/BookUtilities.jsx');
 let _bookList = null;
 let _bookData = {};
 let _urls = null;
-let _titles = {};
 
 // Facebook style store creation.
 let BookStore = assign({}, BaseStore, {
@@ -27,7 +24,7 @@ let BookStore = assign({}, BaseStore, {
       fetch('books/index.json')
         .then(response => response.json())
         .then((json) => {
-          _bookList = json.map((book, i) => {
+          _bookList = json.map((book) => {
             book = assign({}, book);
             _urls[book.id] = 'books/' + book.url;
             book.iconBig = 'books/' + (book.iconBig || book.icon);
@@ -37,6 +34,7 @@ let BookStore = assign({}, BaseStore, {
           resolve( _bookList);
         }).catch(function(ex) {
           console.log('parsing failed', ex);
+          reject();
         });
     });
   },
@@ -70,15 +68,6 @@ let BookStore = assign({}, BaseStore, {
           })/*.catch(function(ex) {
             console.log('parsing failed', ex);
           })*/;
-      });
-    });
-  },
-
-  getLanguages(bookName) {
-    return new Promise((resolve, reject) => {
-      BookStore.getAll().then((books) => {
-         let book = books.filter((bookElm) => { return bookElm.id === bookName; })[0];
-         resolve(book.languages);
       });
     });
   }

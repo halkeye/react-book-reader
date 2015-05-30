@@ -2,6 +2,7 @@
 
 // NOTE: This file is formatted for React.js + Browserify
 // You might need to make some changes to use it without Browserify
+'use strict';
 
 var MousetrapMixin;
 var Mousetrap = require('br-mousetrap');

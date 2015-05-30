@@ -1,3 +1,4 @@
+'use strict';
 const assign = require('object-assign');
 const EventEmitter = require('events').EventEmitter;
 
