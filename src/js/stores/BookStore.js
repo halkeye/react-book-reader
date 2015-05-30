@@ -25,16 +25,16 @@ let BookStore = assign({}, BaseStore, {
       if (_bookList !== null) { return resolve(_bookList); }
       _urls = {};
       fetch('books/index.json')
-        .then((response) => {
-          _bookList = response.json();
-          return _bookList;
-        })
+        .then(response => response.json())
         .then((json) => {
-          json.forEach((book, i) => {
+          _bookList = json.map((book, i) => {
+            book = assign({}, book);
             _urls[book.id] = 'books/' + book.url;
+            book.iconBig = 'books/' + (book.iconBig || book.icon);
             book.icon = 'books/' + book.icon;
+            return book;
           });
-          resolve(json);
+          resolve( _bookList);
         }).catch(function(ex) {
           console.log('parsing failed', ex);
         });

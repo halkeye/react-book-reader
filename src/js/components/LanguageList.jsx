@@ -3,42 +3,50 @@ const mui = require('material-ui');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
+const DocumentTitle = require('react-document-title');
 const LanguageIcon = require('./LanguageIcon.jsx');
 
 let {RaisedButton, Dialog} = mui;
 
 let LanguageList = React.createClass({
   componentDidMount() {
-    BookStore.getLanguages(this.props.book).then((languages) => {
-      this.setState({ languages: languages });
+    BookStore.getAll().then((books) => {
+      this.setState({ book: books.filter((elm) => { return elm.id === this.props.book; })[0] });
     });
   },
   getInitialState() {
     return {
-      languages: []
+      book: null
     };
   },
   render: function() {
-    if (this.state.languages.length === 1) {
-      return this.handleSelectLanguageClick(this.state.languages[0]);
+    if (this.state.book === null) { return <div>Loading...</div>; }
+    if (this.state.book.languages.length === 1) {
+      return this.handleSelectLanguageClick(this.state.book.languages[0]);
     }
 
-    let languages = this.state.languages.map((language) => {
+    let languages = this.state.book.languages.map((language) => {
       return (
-        <div key={language} className="language-selector-button">
-          <RaisedButton onClick={this.handleSelectLanguageClick.bind(this, language)} labelStyle={{ width: '400px', height: '250px' }}>
-            <span className="mui-raised-button-label">
-              <LanguageIcon language={language} />
-            </span>
-          </RaisedButton>
-        </div>
+        <button className='button' key={language} onClick={this.handleSelectLanguageClick.bind(this, language)}>
+          <LanguageIcon language={language} />
+        </button>
       );
     });
-    return <div>{languages}</div>;
+
+    let circularIcon = { backgroundImage: 'url(' + this.state.book.iconBig + ')' };
+    return (
+      <DocumentTitle title="Select a language">
+        <div className='LanguageList'>
+          <img className='bookIcon' style={circularIcon} />
+          <h1>Select a language</h1>
+          {languages}
+        </div>
+      </DocumentTitle>
+    );
   },
 
   handleSelectLanguageClick(language) {
-    BookActionCreators.chooseLanguage(this.props.book, language)
+    BookActionCreators.chooseLanguage(this.props.book, language);
   }
 });
 

@@ -63,14 +63,7 @@ let App = React.createClass({
   },
 
   selectLanguage(book) {
-    return (
-      <DocumentTitle title="Select a language">
-        <div>
-          <h1>Select a language</h1>
-          <LanguageList book={book} />
-        </div>
-      </DocumentTitle>
-    );
+    return <LanguageList book={book} />;
   },
 
   selectBook() {

@@ -1,6 +1,6 @@
 @import "~material-ui-sass/material-ui.scss";
-//@import "../../node_modules/material-ui-sass/material-ui/_html";
 @import url(http://fonts.googleapis.com/css?family=Roboto:400,300,500);
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700);
 
 //Your custom app styles
 .language-selector-button {
@@ -8,9 +8,56 @@
 }
 
 body {
+  height: 100%;
+  width: 100%;
+  min-height: 100%;
   user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
+  //background-image: url('../img/tile-bg.png');
+
+  background-color: #fff;
+  background-image:
+  linear-gradient(90deg, transparent 79px, #abced4 79px, #abced4 81px, transparent 81px),
+  linear-gradient(#eee .1em, transparent .1em);
+  background-size: 100% 1.2em;
+
+
+}
+
+.LanguageList {
+  $bookIconCir: 272px;
+  .bookIcon {
+    width: $bookIconCir;
+    height: $bookIconCir;
+    box-shadow: 0 0 8px rgba(0, 0, 0, .8);
+    border-radius: $bookIconCir / 2;
+    background-position: 'center';
+    background-size: 100% 100%;
+    background-contain: 100% 100%;
+    background-repeat: 'no-repeat';
+  }
+  h1 {
+    color: #484848;
+    font-weight: 600;
+    font-size: 2em;
+  }
+  .button:hover {
+    background-color: #e4ebae;
+  }
+  .button {
+    display: block;
+    width: 300px;
+    padding: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #414b57;
+    background-color: #d6e39f;
+    border-radius: 6px;
+    margin: 20px auto;
+  }
+
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  margin: 100px auto 0;
+  text-align: center;
 }
 
 .progressbar-container {
