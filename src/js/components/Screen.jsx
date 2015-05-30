@@ -90,7 +90,7 @@ let Screen = React.createClass({
     if (this.refs.hotspotMap) {
       let x = ev.pageX - ev.currentTarget.offsetLeft;
       let y = ev.pageY - ev.currentTarget.offsetTop;
-      this.refs.hotspotMap.onClickImage(x,y);
+      this.refs.hotspotMap.onClickImage(x, y);
     }
   },
 
