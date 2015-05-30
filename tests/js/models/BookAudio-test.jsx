@@ -6,6 +6,7 @@ const AUDIO_FILE = require('path').join(__dirname, '/1sec.mp3');
 const sinon = require('sinon');
 const expect = require('chai').expect;
 const BookAudio = require('../../../src/js/models/BookAudio.jsx');
+const Promise = require('es6-promise').Promise;
 
 const EventEmitter = require('events').EventEmitter;
 
@@ -18,27 +19,47 @@ var MockAudio = function(file) {
   obj.preload = function() { return obj; };
   obj.autoplay = function() { return obj; };
   obj.on = function(sig, func) { emitter.on(sig, func); return obj; };
+  obj.off = function(ev, func) {
+    if (!func) {
+      emitter.removeAllListeners(ev);
+    } else {
+      emitter.removeListener(ev, func);
+    }
+  };
   obj.emit = emitter.emit;
-  obj.pause = function() {
+  obj.stop = obj.pause = function() {
     if (obj.endedTimeout) {
       clearTimeout(obj.endedTimeout);
     }
   };
-  /* Pretend to play */
-  setTimeout(function() { emitter.emit('play'); }, 1);
-  /* Pretend to timeupdate */
-  setTimeout(function() { emitter.emit('timeupdate'); }, 10);
-  /* Pretend to ended */
-  obj.endedTimeout = setTimeout(function() { emitter.emit('ended'); }, 100);
+  obj.pos = function() { return 0.10; };
+  obj.play = function() {
+    /* Pretend to play */
+    setTimeout(function() { emitter.emit('play'); }, 1);
+    /* Pretend to timeupdate */
+    setTimeout(function() { emitter.emit('timeupdate'); }, 10);
+    /* Pretend to ended */
+    obj.endedTimeout = setTimeout(function() { emitter.emit('end'); }, 100);
+  };
   return obj;
 };
 
-BookAudio.setMock(MockAudio);
+var MockAssetManager = function() {
+  var obj = {};
+  obj.getAsset = function(path) {
+    var audioObj = {};
+    audioObj.audio = new MockAudio(AUDIO_FILE);
+    return new Promise((resolve, reject) => {
+      resolve(audioObj);
+    });
+  };
+  return obj;
 
+};
 
 describe('BookAudio', function() {
   beforeEach(function() {
-    this.bookAudio = new BookAudio();
+    this.bookAudio = new BookAudio(new MockAssetManager());
   });
   afterEach(function() {
     this.bookAudio.removeAll();
