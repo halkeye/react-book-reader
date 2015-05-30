@@ -33,7 +33,8 @@ const config = {
       {
         test: /\.sass$/,
         loader: ExtractTextPlugin.extract("style-loader", sassLoaders.join("!"))
-      }
+      },
+      { test: /\.png$/, loader: "file-loader" }
     ]
   },
   output: {

@@ -4,6 +4,7 @@ var config = require('./webpack.config');
 
 var PORT = 3000;
 
+config.devtool = '#eval';
 var compiler = webpack(config);
 
 var server = new WebpackDevServer(compiler, {
@@ -11,7 +12,7 @@ var server = new WebpackDevServer(compiler, {
   quiet: false,
   noInfo: false,
   //publicPath: '/books/',
-  //hot: true,
+  hot: true,
   stats: { colors: true },
   cache: false
 });

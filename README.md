@@ -5,20 +5,11 @@
 
 ## Running your project
 
-The generated project includes a live-reloading static server on port `8080` (you can change the port in the `gulpfile.js` config), which will build, launch, and rebuild the app whenever you change application code. To start the server, run:
-
 ```bash
-$ npm start
+$ node server.dev.js
 ```
 
-If you prefer to just build without the live reload and build-on-each-change watcher, run:
-
-```bash
-$ npm run build
-```
-
-
-## Generating Additional Code
+# Notes
 
 ```xml
 <DocumentTitle title="Select A Book">
@@ -51,9 +42,7 @@ $ npm run build
 * <Page> has its normal stuff, plus <BookPage> (which includes hammer js)
 * <BookPage> Also has on swipe and on tap
 * App.transitionPage => Checks to make sure its a valid target
-*   If page > pageCount, then goto 'end'
-```
-https://github.com/goldfire/howler.js/blob/1dad25cdd9d6982232050454e8b45411902efe65/howler.js
-https://github.com/humanhighway/react-audio-player/blob/master/js/components/AudioPlayer.js#L201
-
 * Migrate more code out of Screen class so we don't have play audio on game pages
+* Make ogg default
+* Fix clicking on hotspot when window is scrolled
+```
