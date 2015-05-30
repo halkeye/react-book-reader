@@ -16,12 +16,8 @@ const BookHotspotMap = React.createClass({
     return this.refs.canvas.getDOMNode();
   },
 
-  onClickImage(ev) {
+  onClickImage(x, y) {
     if (!this.props.image) { return; }
-    let rect = this.getCanvas().getBoundingClientRect();
-    let x = ev.clientX - rect.left;
-    let y = ev.clientY - rect.top;
-
     let canvasIndex = (x + y * this.props.width) * 4;
 
     let color = {
