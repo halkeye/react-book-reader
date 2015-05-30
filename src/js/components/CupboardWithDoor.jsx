@@ -20,11 +20,11 @@ const CupboardWithDoor = React.createClass({
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (this.props.objectImage) {
-      ctx.drawImage(this.props.objectImage(), 0, 0);
+      ctx.drawImage(this.props.objectImage, 0, 0);
     }
     let img = this.props[this.state.status + "Image"];
     if (img) {
-      ctx.drawImage(img(), 0, 0);
+      ctx.drawImage(img, 0, 0);
     }
   },
 
@@ -41,7 +41,9 @@ const CupboardWithDoor = React.createClass({
   },
 
   playDoorSound() {
-    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_door_sound.mp3'] }).play();
+    this.props.asset_manager.getAsset('game/game_cupbard_door_sound.mp3').then((asset) => {
+      asset.audio.play();
+    });
   },
 
   isOpen() {

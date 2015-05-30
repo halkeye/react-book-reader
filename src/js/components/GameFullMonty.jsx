@@ -8,8 +8,8 @@ let GamePP = React.createClass({
   getInitialState() {
     return { openDoor1: null };
   },
-  getCupboardContents(size) {
-    let deck = Shuffle.shuffle({ "deck": this.props.page.gameBoardParts });
+  getCupboardContents(parts, size) {
+    let deck = Shuffle.shuffle({ "deck": parts });
     let array = deck.drawRandom(size);
     return array.map((elm) => { return { key: elm.key, image: elm.image}; });
   },

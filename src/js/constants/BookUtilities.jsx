@@ -242,6 +242,10 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
   promises.push(book.asset_manager.queueDownload('img', 'buttons/control_play.png'));
   promises.push(book.asset_manager.queueDownload('img', 'buttons/control_settings.png'));
 
+  promises.push(book.asset_manager.queueDownload('audio', 'game/game_cupbard_correct.mp3'));
+  promises.push(book.asset_manager.queueDownload('audio', 'game/game_cupbard_incorrect.mp3'));
+  promises.push(book.asset_manager.queueDownload('audio', 'game/game_cupbard_door_sound.mp3'));
+
   book.bookStyles = processStyleData(book.asset_manager.getBaseUrl(), bookData.STYLES);
   var gameAnimations = {};
   ['bad', 'good', 'neutral', 'pointing'].forEach((animName) => {
@@ -260,17 +264,15 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     "sundae", "tomatoes", "waffles"
   ].map((piece) => {
 
-    promises.push(book.asset_manager.queueDownload('img', `game_board_assets/game_board_image_${piece}.png`));
-    let imageObj = function() { return book.asset_manager.getAsset(`game_board_assets/game_board_image_${piece}.png`); };
-
-    promises.push(book.asset_manager.queueDownload('img', `game_board_assets/game_board_text_${piece}-${language}.png`));
-    let textImageObj = function() { return book.asset_manager.getAsset(`game_board_assets/game_board_text_${piece}-${language}.png`); };
-
-    return {
+    let data = {
       'key': piece,
-      'image': imageObj,
-      'text': textImageObj
+      'image': `game_board_assets/game_board_image_${piece}.png`,
+      'text': `game_board_assets/game_board_text_${piece}-${language}.png`
     };
+    promises.push(book.asset_manager.queueDownload('img', data.image));
+    promises.push(book.asset_manager.queueDownload('img', data.text));
+
+    return data;
   });
 
   var gameAssets = {};
@@ -280,7 +282,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
   ].forEach((file) => {
     let filename = "game/" + file + ".png";
     promises.push(book.asset_manager.queueDownload('img', filename));
-    gameAssets[file] = function() { return book.asset_manager.getAsset(filename); };
+    gameAssets[file] = filename;
   });
   /* FIXME - move game anims to here so we can do promises with them */
 

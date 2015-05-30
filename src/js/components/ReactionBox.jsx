@@ -46,10 +46,11 @@ const ReactionBox = React.createClass({
     if (!this.props.animations) { return; }
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
-    let img = this.props.animations[this.props.mode][this.state.frameNo].frame();
-    if(!img) { return; }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
+    this.props.animations[this.props.mode][this.state.frameNo].frame().then((img) => {
+      if(!img) { return; }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    });
   },
 
   componentDidMount() {

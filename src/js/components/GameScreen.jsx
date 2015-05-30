@@ -13,7 +13,6 @@ const CupboardWithDoor = require('./CupboardWithDoor.jsx');
 const GameOverDialog = require('./GameOverDialog.jsx');
 
 const BookUtilities = require('../constants/BookUtilities.jsx');
-const Howl = require('howler').Howl;
 
 const GameScreen = React.createClass({
   getDefaultProps() {
@@ -35,7 +34,32 @@ const GameScreen = React.createClass({
   },
 
   componentDidMount() {
-    this.resetGame(this.props);
+    var promises = [];
+    var gameAssets = {};
+    var gameParts = [];
+
+    this.props.page.gameBoardParts.forEach((part) => {
+      let gamePart = { 'key': part.key, 'image': null, text: null };
+      gameParts.push(gamePart);
+      promises.push(this.props.page.asset_manager.getAsset(part.image).then((img) => {
+        gamePart.image = img;
+      }));
+      promises.push(this.props.page.asset_manager.getAsset(part.text).then((img) => {
+        gamePart.text = img;
+      }));
+    });
+    Object.keys(this.props.page.gameAssets).forEach((assetName) => {
+      let promise = this.props.page.asset_manager.getAsset(this.props.page.gameAssets[assetName]).then((img) => {
+        gameAssets[assetName] = img;
+      });
+      promises.push(promise);
+    });
+
+    Promise.all(promises).then((parts) => {
+      this.setState({ gameAssets: gameAssets, gameParts: gameParts }, () => {
+        this.resetGame(this.props);
+      });
+    });
   },
 
   numberOfDoors() {
@@ -44,22 +68,16 @@ const GameScreen = React.createClass({
 
   resetGame(props) {
     let state = this.getInitialState();
-    let contents = Shuffle.shuffle({ "deck": props.getCupboardContents(this.numberOfDoors()) });
-    let cupboards = [];
+    let contents = Shuffle.shuffle({ "deck": props.getCupboardContents(this.state.gameParts, this.numberOfDoors()) });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
       let cupboard = this.refs[`cupboard_${idx}`];
       cupboard.reset();
 
       let content = contents.draw();
       if (!content) { return; }
-      state[`cupboard_${idx}_image`] = content.image;
-      state[`cupboard_${idx}_name`] = content.key;
-      cupboards.push({
-        image: content.image,
-        key: content.key
-      });
+      state[`cupboard_${idx}`] = content;
     });
-    this.replaceState(state);
+    this.setState(state);
   },
 
   render() {
@@ -75,37 +93,39 @@ const GameScreen = React.createClass({
       { 'position': 'absolute' },
       this.props.page.boxes.reactionBox
     );
-    let cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-      let style = assign(
-        { 'position': 'absolute' },
-        loc
-      );
-      let openImage = this.props.page.gameAssets.game_cupbard_door_open;
-      let closedImage = this.props.page.gameAssets.game_cupbard_door_closed;
-      let objectImage = this.state[`cupboard_${idx}_image`];
-      let objectName = this.state[`cupboard_${idx}_name`];
+    let cupboardLocations = <div />;
+    let displayBox = <div />;
+    let gameOverDialog = <div />;
 
-      let props = {
-        ref: `cupboard_${idx}`,
-        key: idx,
-        style: style,
-        openImage: openImage,
-        closedImage: closedImage,
-        objectImage: objectImage,
-        objectName: objectName,
-        onClick: this.onCupboardClick.bind(this, idx)
-      };
-      return <CupboardWithDoor {...props} />;
-    });
-    let displayBox = "";
-    if (this.props.page.boxes.displayBox && this.state.displayBox) {
+    if (this.state.gameAssets) {
+      cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
+        let style = assign(
+          { 'position': 'absolute' },
+          loc
+        );
+        let cupbardObject = this.state[`cupboard_${idx}`] || {};
+
+        let props = {
+          ref: `cupboard_${idx}`,
+          key: idx,
+          style: style,
+          asset_manager: this.props.page.asset_manager,
+          openImage: this.state.gameAssets.game_cupbard_door_open,
+          closedImage: this.state.gameAssets.game_cupbard_door_closed,
+          objectImage: cupbardObject.image,
+          objectName: cupbardObject.key,
+          onClick: this.onCupboardClick.bind(this, idx)
+        };
+        return <CupboardWithDoor {...props} />;
+      });
+    }
+    if (this.props.page.boxes.displayBox && this.state.displayBox && this.state.displayBox.props.objectImage) {
       let style = assign(
         { 'position': 'absolute' },
         this.props.page.boxes.displayBox
       );
-      displayBox = <img key="displaybox" style={style} src={this.state.displayBox.props.objectImage().src} />;
+      displayBox = <img key="displaybox" style={style} src={this.state.displayBox.props.objectImage.src} />;
     }
-    let gameOverDialog = "";
     if (this.props.isEndGame()) {
       gameOverDialog = <GameOverDialog asset_manager={this.props.page.asset_manager} onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
     }
@@ -165,14 +185,20 @@ const GameScreen = React.createClass({
     }
   },
 
+  playMp3(mp3) {
+    this.props.page.asset_manager.getAsset(mp3).then((asset) => {
+      asset.audio.play();
+    });
+  },
+
   showGoodReaction() {
     this.setState({ reaction: 'good' });
-    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_correct.mp3'] }).play();
+    this.playMp3('game/game_cupbard_correct.mp3');
   },
 
   showBadReaction() {
     this.setState({ reaction: 'bad' });
-    var sound = new Howl({ urls: ['books/Josephine/game/game_cupbard_incorrect.mp3'] }).play();
+    this.playMp3('game/game_cupbard_incorrect.mp3');
   }
 });
 
