@@ -12,7 +12,6 @@ const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Book = require('./Book.jsx');
 const DocumentTitle = require('react-document-title');
-const ProgressBar = require('react-progressbar');
 
 /* Stores */
 const BookStore = require('../stores/BookStore');
@@ -115,7 +114,17 @@ let App = React.createClass({
       if (this.state.assetsStarted && this.state.assetsEnded) {
         percent = (this.state.assetsEnded / this.state.assetsStarted) * 100;
       }
-      return <ProgressBar completed={percent} height={100} />;
+
+      var style = {
+        width: Math.min(0, Math.max(percent, 100)) + '%',
+        transition: "width 200ms"
+      };
+
+      return (
+        <div className="progressbar-container" >
+          <div className="progressbar-progress" style={style}>{this.props.children}</div>
+        </div>
+      );
     }
   },
   onAssetStarted(asset) { this.started++; },
