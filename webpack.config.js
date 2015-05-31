@@ -45,6 +45,7 @@ const config = {
   plugins: [
     new ExtractTextPlugin("styles/[name].css"),
     new HtmlWebpackPlugin({
+      inject: true,
       title: 'Books Books Books',
       template: './src/index.html'
     })
