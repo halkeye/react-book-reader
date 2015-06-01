@@ -16,9 +16,7 @@ const scssLoaders = [
 ];
 
 const config = {
-  entry: {
-    app: ["./src/js/index"]
-  },
+  entry: ["./src/js/index"],
   module: {
     loaders: [
       {
@@ -38,17 +36,19 @@ const config = {
     ]
   },
   output: {
-    filename: "js/[name].js",
+    filename: "js/[name]-[hash].js",
     path: path.join(__dirname, "./dist"),
     publicPath: "/"
   },
   plugins: [
-    new ExtractTextPlugin("styles/[name].css"),
+    new ExtractTextPlugin("styles/[name]-[hash].css"),
     new HtmlWebpackPlugin({
       inject: true,
       title: 'Books Books Books',
       template: './src/index.html'
-    })
+    }),
+    new webpack.optimize.UglifyJsPlugin(),
+    new webpack.DefinePlugin({GA_TRACKING_CODE: JSON.stringify('UA-89920-17')})
   ],
   resolve: {
     extensions: ["", ".jsx", ".js", ".sass", ".scss"],
