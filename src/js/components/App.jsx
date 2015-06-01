@@ -1,5 +1,5 @@
+'use strict';
 const React = require('react');
-const mui = require('material-ui');
 const RouterMixin = require('react-mini-router').RouterMixin;
 const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
@@ -7,7 +7,6 @@ const assign = require('object-assign');
 require('../../styles/main.scss');
 
 /* Components */
-let {RaisedButton, Dialog} = mui;
 const BookList = require('./BookList.jsx');
 const LanguageList = require('./LanguageList.jsx');
 const Book = require('./Book.jsx');
@@ -110,7 +109,7 @@ let App = React.createClass({
 
       var style = {
         width: Math.max(0, Math.min(percent, 100)) + '%',
-        transition: "width 200ms"
+        transition: 'width 200ms'
       };
 
       return (
