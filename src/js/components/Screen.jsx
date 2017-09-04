@@ -155,7 +155,7 @@ let Screen = createReactClass({
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
       <Hammer key={key} onSwipe={this.onSwipe}>
-        <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
+        <div style={pageStyle} ref={node => this.bookpage = node} onClick={this.onClickPage}>
           <BookHotspotMap ref={(hotspotMap) => { this.hotspotMap = hotspotMap; }} {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
           <BookHotspotPhrase ref={(hotspotPhrase) => { this.hotspotPhrase = hotspotPhrase; }} {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
@@ -180,7 +180,7 @@ let Screen = createReactClass({
   getPageHeight() {
     return Constants.Dimensions.HEIGHT;
     /*
-    let dom = this..bookpage.getDOMNode();
+    let dom = this.bookpage.getDOMNode();
     return dom.offsetHeight || dom.clientHeight;
     */
   },
@@ -188,7 +188,7 @@ let Screen = createReactClass({
   getPageWidth() {
     return Constants.Dimensions.WIDTH;
     /*
-    let dom = this..bookpage.getDOMNode();
+    let dom = this.bookpage.getDOMNode();
     return dom.offsetWidth || dom.clientWidth;
     */
   },

@@ -78,7 +78,7 @@ const GameScreen = createReactClass({
     let state = this.startingState();
     let contents = Shuffle.shuffle({ "deck": props.getCupboardContents(this.state.gameParts, this.numberOfDoors()) });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
-      let cupboard = this.refs[`cupboard_${idx}`];
+      let cupboard = this[`cupboard_${idx}`];
       cupboard.reset();
 
       let content = contents.draw();
@@ -114,7 +114,7 @@ const GameScreen = createReactClass({
         let cupbardObject = this.state[`cupboard_${idx}`] || {};
 
         let props = {
-          ref: `cupboard_${idx}`,
+          ref: node => this[`cupboard_${idx}`] = node,
           key: idx,
           style: style,
           asset_manager: this.props.page.asset_manager,
@@ -140,9 +140,9 @@ const GameScreen = createReactClass({
     return (
       <div>
         <Screen {...this.props}>
-          <ScoreCardBox ref="triesBox" style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
-          <ScoreCardBox ref="matchBox" style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
-          <ReactionBox ref="reactionBox" onComplete={this.onCompleteReaction} mode={this.state.reaction} animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
+          <ScoreCardBox style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
+          <ScoreCardBox style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
+          <ReactionBox onComplete={this.onCompleteReaction} mode={this.state.reaction} animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
           {cupboardLocations}
           {displayBox}
           {gameOverDialog}
@@ -153,7 +153,7 @@ const GameScreen = createReactClass({
 
   getCupboards() {
     return this.props.page.boxes.matchLocs.map((loc, idx) => {
-      return this.refs[`cupboard_${idx}`];
+      return this[`cupboard_${idx}`];
     });
   },
 
@@ -172,7 +172,7 @@ const GameScreen = createReactClass({
   onCupboardClick(idx) {
     var stateVar = {};
     var isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
-    this.props.clickedOnDoor(this.refs[`cupboard_${idx}`]);
+    this.props.clickedOnDoor(this[`cupboard_${idx}`]);
   },
 
   hasStarted() {
@@ -180,8 +180,8 @@ const GameScreen = createReactClass({
   },
 
   closeAllDoors() {
-    Object.keys(this.refs).filter((key) => { return key.startsWith('cupboard_'); }).forEach((key) => {
-      this.refs[key].close(false);
+    Object.keys(this).filter((key) => { return key.startsWith('cupboard_'); }).forEach((key) => {
+      this[key].close(false);
     });
   },
 

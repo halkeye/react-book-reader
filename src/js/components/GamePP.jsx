@@ -21,19 +21,18 @@ class GamePP extends React.Component {
   };
 
   isEndGame = () => {
-    if (!this.refs) { return false; }
-    if (!this.refs.gamescreen) { return false; }
-    if (!this.refs.gamescreen.state) { return false; }
-    return this.refs.gamescreen.state.matchesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
+    if (!this.gamescreen) { return false; }
+    if (!this.gamescreen.state) { return false; }
+    return this.gamescreen.state.matchesScore === Math.floor(this.gamescreen.numberOfDoors() / 2);
   };
 
   isPerfectGame = () => {
-    return this.refs.gamescreen.state.triesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
+    return this.gamescreen.state.triesScore === Math.floor(this.gamescreen.numberOfDoors() / 2);
   };
 
   clickedOnDoor = (cupboard) => {
-    if (!this.refs.gamescreen.hasStarted()) {
-      this.refs.gamescreen.start();
+    if (!this.gamescreen.hasStarted()) {
+      this.gamescreen.start();
       return false;
     }
 
@@ -52,21 +51,21 @@ class GamePP extends React.Component {
     if (this.state.openDoor1 === cupboard) {
       return false;
     }
-    this.refs.gamescreen.setState(function(previousState, currentProps) {
+    this.gamescreen.setState(function(previousState, currentProps) {
       return { triesScore: previousState.triesScore + 1 };
     });
 
     // If contents match, then yay!
     if (this.state.openDoor1.props.objectName === cupboard.props.objectName) {
       cupboard.open();
-      this.refs.gamescreen.setState(function(previousState, currentProps) {
+      this.gamescreen.setState(function(previousState, currentProps) {
         return { matchesScore: previousState.matchesScore + 1 };
       });
       this.setState({ openDoor1: null });
-      this.refs.gamescreen.showGoodReaction();
+      this.gamescreen.showGoodReaction();
       return true;
     }
-    this.refs.gamescreen.showBadReaction();
+    this.gamescreen.showBadReaction();
     setTimeout(() => {
       this.state.openDoor1.close(false);
       cupboard.close(false);
@@ -87,7 +86,7 @@ class GamePP extends React.Component {
         clickedOnDoor: this.clickedOnDoor
       }
     );
-    return <GameScreen ref="gamescreen" {...props} />;
+    return <GameScreen ref={node => this.gamescreen = node} {...props} />;
   }
 }
 
