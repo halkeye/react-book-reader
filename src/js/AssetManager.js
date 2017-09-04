@@ -63,7 +63,7 @@ class AssetManager {
       this.downloadQueue[name].then(
         (asset) => { AssetManager.trigger('ended', asset); },
         (asset) => { AssetManager.trigger('error', asset); }
-      ).finally(() => {
+      ).then(() => {
         delete this.downloadQueue[name];
       });
     }
