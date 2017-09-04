@@ -1,5 +1,6 @@
-/bower_components/
-/dist/
-/node_modules/
-/src/books/
-/books/
+bower_components/
+dist/
+node_modules/
+src/books
+books
+package-lock.json

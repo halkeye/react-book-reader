@@ -6,5 +6,6 @@
 //);
 
 const React = require('react');
+const { render } = require('react-dom');
 const App = require('./components/App.jsx');
-React.render(<App />, document.getElementById('main'));
+render(<App />, document.getElementById('main'));

@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    "transform-async-to-generator",
+    "transform-decorators-legacy",
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    "transform-runtime",
+    "styled-jsx/babel"
+  ],
+  "presets": [
+    ["env", { "targets": { "node": "current" } }],
+    ["es2015", { "modules": false }],
+    "react"
+  ],
+  "env": {
+    "development": {
+      "presets": ["react-hmre"]
+    }
+  }
+}

@@ -1,16 +1,14 @@
-const keyMirror = require('react/lib/keyMirror');
-
 module.exports = {
 
-  ActionTypes: keyMirror({
-    ADD_FONT: null,
-    NAVIGATE_PAGE: null
-  }),
+  ActionTypes: {
+    ADD_FONT: 'ADD_FONT',
+    NAVIGATE_PAGE: 'NAVIGATE_PAGE'
+  },
 
-  ActionSources: keyMirror({
-    SERVER_ACTION: null,
-    VIEW_ACTION: null
-  }),
+  ActionSources: {
+    SERVER_ACTION: 'SERVER_ACTION',
+    VIEW_ACTION: 'VIEW_ACTION'
+  },
 
   Dimensions: {
     WIDTH: 1024,
