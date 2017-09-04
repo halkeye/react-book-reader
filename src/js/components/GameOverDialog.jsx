@@ -2,7 +2,7 @@
 const React = require('react');
 const ImageButton = require('../components/ImageButton.jsx');
 
-const GameOverDialog = React.createClass({
+class GameOverDialog extends React.Component {
   render() {
     let asset_manager = this.props.asset_manager;
     return (
@@ -16,6 +16,7 @@ const GameOverDialog = React.createClass({
       </div>
     );
   }
-});
+}
+
 module.exports = GameOverDialog;
 

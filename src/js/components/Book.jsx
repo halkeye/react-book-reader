@@ -1,4 +1,5 @@
 'use strict';
+const PropTypes = require('prop-types');
 const React = require('react');
 const Constants = require('../constants/AppConstants');
 
@@ -9,28 +10,28 @@ const Screen = require('./Screen.jsx');
 const GamePP = require('./GamePP.jsx');
 const GameFullMonty = require('./GameFullMonty.jsx');
 
-let Book = React.createClass({
-  propTypes: {
-    book: React.PropTypes.object.isRequired,
-    language: React.PropTypes.string.isRequired,
-    page: React.PropTypes.string.isRequired
-  },
+class Book extends React.Component {
+  static propTypes = {
+    book: PropTypes.object.isRequired,
+    language: PropTypes.string.isRequired,
+    page: PropTypes.string.isRequired
+  };
 
-  getInitialProps() {
+  getInitialProps = () => {
     return {
       book: {
         pages: {}
       }
     };
-  },
+  };
 
-  getPageTitle() {
+  getPageTitle = () => {
     let str = this.props.book.title || 'Untitled';
     // if numeric page number
     // str += ' - ' + pageNumber
     // FIXME
     return str;
-  },
+  };
 
   render() {
     let docMeta = {
@@ -90,6 +91,6 @@ let Book = React.createClass({
       </DocumentTitle>
     );
   }
-});
+}
 
 module.exports = Book;

@@ -1,10 +1,13 @@
 'use strict';
 const React = require('react');
+const createReactClass = require('create-react-class');
 const RouterMixin = require('react-mini-router').RouterMixin;
 const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
 
 require('../../styles/main.scss');
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 /* Components */
 const BookList = require('./BookList.jsx');
@@ -29,7 +32,8 @@ let fontTypes = [
   ['svg', 'svg']
 ];
 
-let App = React.createClass({
+let App = createReactClass({
+  displayName: 'App',
   mixins: [RouterMixin],
 
   handleResize: function () {
@@ -58,7 +62,11 @@ let App = React.createClass({
   },
 
   render: function() {
-    return this.renderCurrentRoute();
+    return (
+      <MuiThemeProvider>
+        {this.renderCurrentRoute()}
+      </MuiThemeProvider>
+    );
   },
 
   selectLanguage(book) {
@@ -119,12 +127,15 @@ let App = React.createClass({
       );
     }
   },
+
   onAssetStarted(asset) { this.started++; },
   onAssetEnded(asset) { this.ended++; },
+
   onAssetError(asset, path) {
     // FIXME - need to handle something here
     console.log('error', asset);
   },
+
   startAssetTracking() {
     this.started = this.ended = 0;
 
@@ -223,7 +234,7 @@ let App = React.createClass({
       style.appendChild(document.createTextNode(css));
     }
     document.getElementsByTagName('head')[0].appendChild(style);
-  }
+  },
 });
 
 module.exports = App;

@@ -7,18 +7,18 @@ const BookStore = require('../stores/BookStore');
 
 let {RaisedButton} = mui;
 
-let BookList = React.createClass({
+class BookList extends React.Component {
+  state = {
+    books: []
+  };
+
   componentDidMount() {
     BookStore.getAll().then((books) => {
       this.setState({ books: books });
     });
-  },
-  getInitialState() {
-    return {
-      books: []
-    };
-  },
-  render: function() {
+  }
+
+  render() {
     if (this.state.books.length === 1) {
       this.handleSelectBookClick(this.state.books[0].id);
       return <div>Auto selecting book</div>;
@@ -37,12 +37,12 @@ let BookList = React.createClass({
       );
     });
     return <div>{booksStr}</div>;
-  },
-
-  handleSelectBookClick(book) {
-    BookActionCreators.chooseBook(book);
   }
-});
+
+  handleSelectBookClick = (book) => {
+    BookActionCreators.chooseBook(book);
+  };
+}
 
 module.exports = BookList;
 

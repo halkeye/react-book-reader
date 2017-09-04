@@ -46,6 +46,12 @@ class BookAudio extends EventEmitter {
       this.playMode = type;
       asset.on('play', () => {
         this.state = 'playing';
+        this.seekInterval = setInterval(() => {
+          const time = asset.seek();
+          if (time) {
+            this.emit(type+'-timeupdate',time);
+          }
+        }, 100);
         this.emit(type + '-play');
       });
       asset.on('pause', () => { this.emit(type + '-pause'); });
@@ -58,6 +64,10 @@ class BookAudio extends EventEmitter {
           this.playMode = null;
           this.asset = null;
           this.stopUpdateCurrentDuration();
+          if (this.seekInterval) {
+            clearInterval(this.seekInterval);
+            this.seekInterval = 0;
+          }
         }
       };
       asset.on('end', asset.onEnded );

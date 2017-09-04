@@ -1,4 +1,5 @@
 'use strict';
+const PropTypes = require('prop-types');
 const React = require('react');
 const assign = require('object-assign');
 const _ = require('lodash');
@@ -26,29 +27,27 @@ let stylePropType = function (props, propName, component) {
   if (!isValidStyle(props)) { return new Error('Invalid styles!'); }
 };
 
-let BookWord = React.createClass({
-  propTypes: {
+class BookWord extends React.Component {
+  static propTypes = {
     // http://rjzaworski.com/2015/01/putting-react-custom-proptypes-to-work
-    audio: React.PropTypes.string,
-    audioTime: React.PropTypes.number,
-    end: React.PropTypes.number,
-    onClick: React.PropTypes.func,
-    start: React.PropTypes.number,
-    styles: React.PropTypes.objectOf(stylePropType).isRequired,
-    word: React.PropTypes.string.isRequired
-  },
+    audio: PropTypes.string,
+    audioTime: PropTypes.number,
+    end: PropTypes.number,
+    onClick: PropTypes.func,
+    start: PropTypes.number,
+    styles: PropTypes.objectOf(stylePropType).isRequired,
+    word: PropTypes.string.isRequired
+  };
 
-  getInitialProps() {
+  state = {
+    state: 'unread'
+  };
+
+  getInitialProps = () => {
     return {
       styles: {}
     };
-  },
-
-  getInitialState() {
-    return {
-      state: 'unread'
-    };
-  },
+  };
 
   componentWillMount() {
     Object.keys(this.props.styles).forEach((style) => {
@@ -62,9 +61,10 @@ let BookWord = React.createClass({
       });
     });
 
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps(nextProps) {
+    //    console.log('componentWillReceiveProps', nextProps);
     if (!_.isNull(this.props.start) && !_.isNull(this.props.end)) {
       if (nextProps.audioTime > this.props.end) {
         this.setState({state: 'read'});
@@ -74,9 +74,9 @@ let BookWord = React.createClass({
         this.setState({state: 'unread'});
       }
     }
-  },
+  }
 
-  getElementStyle() {
+  getElementStyle = () => {
     var style = assign({
       cursor: 'pointer',
       backgroundColor: 'transparent',
@@ -87,7 +87,7 @@ let BookWord = React.createClass({
     style.fontSize = style.fontSize + 'px';
     delete style.fontPath;
     return style;
-  },
+  };
 
   render() {
     var style = this.getElementStyle();
@@ -96,5 +96,6 @@ let BookWord = React.createClass({
       <FlatButton style={style} onClick={this.props.onClick}> {this.props.word + " "} </FlatButton>
     );
   }
-});
+}
+
 module.exports = BookWord;

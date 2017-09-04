@@ -5,8 +5,8 @@ let languageMap = {
   'fr': 'French'
 };
 
-let LanguageIcon = React.createClass({
-  render: function() {
+class LanguageIcon extends React.Component {
+  render() {
     let str = languageMap[this.props.language] || this.props.language;
 
     let classString = '';
@@ -14,6 +14,6 @@ let LanguageIcon = React.createClass({
       <span className={classString}>{str}</span>
     );
   }
-});
+}
 
 module.exports = LanguageIcon;

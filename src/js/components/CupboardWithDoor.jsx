@@ -1,13 +1,17 @@
 'use strict';
 const React = require('react');
 
-const CupboardWithDoor = React.createClass({
+const createReactClass = require('create-react-class');
+
+const CupboardWithDoor = createReactClass({
+  displayName: 'CupboardWithDoor',
+
   getInitialState() {
     return { 'status': 'open' };
   },
 
   reset() {
-    this.replaceState(this.getInitialState());
+    this.replaceState({ 'status': 'open' });
   },
 
   getCanvas() {
@@ -64,8 +68,7 @@ const CupboardWithDoor = React.createClass({
     this.doorState = 'closed';
     this.setState({ status: this.doorState });
     if (playSound === true) { this.playDoorSound(); }
-  }
-
+  },
 });
 module.exports = CupboardWithDoor;
 

@@ -1,8 +1,10 @@
 'use strict';
 const React = require('react');
+const createReactClass = require('create-react-class');
 const BookStore = require('../stores/BookStore');
 
-const ReactionBox = React.createClass({
+const ReactionBox = createReactClass({
+  displayName: 'ReactionBox',
   getInitialState() { return { frameNo: 0 }; },
   getDefaultProps() { return { 'mode': 'neutral' }; },
 
@@ -68,8 +70,7 @@ const ReactionBox = React.createClass({
 
   componentWillUnmount() {
     this.stopAnimation();
-  }
-
+  },
 });
 
 module.exports = ReactionBox;

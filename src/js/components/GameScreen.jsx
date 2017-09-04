@@ -1,5 +1,6 @@
 'use strict';
 const React = require('react');
+const createReactClass = require('create-react-class');
 const assign = require('object-assign');
 const Shuffle = require('shuffle');
 
@@ -14,19 +15,26 @@ const GameOverDialog = require('./GameOverDialog.jsx');
 
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
-const GameScreen = React.createClass({
+const GameScreen = createReactClass({
+  displayName: 'GameScreen',
+
   getDefaultProps() {
     return {
       getCupboardContents: function() { return []; },
       clickedOnDoor: function(isOpen) { return true; }
     };
   },
-  getInitialState() {
+
+  startingState() {
     return {
       started: false,
       triesScore: 0,
       matchesScore: 0
     };
+  },
+
+  getInitialState() {
+    return this.startingState();
   },
 
   getDefaultReaction() {
@@ -67,7 +75,7 @@ const GameScreen = React.createClass({
   },
 
   resetGame(props) {
-    let state = this.getInitialState();
+    let state = this.startingState();
     let contents = Shuffle.shuffle({ "deck": props.getCupboardContents(this.state.gameParts, this.numberOfDoors()) });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
       let cupboard = this.refs[`cupboard_${idx}`];
@@ -152,9 +160,11 @@ const GameScreen = React.createClass({
   onPlayAgain() {
     this.resetGame(this.props);
   },
+
   onChangeDiff() {
     return BookActionCreators.changePage({ page: this.props.page.back });
   },
+
   onBackGameMenu() {
     return BookActionCreators.changePage({ page: 'game' });
   },
@@ -168,11 +178,13 @@ const GameScreen = React.createClass({
   hasStarted() {
     return this.state.started;
   },
+
   closeAllDoors() {
     Object.keys(this.refs).filter((key) => { return key.startsWith('cupboard_'); }).forEach((key) => {
       this.refs[key].close(false);
     });
   },
+
   start() {
     this.closeAllDoors();
     this.setState({ started: true });
@@ -199,7 +211,7 @@ const GameScreen = React.createClass({
   showBadReaction() {
     this.setState({ reaction: 'bad' });
     this.playMp3('game/game_cupbard_incorrect.mp3');
-  }
+  },
 });
 
 module.exports = GameScreen;

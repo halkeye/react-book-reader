@@ -4,32 +4,35 @@ const assign = require('object-assign');
 const Shuffle = require('shuffle');
 const GameScreen = require('./GameScreen.jsx');
 
-let GamePP = React.createClass({
-  getInitialState() {
-    return { openDoor1: null };
-  },
-  getCupboardContents(parts, size) {
+class GamePP extends React.Component {
+  state = { openDoor1: null };
+
+  getCupboardContents = (parts, size) => {
     let deck = Shuffle.shuffle({ "deck": parts });
     let array = deck.drawRandom(size);
     return array.map((elm) => { return { key: elm.key, image: elm.image}; });
-  },
-  isEndGame() {
+  };
+
+  isEndGame = () => {
     if (!this.refs) { return false; }
     if (!this.refs.gamescreen) { return false; }
     if (!this.refs.gamescreen.state) { return false; }
     return this.refs.gamescreen.state.matchesScore === this.refs.gamescreen.numberOfDoors();
-  },
-  isPerfectGame() {
+  };
+
+  isPerfectGame = () => {
     return this.refs.gamescreen.state.triesScore === this.refs.gamescreen.numberOfDoors();
-  },
-  updateDisplayBox(any = false) {
+  };
+
+  updateDisplayBox = (any = false) => {
     let cupboards = any === false ? this.refs.gamescreen.getCupboards().filter((elm) => {
       return elm.isClosed();
     }) : this.refs.gamescreen.getCupboards();
     let cupboard = cupboards[Math.floor(Math.random() * cupboards.length)];
     this.refs.gamescreen.setState({ displayBox: cupboard });
-  },
-  clickedOnDoor(cupboard) {
+  };
+
+  clickedOnDoor = (cupboard) => {
     if (!this.refs.gamescreen.hasStarted()) {
       this.refs.gamescreen.setState({ reaction: 'pointing', defaultAnimation: 'pointing' });
       this.updateDisplayBox(true);
@@ -58,7 +61,7 @@ let GamePP = React.createClass({
     setTimeout(() => { cupboard.close(false); }, 300);
     cupboard.open();
     return true;
-  },
+  };
 
   render() {
     let props = assign(
@@ -73,6 +76,6 @@ let GamePP = React.createClass({
     );
     return <GameScreen ref="gamescreen" {...props} />;
   }
-});
+}
 
 module.exports = GamePP;

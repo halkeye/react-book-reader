@@ -8,18 +8,18 @@ const LanguageIcon = require('./LanguageIcon.jsx');
 
 let {RaisedButton, Dialog} = mui;
 
-let LanguageList = React.createClass({
+class LanguageList extends React.Component {
+  state = {
+    book: null
+  };
+
   componentDidMount() {
     BookStore.getAll().then((books) => {
       this.setState({ book: books.filter((elm) => { return elm.id === this.props.book; })[0] });
     });
-  },
-  getInitialState() {
-    return {
-      book: null
-    };
-  },
-  render: function() {
+  }
+
+  render() {
     if (this.state.book === null) { return <div>Loading...</div>; }
     if (this.state.book.languages.length === 1) {
       return this.handleSelectLanguageClick(this.state.book.languages[0]);
@@ -43,12 +43,12 @@ let LanguageList = React.createClass({
         </div>
       </DocumentTitle>
     );
-  },
-
-  handleSelectLanguageClick(language) {
-    BookActionCreators.chooseLanguage(this.props.book, language);
   }
-});
+
+  handleSelectLanguageClick = (language) => {
+    BookActionCreators.chooseLanguage(this.props.book, language);
+  };
+}
 
 module.exports = LanguageList;
 

@@ -1,21 +1,29 @@
 'use strict';
 const React = require('react');
+const createReactClass = require('create-react-class');
 const assign = require('object-assign');
-const AnimateMixin = require('react-animate');
 
+class Animate {
+  static getAnimatedStyle() {
+    return {};
+  }
+  static animate(args) {
+    console.log('animate', ...args);
+  }
+}
 
-const BookHotspotPhrase = React.createClass({
-  mixins: [AnimateMixin],
-  getInitialState() {
-    return {
+export default class BookHotspotPhrase extends React.Component {
+  constructor() {
+    super();
+    this.state = {
       phrase: '',
       display: 'none'
     };
-  },
+  }
 
   onComplete() {
     this.setState({display: 'none'});
-  },
+  }
 
   triggerAnimation(phrase, x, y) {
     this.setState({
@@ -24,7 +32,7 @@ const BookHotspotPhrase = React.createClass({
       x: x,
       y: y
     });
-    this.animate(
+    Animate.animate.call(this,
       'hotspot-animation', // animation name
       { transform: 'scale(0.1)' }, // initial style
       { transform: 'scale(1)' }, // final style
@@ -35,7 +43,7 @@ const BookHotspotPhrase = React.createClass({
         onComplete: this.onComplete
       }
     );
-  },
+  }
 
   render() {
     let style = assign({
@@ -44,11 +52,9 @@ const BookHotspotPhrase = React.createClass({
       top: this.state.y,
       left: this.state.x,
       textShadow: '2px 2px 2px gray'
-    }, this.getAnimatedStyle('hotspot-animation'), this.props);
+    }, Animate.getAnimatedStyle.call(this, 'hotspot-animation'), this.props);
     return (
       <div style={style}>{this.state.phrase}</div>
     );
   }
-});
-module.exports = BookHotspotPhrase;
-
+}

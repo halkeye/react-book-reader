@@ -1,6 +1,9 @@
 'use strict';
 const React = require('react');
-const ScoreCardBox = React.createClass({
+const createReactClass = require('create-react-class');
+const ScoreCardBox = createReactClass({
+  displayName: 'ScoreCardBox',
+
   render() {
     return (
       <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style}></canvas>
@@ -10,6 +13,7 @@ const ScoreCardBox = React.createClass({
   getCanvas() {
     return this.refs.canvas.getDOMNode();
   },
+
   draw() {
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
@@ -37,6 +41,6 @@ const ScoreCardBox = React.createClass({
 
   componentDidUpdate: function (prevProps, prevState) {
     this.draw();
-  }
+  },
 });
 module.exports = ScoreCardBox;

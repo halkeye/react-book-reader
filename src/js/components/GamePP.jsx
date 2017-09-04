@@ -4,11 +4,10 @@ const assign = require('object-assign');
 const Shuffle = require('shuffle');
 const GameScreen = require('./GameScreen.jsx');
 
-let GamePP = React.createClass({
-  getInitialState() {
-    return { openDoor1: null };
-  },
-  getCupboardContents(gameParts, size) {
+class GamePP extends React.Component {
+  state = { openDoor1: null };
+
+  getCupboardContents = (gameParts, size) => {
     let deck = Shuffle.shuffle({ "deck": gameParts });
     let array = deck.drawRandom(Math.floor(size / 2));
     if (this.props.mode === 'PP') {
@@ -19,17 +18,20 @@ let GamePP = React.createClass({
         .concat(array.map((elm) => { return { key: elm.key, image: elm.text}; }));
     }
     return [];
-  },
-  isEndGame() {
+  };
+
+  isEndGame = () => {
     if (!this.refs) { return false; }
     if (!this.refs.gamescreen) { return false; }
     if (!this.refs.gamescreen.state) { return false; }
     return this.refs.gamescreen.state.matchesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
-  },
-  isPerfectGame() {
+  };
+
+  isPerfectGame = () => {
     return this.refs.gamescreen.state.triesScore === Math.floor(this.refs.gamescreen.numberOfDoors() / 2);
-  },
-  clickedOnDoor(cupboard) {
+  };
+
+  clickedOnDoor = (cupboard) => {
     if (!this.refs.gamescreen.hasStarted()) {
       this.refs.gamescreen.start();
       return false;
@@ -72,7 +74,7 @@ let GamePP = React.createClass({
     }, 300);
     cupboard.open();
     return true;
-  },
+  };
 
   render() {
     let props = assign(
@@ -87,6 +89,6 @@ let GamePP = React.createClass({
     );
     return <GameScreen ref="gamescreen" {...props} />;
   }
-});
+}
 
 module.exports = GamePP;

@@ -4,7 +4,7 @@ const AppConstants = require('../constants/AppConstants.js');
 const mui = require('material-ui');
 let {IconButton} = mui;
 
-let ImageButton = React.createClass({
+class ImageButton extends React.Component {
   render() {
     if (this.props.enabled === false) { return <div/>; }
 
@@ -28,7 +28,8 @@ let ImageButton = React.createClass({
       <IconButton style={style} onClick={this.props.onClick}></IconButton>
     );
   }
-});
+}
+
 module.exports = ImageButton;
 
 

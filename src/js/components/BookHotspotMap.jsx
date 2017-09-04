@@ -3,18 +3,18 @@ const React = require('react');
 //const invariant = require('react/lib/invariant');
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
-const BookHotspotMap = React.createClass({
-  getInitialProps() {
+export default class BookHotspotMap extends React.Component {
+  static getInitialProps() {
     return {
       height: 0,
       width: 0,
       hotspots: []
     };
-  },
+  }
 
   getCanvas() {
-    return this.refs.canvas.getDOMNode();
-  },
+    return this.canvas;
+  }
 
   onClickImage(x, y) {
     if (!this.props.image) { return; }
@@ -33,7 +33,7 @@ const BookHotspotMap = React.createClass({
       var item = hotspots[Math.floor(Math.random() * hotspots.length)];
       this.props.onHotspot(item, x, y);
     }
-  },
+  }
 
   draw() {
     if (!this.props.image) { return; }
@@ -42,15 +42,15 @@ const BookHotspotMap = React.createClass({
       ctx.drawImage(img, 0, 0);
       this.imageData = ctx.getImageData(0, 0, this.props.width, this.props.height);
     });
-  },
+  }
 
   componentDidMount() {
     this.draw();
-  },
+  }
 
-  componentDidUpdate: function (prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     this.draw();
-  },
+  }
 
   render() {
     if (!this.props.image) { return <div></div>; }
@@ -61,8 +61,9 @@ const BookHotspotMap = React.createClass({
       display: 'none'
     };
     return (
-      <canvas ref="canvas" height={this.props.height} width={this.props.width} style={surfaceStyle} onClick={this.onClickImage}></canvas>
+      <canvas
+        ref={(canvas) => { this.canvas = canvas; }}
+        height={this.props.height} width={this.props.width} style={surfaceStyle} onClick={this.onClickImage}></canvas>
     );
   }
-});
-module.exports = BookHotspotMap;
+}

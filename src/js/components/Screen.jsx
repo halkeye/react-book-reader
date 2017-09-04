@@ -1,5 +1,6 @@
 'use strict';
 const React = require('react');
+const createReactClass = require('create-react-class');
 const HammerJS = require('hammerjs');
 const Hammer = require('react-hammerjs');
 
@@ -10,18 +11,21 @@ const Constants = require('../constants/AppConstants');
 
 const BookAudio = require('../models/BookAudio.jsx');
 
-const BookHotspotMap = require('../components/BookHotspotMap.jsx');
-const BookHotspotPhrase = require('../components/BookHotspotPhrase.jsx');
+import BookHotspotMap from '../components/BookHotspotMap.jsx';
+import BookHotspotPhrase from '../components/BookHotspotPhrase.jsx';
 
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
-const mui = require('material-ui');
+import {IconButton} from 'material-ui';
 
-let {IconButton} = mui;
 let clickThreshold = 5;
 
-let Screen = React.createClass({
-  mixins: [MousetrapMixins], // FIXME - move later
+let Screen = createReactClass({
+  displayName: 'Screen',
+
+  // FIXME - move later
+  mixins: [MousetrapMixins],
+
   propTypes: {
     //audio: React.PropTypes.string,
   },
@@ -32,11 +36,15 @@ let Screen = React.createClass({
     };
   },
 
-  getInitialState() {
+  restartState() {
     return {
       audioTime: 0,
       playButton: 'play'
     };
+  },
+
+  getInitialState() {
+    return this.restartState();
   },
 
   componentDidMount() {
@@ -66,7 +74,7 @@ let Screen = React.createClass({
 
   onNewPage(props) {
     this.audio.stop();
-    this.replaceState(this.getInitialState(), function() {
+    this.replaceState(this.restartState(), function() {
       if (props.autoplay && props.page.pageAudio) {
         this.audio.play('page', props.page.pageAudio);
       }
@@ -149,7 +157,7 @@ let Screen = React.createClass({
       <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
           <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
-          <BookHotspotPhrase ref="hotspotPhrase" {...this.props.page.styles.unread} />
+          <BookHotspotPhrase ref={(hotspotPhrase) => { this.hotspotPhrase = hotspotPhrase; }} {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
           <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
           {homeBackButton}
@@ -165,7 +173,7 @@ let Screen = React.createClass({
   onHotspot(hotspot, x, y) {
     this.setState({ audioTime: 0 });
     this.audio.stop();
-    this.refs.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
+    this.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
     this.audio.play('hotspot', hotspot.audio);
   },
 
@@ -209,6 +217,7 @@ let Screen = React.createClass({
   onBackButtonClick() {
     return BookActionCreators.changePage({ page: this.props.page.back });
   },
+
   onHomeButtonClick() {
     return BookActionCreators.changePage({ page: '', autoplay: false });
   },
@@ -223,15 +232,20 @@ let Screen = React.createClass({
     return BookActionCreators.changePage({ page: page });
   },
 
-
   onPagePlay() { this.setState({ playButton: 'pause' }); },
   onPagePause() { this.setState({ playButton: 'play' }); },
+
   onPageEnded() {
     this.setState({
       playButton: 'play'
     });
   },
-  onPageTime(time) { this.setState({ audioTime: time }); },
+
+  onPageTime(time) {
+    if (time) {
+      this.setState({ audioTime: time });
+    }
+  },
 
   onPlayPauseButtonClick() {
     if (this.state.playButton === 'play') {
@@ -247,7 +261,6 @@ let Screen = React.createClass({
     this.audio.play('word', word.audio);
   },
 
-
   /* FIXME */
   pagePrev() {
     if (isNaN(this.props.page.id)) { return; }
@@ -255,11 +268,12 @@ let Screen = React.createClass({
     var newPage = this.props.page.id-1;
     BookActionCreators.changePage({ page: newPage });
   },
+
   pageNext() {
     if (isNaN(this.props.page.id)) { return; }
 
     var newPage = this.props.page.id+1;
     BookActionCreators.changePage({ page: newPage });
-  }
+  },
 });
 module.exports = Screen;
