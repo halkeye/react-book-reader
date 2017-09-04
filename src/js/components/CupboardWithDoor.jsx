@@ -1,6 +1,5 @@
 'use strict';
 const React = require('react');
-const Howl = require('howler').Howl;
 
 const CupboardWithDoor = React.createClass({
   getInitialState() {

@@ -2,7 +2,7 @@ var assign = require('object-assign');
 var diacritics = require('diacritics');
 const AssetManager = require('../AssetManager.js');
 require('whatwg-fetch'); // polyfill
-const Howl = require('howler').Howl;
+const { Howl } = require('howler');
 
 const Constants = require('../constants/AppConstants.js');
 
@@ -200,13 +200,15 @@ class AssetManagerAudioType {
     this.urls = urls;
     setTimeout( () => {
       this.audio = new Howl({
-        urls: urls,
+        src: urls,
         onload: () => {
           if (this.events.load) { this.events.load(); }
+          // FIXME - this fails on multiple loads (is that a thing)
           delete this.events;
         },
         onloaderror: (args) => {
           if (this.events.error) { this.events.error(); }
+          // FIXME - this fails on multiple errors
           delete this.events;
         }
       });
