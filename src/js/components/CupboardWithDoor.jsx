@@ -15,7 +15,7 @@ const CupboardWithDoor = createReactClass({
   },
 
   getCanvas() {
-    return this.refs.canvas.getDOMNode();
+    return this.canvas;
   },
 
   draw() {
@@ -40,7 +40,9 @@ const CupboardWithDoor = createReactClass({
   },
 
   render() {
-    return <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style} onClick={this.props.onClick}></canvas>;
+    return <canvas
+      ref={node => this.canvas = node}
+      width={this.props.style.width} height={this.props.style.height} style={this.props.style} onClick={this.props.onClick}></canvas>;
   },
 
   playDoorSound() {

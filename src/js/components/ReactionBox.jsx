@@ -41,7 +41,7 @@ const ReactionBox = createReactClass({
   },
 
   getCanvas() {
-    return this.refs.canvas.getDOMNode();
+    return this.canvas;
   },
 
   draw() {
@@ -65,7 +65,7 @@ const ReactionBox = createReactClass({
   },
 
   render() {
-    return <canvas ref="canvas" width={this.props.style.width} height={this.props.style.height} style={this.props.style}></canvas>;
+    return <canvas ref={node => this.canvas = node } width={this.props.style.width} height={this.props.style.height} style={this.props.style}></canvas>;
   },
 
   componentWillUnmount() {

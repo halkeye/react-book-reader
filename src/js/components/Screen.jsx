@@ -95,10 +95,10 @@ let Screen = createReactClass({
   },
 
   onClickPage(ev) {
-    if (this.refs.hotspotMap) {
+    if (this.hotspotMap) {
       let x = ev.pageX - ev.currentTarget.offsetLeft;
       let y = ev.pageY - ev.currentTarget.offsetTop;
-      this.refs.hotspotMap.onClickImage(x, y);
+      this.hotspotMap.onClickImage(x, y);
     }
   },
 
@@ -156,7 +156,7 @@ let Screen = createReactClass({
     return (
       <Hammer key={key} onSwipe={this.onSwipe}>
         <div style={pageStyle} ref="bookpage" onClick={this.onClickPage}>
-          <BookHotspotMap ref="hotspotMap" {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
+          <BookHotspotMap ref={(hotspotMap) => { this.hotspotMap = hotspotMap; }} {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
           <BookHotspotPhrase ref={(hotspotPhrase) => { this.hotspotPhrase = hotspotPhrase; }} {...this.props.page.styles.unread} />
           <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
           <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
@@ -180,7 +180,7 @@ let Screen = createReactClass({
   getPageHeight() {
     return Constants.Dimensions.HEIGHT;
     /*
-    let dom = this.refs.bookpage.getDOMNode();
+    let dom = this..bookpage.getDOMNode();
     return dom.offsetHeight || dom.clientHeight;
     */
   },
@@ -188,7 +188,7 @@ let Screen = createReactClass({
   getPageWidth() {
     return Constants.Dimensions.WIDTH;
     /*
-    let dom = this.refs.bookpage.getDOMNode();
+    let dom = this..bookpage.getDOMNode();
     return dom.offsetWidth || dom.clientWidth;
     */
   },
