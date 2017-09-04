@@ -65,6 +65,7 @@
     "react": "^15.6.1",
     "react-animate": "github:arian/react-animate#master",
     "react-dom": "^15.6.1",
+    "react-motion": "^0.5.1",
     "react-transform-hmr": "^1.0.4",
     "reactify": "^1.1.1",
     "require-dir": "^0.3.2",

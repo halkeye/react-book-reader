@@ -1,16 +1,9 @@
 'use strict';
+import {Motion, spring} from 'react-motion';
+
 const React = require('react');
 const createReactClass = require('create-react-class');
 const assign = require('object-assign');
-
-class Animate {
-  static getAnimatedStyle() {
-    return {};
-  }
-  static animate(args) {
-    console.log('animate', ...args);
-  }
-}
 
 export default class BookHotspotPhrase extends React.Component {
   constructor() {
@@ -32,29 +25,35 @@ export default class BookHotspotPhrase extends React.Component {
       x: x,
       y: y
     });
-    Animate.animate.call(this,
-      'hotspot-animation', // animation name
-      { transform: 'scale(0.1)' }, // initial style
-      { transform: 'scale(1)' }, // final style
-      700, // animation duration (in ms)
-      {
-        // other options
-        easing: 'linear',
-        onComplete: this.onComplete
-      }
-    );
   }
 
   render() {
+    if (this.state.display === 'none') {
+      return <div />;
+    }
+
     let style = assign({
       position: 'absolute',
       display: this.state.display,
       top: this.state.y,
       left: this.state.x,
-      textShadow: '2px 2px 2px gray'
-    }, Animate.getAnimatedStyle.call(this, 'hotspot-animation'), this.props);
+      textShadow: '2px 2px 2px gray',
+    }, this.props);
+
     return (
-      <div style={style}>{this.state.phrase}</div>
+      <div>
+        <Motion
+          defaultStyle={{ opacity: 0, scale: 0 }}
+          style={{ opacity: 1, scale: spring(1) }}
+          onRest={this.onComplete.bind(this)}>
+          {value => {
+            return <div style={assign({}, style, {
+              opacity: value.opacity,
+              transform: `scale(${value.scale})`
+            })}>{this.state.phrase}</div>;
+          }}
+        </Motion>
+      </div>
     );
   }
 }
