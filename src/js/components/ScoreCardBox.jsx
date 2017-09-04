@@ -4,28 +4,35 @@ const createReactClass = require('create-react-class');
 const ScoreCardBox = createReactClass({
   displayName: 'ScoreCardBox',
 
-  render() {
+  render () {
     return (
-      <canvas ref={node => this.canvas = node }
+      <canvas
+        ref={node => (this.canvas = node)}
         width={this.props.style.width}
         height={this.props.style.height}
-        style={this.props.style}></canvas>
+        style={this.props.style}
+      />
     );
   },
 
-  getCanvas() {
+  getCanvas () {
     return this.canvas;
   },
 
-  draw() {
+  draw () {
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.textBaseline = 'middle';
-    ctx.textAlign = "center";
+    ctx.textAlign = 'center';
     ctx.fillStyle = this.props.style.color;
     ctx.font = canvas.width + 'px ' + this.props.style.fontFamily; // FIXME
-    ctx.fillText(this.props.text, canvas.width / 2, canvas.height / 2, canvas.width);
+    ctx.fillText(
+      this.props.text,
+      canvas.width / 2,
+      canvas.height / 2,
+      canvas.width
+    );
 
     /*
     let fontSize = 80;
@@ -38,12 +45,12 @@ const ScoreCardBox = createReactClass({
     */
   },
 
-  componentDidMount() {
+  componentDidMount () {
     this.draw();
   },
 
   componentDidUpdate: function (prevProps, prevState) {
     this.draw();
-  },
+  }
 });
 module.exports = ScoreCardBox;

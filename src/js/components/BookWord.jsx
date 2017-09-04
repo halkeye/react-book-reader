@@ -8,23 +8,29 @@ const AppDispatcher = require('../dispatchers/AppDispatcher.js');
 const Constants = require('../constants/AppConstants');
 
 const mui = require('material-ui');
-let {FlatButton} = mui;
+let { FlatButton } = mui;
 
-let isValidStyle = (obj) => {
-  //if (!isDictionary(obj)) { return false; }
-  if (!_.isPlainObject(obj)) { return false; }
+let isValidStyle = obj => {
+  // if (!isDictionary(obj)) { return false; }
+  if (!_.isPlainObject(obj)) {
+    return false;
+  }
   let stateNames = ['reading', 'read', 'unread'].sort();
   // check for extra or missing keys
-  if (!_.isEqual(Object.keys(obj).sort(), stateNames)) { return false; }
-  return _.every(stateNames, (state) => {
-    return _.every(['fontFamily', 'fontSize', 'color'], (styleField) => {
+  if (!_.isEqual(Object.keys(obj).sort(), stateNames)) {
+    return false;
+  }
+  return _.every(stateNames, state => {
+    return _.every(['fontFamily', 'fontSize', 'color'], styleField => {
       return !_.isNull(obj[state][styleField]);
     });
   });
 };
 
 let stylePropType = function (props, propName, component) {
-  if (!isValidStyle(props)) { return new Error('Invalid styles!'); }
+  if (!isValidStyle(props)) {
+    return new Error('Invalid styles!');
+  }
 };
 
 class BookWord extends React.Component {
@@ -49,10 +55,12 @@ class BookWord extends React.Component {
     };
   };
 
-  componentWillMount() {
-    Object.keys(this.props.styles).forEach((style) => {
+  componentWillMount () {
+    Object.keys(this.props.styles).forEach(style => {
       /* Skip styles without fonts */
-      if (!this.props.styles[style].fontPath) { return; }
+      if (!this.props.styles[style].fontPath) {
+        return;
+      }
 
       AppDispatcher.handleViewAction({
         type: Constants.ActionTypes.ADD_FONT,
@@ -60,40 +68,45 @@ class BookWord extends React.Component {
         fontPath: this.props.styles[style].fontPath
       });
     });
-
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps (nextProps) {
     //    console.log('componentWillReceiveProps', nextProps);
     if (!_.isNull(this.props.start) && !_.isNull(this.props.end)) {
       if (nextProps.audioTime > this.props.end) {
-        this.setState({state: 'read'});
+        this.setState({ state: 'read' });
       } else if (nextProps.audioTime > this.props.start) {
-        this.setState({state: 'reading'});
+        this.setState({ state: 'reading' });
       } else {
-        this.setState({state: 'unread'});
+        this.setState({ state: 'unread' });
       }
     }
   }
 
   getElementStyle = () => {
-    var style = assign({
-      cursor: 'pointer',
-      backgroundColor: 'transparent',
-      textTransform: 'none',
-      padding: '4px',
-      minWidth: 'initial'
-    }, this.props.styles[this.state.state]);
+    let style = assign(
+      {
+        cursor: 'pointer',
+        backgroundColor: 'transparent',
+        textTransform: 'none',
+        padding: '4px',
+        minWidth: 'initial'
+      },
+      this.props.styles[this.state.state]
+    );
     style.fontSize = style.fontSize + 'px';
     delete style.fontPath;
     return style;
   };
 
-  render() {
-    var style = this.getElementStyle();
+  render () {
+    let style = this.getElementStyle();
 
     return (
-      <FlatButton style={style} onClick={this.props.onClick}> {this.props.word + " "} </FlatButton>
+      <FlatButton style={style} onClick={this.props.onClick}>
+        {' '}
+        {this.props.word + ' '}{' '}
+      </FlatButton>
     );
   }
 }

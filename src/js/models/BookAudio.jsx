@@ -11,36 +11,47 @@ class BookAudio extends EventEmitter {
     this.state = 'paused';
   }
 
-  bind(type, ev, func) {
+  bind (type, ev, func) {
     this.on(type + '-' + ev, func);
     return this;
   }
 
-  pause() {
+  pause () {
     this.stopUpdateCurrentDuration();
-    if (!this.asset) { return this; }
+    if (!this.asset) {
+      return this;
+    }
     this.asset.pause();
     return this;
   }
 
-  stop() {
+  stop () {
     this.stopUpdateCurrentDuration();
-    if (!this.asset) { return this; }
+    if (!this.asset) {
+      return this;
+    }
     this.asset.stop();
     this.asset.onEnded();
     return this;
   }
 
-  play(type, path) {
+  play (type, path) {
     // don't double play
-    if (this.asset !== null && this.playMode === type && this.currentFilename === path) {
+    if (
+      this.asset !== null &&
+      this.playMode === type &&
+      this.currentFilename === path
+    ) {
       if (this.asset) {
-        this.interval = setInterval(this.updateCurrentDuration.bind(this, this.asset, type), 100);
+        this.interval = setInterval(
+          this.updateCurrentDuration.bind(this, this.asset, type),
+          100
+        );
         this.asset.play();
       }
       return this;
     }
-    this.asset_manager.getAsset(path).then((asset) => {
+    this.asset_manager.getAsset(path).then(asset => {
       asset = asset.audio;
       this.currentFilename = path;
       this.playMode = type;
@@ -49,12 +60,14 @@ class BookAudio extends EventEmitter {
         this.seekInterval = setInterval(() => {
           const time = asset.seek();
           if (time) {
-            this.emit(type+'-timeupdate',time);
+            this.emit(type + '-timeupdate', time);
           }
         }, 100);
         this.emit(type + '-play');
       });
-      asset.on('pause', () => { this.emit(type + '-pause'); });
+      asset.on('pause', () => {
+        this.emit(type + '-pause');
+      });
       asset.onEnded = () => {
         asset.off('play');
         asset.off('pause');
@@ -70,8 +83,11 @@ class BookAudio extends EventEmitter {
           }
         }
       };
-      asset.on('end', asset.onEnded );
-      this.interval = setInterval(this.updateCurrentDuration.bind(this, asset, type), 100);
+      asset.on('end', asset.onEnded);
+      this.interval = setInterval(
+        this.updateCurrentDuration.bind(this, asset, type),
+        100
+      );
       asset.play();
 
       this.asset = asset;
@@ -79,22 +95,23 @@ class BookAudio extends EventEmitter {
     return this;
   }
 
-  removeAll() {
+  removeAll () {
     this.removeAllListeners();
     this.stop();
     this.stopUpdateCurrentDuration();
-    if (this.asset) { this.stop(); }
+    if (this.asset) {
+      this.stop();
+    }
   }
 
-  updateCurrentDuration(asset, type) {
-    this.emit(type + '-timeupdate', asset.pos() );
+  updateCurrentDuration (asset, type) {
+    this.emit(type + '-timeupdate', asset.pos());
   }
 
-  stopUpdateCurrentDuration() {
+  stopUpdateCurrentDuration () {
     clearInterval(this.interval);
     delete this.interval;
   }
-
 }
 
 module.exports = BookAudio;

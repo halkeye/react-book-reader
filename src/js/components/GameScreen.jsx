@@ -18,14 +18,18 @@ const BookUtilities = require('../constants/BookUtilities.jsx');
 const GameScreen = createReactClass({
   displayName: 'GameScreen',
 
-  getDefaultProps() {
+  getDefaultProps () {
     return {
-      getCupboardContents: function() { return []; },
-      clickedOnDoor: function(isOpen) { return true; }
+      getCupboardContents: function () {
+        return [];
+      },
+      clickedOnDoor: function (isOpen) {
+        return true;
+      }
     };
   },
 
-  startingState() {
+  startingState () {
     return {
       started: false,
       triesScore: 0,
@@ -33,72 +37,85 @@ const GameScreen = createReactClass({
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return this.startingState();
   },
 
-  getDefaultReaction() {
+  getDefaultReaction () {
     return this.state.defaultAnimation || 'neutral';
   },
 
-  componentDidMount() {
-    var promises = [];
-    var gameAssets = {};
-    var gameParts = [];
+  componentDidMount () {
+    let promises = [];
+    let gameAssets = {};
+    let gameParts = [];
 
-    this.props.page.gameBoardParts.forEach((part) => {
-      let gamePart = { 'key': part.key, 'image': null, text: null };
+    this.props.page.gameBoardParts.forEach(part => {
+      let gamePart = { key: part.key, image: null, text: null };
       gameParts.push(gamePart);
-      promises.push(this.props.page.asset_manager.getAsset(part.image).then((img) => {
-        gamePart.image = img;
-      }));
-      promises.push(this.props.page.asset_manager.getAsset(part.text).then((img) => {
-        gamePart.text = img;
-      }));
+      promises.push(
+        this.props.page.asset_manager.getAsset(part.image).then(img => {
+          gamePart.image = img;
+        })
+      );
+      promises.push(
+        this.props.page.asset_manager.getAsset(part.text).then(img => {
+          gamePart.text = img;
+        })
+      );
     });
-    Object.keys(this.props.page.gameAssets).forEach((assetName) => {
-      let promise = this.props.page.asset_manager.getAsset(this.props.page.gameAssets[assetName]).then((img) => {
-        gameAssets[assetName] = img;
-      });
+    Object.keys(this.props.page.gameAssets).forEach(assetName => {
+      let promise = this.props.page.asset_manager
+        .getAsset(this.props.page.gameAssets[assetName])
+        .then(img => {
+          gameAssets[assetName] = img;
+        });
       promises.push(promise);
     });
 
-    Promise.all(promises).then((parts) => {
+    Promise.all(promises).then(parts => {
       this.setState({ gameAssets: gameAssets, gameParts: gameParts }, () => {
         this.resetGame(this.props);
       });
     });
   },
 
-  numberOfDoors() {
+  numberOfDoors () {
     return this.props.page.boxes.matchLocs.length;
   },
 
-  resetGame(props) {
+  resetGame (props) {
     let state = this.startingState();
-    let contents = Shuffle.shuffle({ "deck": props.getCupboardContents(this.state.gameParts, this.numberOfDoors()) });
+    let contents = Shuffle.shuffle({
+      deck: props.getCupboardContents(
+        this.state.gameParts,
+        this.numberOfDoors()
+      )
+    });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
       let cupboard = this[`cupboard_${idx}`];
       cupboard.reset();
 
       let content = contents.draw();
-      if (!content) { return; }
+      if (!content) {
+        return;
+      }
       state[`cupboard_${idx}`] = content;
     });
     this.setState(state);
   },
 
-  render() {
+  render () {
     let triesBoxStyle = assign(
-      { 'position': 'absolute' },
+      { position: 'absolute' },
       this.props.page.boxes.tries
     );
     let matchBoxStyle = assign(
-      { 'position': 'absolute' },
+      { position: 'absolute' },
       this.props.page.boxes.match
     );
     let reactionBoxStyle = assign(
-      { 'position': 'absolute' },
+      { position: 'absolute' },
       this.props.page.boxes.reactionBox
     );
     let cupboardLocations = <div />;
@@ -107,14 +124,11 @@ const GameScreen = createReactClass({
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-        let style = assign(
-          { 'position': 'absolute' },
-          loc
-        );
+        let style = assign({ position: 'absolute' }, loc);
         let cupbardObject = this.state[`cupboard_${idx}`] || {};
 
         let props = {
-          ref: node => this[`cupboard_${idx}`] = node,
+          ref: node => (this[`cupboard_${idx}`] = node),
           key: idx,
           style: style,
           asset_manager: this.props.page.asset_manager,
@@ -127,22 +141,50 @@ const GameScreen = createReactClass({
         return <CupboardWithDoor {...props} />;
       });
     }
-    if (this.props.page.boxes.displayBox && this.state.displayBox && this.state.displayBox.props.objectImage) {
+    if (
+      this.props.page.boxes.displayBox &&
+      this.state.displayBox &&
+      this.state.displayBox.props.objectImage
+    ) {
       let style = assign(
-        { 'position': 'absolute' },
+        { position: 'absolute' },
         this.props.page.boxes.displayBox
       );
-      displayBox = <img key="displaybox" style={style} src={this.state.displayBox.props.objectImage.src} />;
+      displayBox = (
+        <img
+          key="displaybox"
+          style={style}
+          src={this.state.displayBox.props.objectImage.src}
+        />
+      );
     }
     if (this.props.isEndGame()) {
-      gameOverDialog = <GameOverDialog asset_manager={this.props.page.asset_manager} onBackGameMenu={this.onBackGameMenu} onChangeDiff={this.onChangeDiff} onPlayAgain={this.onPlayAgain} />;
+      gameOverDialog = (
+        <GameOverDialog
+          asset_manager={this.props.page.asset_manager}
+          onBackGameMenu={this.onBackGameMenu}
+          onChangeDiff={this.onChangeDiff}
+          onPlayAgain={this.onPlayAgain}
+        />
+      );
     }
     return (
       <div>
         <Screen {...this.props}>
-          <ScoreCardBox style={triesBoxStyle} text={BookUtilities.pad(this.state.triesScore, 2, '0')}/>
-          <ScoreCardBox style={matchBoxStyle} text={BookUtilities.pad(this.state.matchesScore, 2, '0')}/>
-          <ReactionBox onComplete={this.onCompleteReaction} mode={this.state.reaction} animations={this.props.page.gameAnimations} style={reactionBoxStyle} />
+          <ScoreCardBox
+            style={triesBoxStyle}
+            text={BookUtilities.pad(this.state.triesScore, 2, '0')}
+          />
+          <ScoreCardBox
+            style={matchBoxStyle}
+            text={BookUtilities.pad(this.state.matchesScore, 2, '0')}
+          />
+          <ReactionBox
+            onComplete={this.onCompleteReaction}
+            mode={this.state.reaction}
+            animations={this.props.page.gameAnimations}
+            style={reactionBoxStyle}
+          />
           {cupboardLocations}
           {displayBox}
           {gameOverDialog}
@@ -151,67 +193,71 @@ const GameScreen = createReactClass({
     );
   },
 
-  getCupboards() {
+  getCupboards () {
     return this.props.page.boxes.matchLocs.map((loc, idx) => {
       return this[`cupboard_${idx}`];
     });
   },
 
-  onPlayAgain() {
+  onPlayAgain () {
     this.resetGame(this.props);
   },
 
-  onChangeDiff() {
+  onChangeDiff () {
     return BookActionCreators.changePage({ page: this.props.page.back });
   },
 
-  onBackGameMenu() {
+  onBackGameMenu () {
     return BookActionCreators.changePage({ page: 'game' });
   },
 
-  onCupboardClick(idx) {
-    var stateVar = {};
-    var isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
+  onCupboardClick (idx) {
+    let stateVar = {};
+    let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
     this.props.clickedOnDoor(this[`cupboard_${idx}`]);
   },
 
-  hasStarted() {
+  hasStarted () {
     return this.state.started;
   },
 
-  closeAllDoors() {
-    Object.keys(this).filter((key) => { return key.startsWith('cupboard_'); }).forEach((key) => {
-      this[key].close(false);
-    });
+  closeAllDoors () {
+    Object.keys(this)
+      .filter(key => {
+        return key.startsWith('cupboard_');
+      })
+      .forEach(key => {
+        this[key].close(false);
+      });
   },
 
-  start() {
+  start () {
     this.closeAllDoors();
     this.setState({ started: true });
   },
 
-  onCompleteReaction(reaction) {
+  onCompleteReaction (reaction) {
     let defaultMode = this.getDefaultReaction();
     if (reaction !== defaultMode) {
       this.setState({ reaction: defaultMode });
     }
   },
 
-  playMp3(mp3) {
-    this.props.page.asset_manager.getAsset(mp3).then((asset) => {
+  playMp3 (mp3) {
+    this.props.page.asset_manager.getAsset(mp3).then(asset => {
       asset.audio.play();
     });
   },
 
-  showGoodReaction() {
+  showGoodReaction () {
     this.setState({ reaction: 'good' });
     this.playMp3('game/game_cupbard_correct.mp3');
   },
 
-  showBadReaction() {
+  showBadReaction () {
     this.setState({ reaction: 'bad' });
     this.playMp3('game/game_cupbard_incorrect.mp3');
-  },
+  }
 });
 
 module.exports = GameScreen;

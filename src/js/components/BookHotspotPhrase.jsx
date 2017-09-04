@@ -1,12 +1,12 @@
 'use strict';
-import {Motion, spring} from 'react-motion';
+import { Motion, spring } from 'react-motion';
 
 const React = require('react');
 const createReactClass = require('create-react-class');
 const assign = require('object-assign');
 
 export default class BookHotspotPhrase extends React.Component {
-  constructor() {
+  constructor () {
     super();
     this.state = {
       phrase: '',
@@ -14,11 +14,11 @@ export default class BookHotspotPhrase extends React.Component {
     };
   }
 
-  onComplete() {
-    this.setState({display: 'none'});
+  onComplete () {
+    this.setState({ display: 'none' });
   }
 
-  triggerAnimation(phrase, x, y) {
+  triggerAnimation (phrase, x, y) {
     this.setState({
       display: 'block',
       phrase: phrase,
@@ -27,30 +27,40 @@ export default class BookHotspotPhrase extends React.Component {
     });
   }
 
-  render() {
+  render () {
     if (this.state.display === 'none') {
       return <div />;
     }
 
-    let style = assign({
-      position: 'absolute',
-      display: this.state.display,
-      top: this.state.y,
-      left: this.state.x,
-      textShadow: '2px 2px 2px gray',
-    }, this.props);
+    let style = assign(
+      {
+        position: 'absolute',
+        display: this.state.display,
+        top: this.state.y,
+        left: this.state.x,
+        textShadow: '2px 2px 2px gray'
+      },
+      this.props
+    );
 
     return (
       <div>
         <Motion
           defaultStyle={{ opacity: 0, scale: 0 }}
           style={{ opacity: 1, scale: spring(1) }}
-          onRest={this.onComplete.bind(this)}>
+          onRest={this.onComplete.bind(this)}
+        >
           {value => {
-            return <div style={assign({}, style, {
-              opacity: value.opacity,
-              transform: `scale(${value.scale})`
-            })}>{this.state.phrase}</div>;
+            return (
+              <div
+                style={assign({}, style, {
+                  opacity: value.opacity,
+                  transform: `scale(${value.scale})`
+                })}
+              >
+                {this.state.phrase}
+              </div>
+            );
           }}
         </Motion>
       </div>

@@ -3,9 +3,8 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+//const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-
 
 const sourcePath = path.join(__dirname, './src');
 const distPath = path.join(__dirname, './dist');
@@ -13,7 +12,8 @@ const distPath = path.join(__dirname, './dist');
 const sassLoaders = [
   'css-loader',
   'autoprefixer-loader?browsers=last 2 version',
-  'sass-loader?indentedSyntax=sass&includePaths[]=' + path.resolve(__dirname, './src')
+  'sass-loader?indentedSyntax=sass&includePaths[]=' +
+    path.resolve(__dirname, './src')
 ];
 
 const scssLoaders = [
@@ -74,7 +74,7 @@ module.exports = function (env) {
     );
   } else {
     plugins.push(
-      new CopyWebpackPlugin([{from: '../books', to: 'books'}]),
+      new CopyWebpackPlugin([{ from: '../books', to: 'books' }]),
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NoEmitOnErrorsPlugin()
     );

@@ -4,62 +4,62 @@
 // You might need to make some changes to use it without Browserify
 'use strict';
 
-var MousetrapMixin;
-var Mousetrap = require('br-mousetrap');
+let MousetrapMixin;
+let Mousetrap = require('br-mousetrap');
 
 MousetrapMixin = {
-    /**
+  /**
      * Array for keeping track of shortcuts bindings
      */
-    mousetrapBindings: [],
+  mousetrapBindings: [],
 
-    /**
+  /**
      * Bind a function to a keyboard shortcut
      *
      * @param key
      * @param callback
      */
-    bindShortcut: function (key, callback) {
-        Mousetrap.bind(key, callback);
+  bindShortcut: function (key, callback) {
+    Mousetrap.bind(key, callback);
 
-        this.mousetrapBindings.push(key);
-    },
+    this.mousetrapBindings.push(key);
+  },
 
-    /**
+  /**
      * Unbind a keyboard shortcut
      *
      * @param key
      */
-    unbindShortcut: function (key) {
-        var index = this.mousetrapBindings.indexOf(key);
+  unbindShortcut: function (key) {
+    let index = this.mousetrapBindings.indexOf(key);
 
-        if (index > -1) {
-            this.mousetrapBindings.splice(index, 1);
-        }
+    if (index > -1) {
+      this.mousetrapBindings.splice(index, 1);
+    }
 
-        Mousetrap.unbind(key);
-    },
+    Mousetrap.unbind(key);
+  },
 
-    /**
+  /**
      * Remove any Mousetrap bindings
      */
-    unbindAllShortcuts: function () {
-        if (this.mousetrapBindings.length < 1) {
-            return;
-        }
+  unbindAllShortcuts: function () {
+    if (this.mousetrapBindings.length < 1) {
+      return;
+    }
 
-        this.mousetrapBindings.forEach(function (binding) {
-            Mousetrap.unbind(binding);
-        });
-    },
+    this.mousetrapBindings.forEach(function (binding) {
+      Mousetrap.unbind(binding);
+    });
+  },
 
-    /**
+  /**
      * Handle component unmount
      */
-    componentWillUnmount: function () {
-        // Remove any Mousetrap bindings before unmounting
-        this.unbindAllShortcuts();
-    }
+  componentWillUnmount: function () {
+    // Remove any Mousetrap bindings before unmounting
+    this.unbindAllShortcuts();
+  }
 };
 
 module.exports = MousetrapMixin;

@@ -5,33 +5,33 @@ const navigate = require('react-mini-router').navigate;
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
-let {RaisedButton} = mui;
+let { RaisedButton } = mui;
 
 class BookList extends React.Component {
   state = {
     books: []
   };
 
-  componentDidMount() {
-    BookStore.getAll().then((books) => {
+  componentDidMount () {
+    BookStore.getAll().then(books => {
       this.setState({ books: books });
     });
   }
 
-  render() {
+  render () {
     if (this.state.books.length === 1) {
       this.handleSelectBookClick(this.state.books[0].id);
       return <div>Auto selecting book</div>;
     }
 
-    let booksStr = this.state.books.map((book) => {
+    let booksStr = this.state.books.map(book => {
       return (
         <div id={book.id}>
-          <RaisedButton onClick={this.handleSelectBookClick.bind(this, book.id)}>
+          <RaisedButton
+            onClick={this.handleSelectBookClick.bind(this, book.id)}
+          >
             <img src={book.icon} />
-            <span className="mui-raised-button-label">
-              {book.title}
-            </span>
+            <span className="mui-raised-button-label">{book.title}</span>
           </RaisedButton>
         </div>
       );
@@ -39,10 +39,9 @@ class BookList extends React.Component {
     return <div>{booksStr}</div>;
   }
 
-  handleSelectBookClick = (book) => {
+  handleSelectBookClick = book => {
     BookActionCreators.chooseBook(book);
   };
 }
 
 module.exports = BookList;
-

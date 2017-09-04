@@ -16,7 +16,7 @@ import BookHotspotPhrase from '../components/BookHotspotPhrase.jsx';
 
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
-import {IconButton} from 'material-ui';
+import { IconButton } from 'material-ui';
 
 let clickThreshold = 5;
 
@@ -27,27 +27,27 @@ let Screen = createReactClass({
   mixins: [MousetrapMixins],
 
   propTypes: {
-    //audio: React.PropTypes.string,
+    // audio: React.PropTypes.string,
   },
 
-  getInitialProps() {
+  getInitialProps () {
     return {
       styles: {}
     };
   },
 
-  restartState() {
+  restartState () {
     return {
       audioTime: 0,
       playButton: 'play'
     };
   },
 
-  getInitialState() {
+  getInitialState () {
     return this.restartState();
   },
 
-  componentDidMount() {
+  componentDidMount () {
     let audio = new BookAudio(this.props.page.asset_manager);
     audio.bind('page', 'play', this.onPagePlay);
     audio.bind('page', 'pause', this.onPagePause);
@@ -62,26 +62,28 @@ let Screen = createReactClass({
     this.onNewPage(this.props);
   },
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.audio.removeAll();
     this.unbindShortcut('left');
     this.unbindShortcut('right');
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    if (this.props.page !== nextProps.page) { this.onNewPage(nextProps); }
+  componentWillReceiveProps: function (nextProps) {
+    if (this.props.page !== nextProps.page) {
+      this.onNewPage(nextProps);
+    }
   },
 
-  onNewPage(props) {
+  onNewPage (props) {
     this.audio.stop();
-    this.replaceState(this.restartState(), function() {
+    this.replaceState(this.restartState(), function () {
       if (props.autoplay && props.page.pageAudio) {
         this.audio.play('page', props.page.pageAudio);
       }
     });
   },
 
-  getPageStyle() {
+  getPageStyle () {
     let ret = {
       position: 'relative',
       width: this.getPageWidth() + 'px',
@@ -89,12 +91,15 @@ let Screen = createReactClass({
     };
     if (this.props.page.pageImage) {
       ret.backgroundSize = 'contain';
-      ret.backgroundImage = 'url(' + this.props.page.asset_manager.getAssetSrc(this.props.page.pageImage) + ')';
+      ret.backgroundImage =
+        'url(' +
+        this.props.page.asset_manager.getAssetSrc(this.props.page.pageImage) +
+        ')';
     }
     return ret;
   },
 
-  onClickPage(ev) {
+  onClickPage (ev) {
     if (this.hotspotMap) {
       let x = ev.pageX - ev.currentTarget.offsetLeft;
       let y = ev.pageY - ev.currentTarget.offsetTop;
@@ -102,17 +107,20 @@ let Screen = createReactClass({
     }
   },
 
-  render() {
+  render () {
     let key = [
-      'book', this.props.book,
-      'language', this.props.language,
-      'page', this.props.page
+      'book',
+      this.props.book,
+      'language',
+      this.props.language,
+      'page',
+      this.props.page
     ].join('_');
 
     let pageStyle = this.getPageStyle();
 
-    let extraImages = this.props.page.images.map((image) => {
-      var style = {
+    let extraImages = this.props.page.images.map(image => {
+      let style = {
         position: 'absolute',
         top: image.top + '%',
         left: image.left + '%',
@@ -123,45 +131,126 @@ let Screen = createReactClass({
         style.border = 'none';
         style.backgroundSize = 'contain';
         style.backgroundColor = 'rgba(0,0,0,0.0)';
-        style.backgroundImage = 'url(' + this.props.page.asset_manager.getAssetSrc(image.image) + ')';
+        style.backgroundImage =
+          'url(' + this.props.page.asset_manager.getAssetSrc(image.image) + ')';
         return (
-          <IconButton key={"button_" + image.nextPage} style={style} onClick={this.onButtonClick.bind(this, image.nextPage)}></IconButton>
+          <IconButton
+            key={'button_' + image.nextPage}
+            style={style}
+            onClick={this.onButtonClick.bind(this, image.nextPage)}
+          />
         );
       }
-      return <img key={"button_" + image.image} style={style} src={this.props.page.asset_manager.getAssetSrc(image.image)} />;
+      return (
+        <img
+          key={'button_' + image.image}
+          style={style}
+          src={this.props.page.asset_manager.getAssetSrc(image.image)}
+        />
+      );
     });
 
     let extraLines = this.props.page.lines.map((line, lineIdx) => {
       let words = line.words.map((word, wordIdx) => {
-        return <BookWord key={ 'word' + wordIdx } audioTime={this.state.audioTime} {...word} onClick={this.onWordClick.bind(this, word)} />;
+        return (
+          <BookWord
+            key={'word' + wordIdx}
+            audioTime={this.state.audioTime}
+            {...word}
+            onClick={this.onWordClick.bind(this, word)}
+          />
+        );
       });
-      var style = {
+      let style = {
         position: 'absolute',
         top: line.top + '%',
         left: line.left + '%'
       };
-      return <div key={ 'line' + lineIdx } style={style}>{words}</div>;
+      return (
+        <div key={'line' + lineIdx} style={style}>
+          {words}
+        </div>
+      );
     });
     let homeBackButton = '';
     if (this.hasBackButton()) {
       homeBackButton = (
-          <ImageButton id="homeButton" top="0" left="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_back.png"} onClick={this.onBackButtonClick} />
+        <ImageButton
+          id="homeButton"
+          top="0"
+          left="0"
+          asset_manager={this.props.page.asset_manager}
+          image={'buttons/control_back.png'}
+          onClick={this.onBackButtonClick}
+        />
       );
     } else {
       homeBackButton = (
-          <ImageButton id="backButton" top="0" left="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_home.png"} enabled={this.hasHomeButton()} onClick={this.onHomeButtonClick} />
+        <ImageButton
+          id="backButton"
+          top="0"
+          left="0"
+          asset_manager={this.props.page.asset_manager}
+          image={'buttons/control_home.png'}
+          enabled={this.hasHomeButton()}
+          onClick={this.onHomeButtonClick}
+        />
       );
     }
     //  FIXME replace refs with https://facebook.github.io/react/docs/top-level-api.html#react.finddomnode for BookPage
     return (
       <Hammer key={key} onSwipe={this.onSwipe}>
-        <div style={pageStyle} ref={node => this.bookpage = node} onClick={this.onClickPage}>
-          <BookHotspotMap ref={(hotspotMap) => { this.hotspotMap = hotspotMap; }} {...this.props.page.hotspot} asset_manager={this.props.page.asset_manager} height={this.getPageHeight()} width={this.getPageWidth()} onHotspot={this.onHotspot} />
-          <BookHotspotPhrase ref={(hotspotPhrase) => { this.hotspotPhrase = hotspotPhrase; }} {...this.props.page.styles.unread} />
-          <div style={{top: 0, left: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pagePrev}></div>
-          <div style={{top: 0, right: 0, position: 'absolute', height: '100%', width: clickThreshold + '%'}} onClick={this.pageNext}></div>
+        <div
+          style={pageStyle}
+          ref={node => (this.bookpage = node)}
+          onClick={this.onClickPage}
+        >
+          <BookHotspotMap
+            ref={hotspotMap => {
+              this.hotspotMap = hotspotMap;
+            }}
+            {...this.props.page.hotspot}
+            asset_manager={this.props.page.asset_manager}
+            height={this.getPageHeight()}
+            width={this.getPageWidth()}
+            onHotspot={this.onHotspot}
+          />
+          <BookHotspotPhrase
+            ref={hotspotPhrase => {
+              this.hotspotPhrase = hotspotPhrase;
+            }}
+            {...this.props.page.styles.unread}
+          />
+          <div
+            style={{
+              top: 0,
+              left: 0,
+              position: 'absolute',
+              height: '100%',
+              width: clickThreshold + '%'
+            }}
+            onClick={this.pagePrev}
+          />
+          <div
+            style={{
+              top: 0,
+              right: 0,
+              position: 'absolute',
+              height: '100%',
+              width: clickThreshold + '%'
+            }}
+            onClick={this.pageNext}
+          />
           {homeBackButton}
-          <ImageButton id="playPauseButton" top="0" right="0" asset_manager={this.props.page.asset_manager} image={"buttons/control_"+this.state.playButton+".png"} enabled={this.hasPlayButton()} onClick={this.onPlayPauseButtonClick} />
+          <ImageButton
+            id="playPauseButton"
+            top="0"
+            right="0"
+            asset_manager={this.props.page.asset_manager}
+            image={'buttons/control_' + this.state.playButton + '.png'}
+            enabled={this.hasPlayButton()}
+            onClick={this.onPlayPauseButtonClick}
+          />
           {extraImages}
           {extraLines}
           {this.props.children}
@@ -170,14 +259,14 @@ let Screen = createReactClass({
     );
   },
 
-  onHotspot(hotspot, x, y) {
+  onHotspot (hotspot, x, y) {
     this.setState({ audioTime: 0 });
     this.audio.stop();
     this.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
     this.audio.play('hotspot', hotspot.audio);
   },
 
-  getPageHeight() {
+  getPageHeight () {
     return Constants.Dimensions.HEIGHT;
     /*
     let dom = this.bookpage.getDOMNode();
@@ -185,7 +274,7 @@ let Screen = createReactClass({
     */
   },
 
-  getPageWidth() {
+  getPageWidth () {
     return Constants.Dimensions.WIDTH;
     /*
     let dom = this.bookpage.getDOMNode();
@@ -193,36 +282,39 @@ let Screen = createReactClass({
     */
   },
 
-  onSwipe(e) {
+  onSwipe (e) {
     if (e.direction & HammerJS.DIRECTION_LEFT) {
-      if (this.pageNext) { this.pageNext(); }
-    }
-    else if (e.direction & HammerJS.DIRECTION_RIGHT) {
-      if (this.pagePrev) { this.pagePrev(); }
+      if (this.pageNext) {
+        this.pageNext();
+      }
+    } else if (e.direction & HammerJS.DIRECTION_RIGHT) {
+      if (this.pagePrev) {
+        this.pagePrev();
+      }
     }
   },
 
-  hasHomeButton() {
-    return this.props.page.id !== "home";
+  hasHomeButton () {
+    return this.props.page.id !== 'home';
   },
 
-  hasBackButton() {
+  hasBackButton () {
     return this.hasHomeButton() && this.props.page.back;
   },
 
-  hasPlayButton() {
+  hasPlayButton () {
     return !!this.props.page.pageAudio;
   },
 
-  onBackButtonClick() {
+  onBackButtonClick () {
     return BookActionCreators.changePage({ page: this.props.page.back });
   },
 
-  onHomeButtonClick() {
+  onHomeButtonClick () {
     return BookActionCreators.changePage({ page: '', autoplay: false });
   },
 
-  onButtonClick(page) {
+  onButtonClick (page) {
     if (page === 'read' || page === 'readAudio') {
       return BookActionCreators.changePage({
         page: 1,
@@ -232,22 +324,26 @@ let Screen = createReactClass({
     return BookActionCreators.changePage({ page: page });
   },
 
-  onPagePlay() { this.setState({ playButton: 'pause' }); },
-  onPagePause() { this.setState({ playButton: 'play' }); },
+  onPagePlay () {
+    this.setState({ playButton: 'pause' });
+  },
+  onPagePause () {
+    this.setState({ playButton: 'play' });
+  },
 
-  onPageEnded() {
+  onPageEnded () {
     this.setState({
       playButton: 'play'
     });
   },
 
-  onPageTime(time) {
+  onPageTime (time) {
     if (time) {
       this.setState({ audioTime: time });
     }
   },
 
-  onPlayPauseButtonClick() {
+  onPlayPauseButtonClick () {
     if (this.state.playButton === 'play') {
       this.audio.play('page', this.props.page.pageAudio);
     } else {
@@ -255,25 +351,29 @@ let Screen = createReactClass({
     }
   },
 
-  onWordClick(word) {
+  onWordClick (word) {
     this.setState({ audioTime: 0 });
     this.audio.stop();
     this.audio.play('word', word.audio);
   },
 
   /* FIXME */
-  pagePrev() {
-    if (isNaN(this.props.page.id)) { return; }
+  pagePrev () {
+    if (isNaN(this.props.page.id)) {
+      return;
+    }
 
-    var newPage = this.props.page.id-1;
+    let newPage = this.props.page.id - 1;
     BookActionCreators.changePage({ page: newPage });
   },
 
-  pageNext() {
-    if (isNaN(this.props.page.id)) { return; }
+  pageNext () {
+    if (isNaN(this.props.page.id)) {
+      return;
+    }
 
-    var newPage = this.props.page.id+1;
+    let newPage = this.props.page.id + 1;
     BookActionCreators.changePage({ page: newPage });
-  },
+  }
 });
 module.exports = Screen;

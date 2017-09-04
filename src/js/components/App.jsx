@@ -40,7 +40,7 @@ let App = createReactClass({
     this.forceUpdate();
   },
 
-  getInitialState() {
+  getInitialState () {
     return {
       assetsStarted: 0,
       assetsEnded: 0,
@@ -57,23 +57,19 @@ let App = createReactClass({
     '/book/:book/lang/:language/page/:page/autoplay': 'showAutoPage'
   },
 
-  notFound: function(path) {
-    return <div class="not-found">Page Not Found: {path}</div>;
+  notFound: function (path) {
+    return <div className="not-found">Page Not Found: {path}</div>;
   },
 
-  render: function() {
-    return (
-      <MuiThemeProvider>
-        {this.renderCurrentRoute()}
-      </MuiThemeProvider>
-    );
+  render: function () {
+    return <MuiThemeProvider>{this.renderCurrentRoute()}</MuiThemeProvider>;
   },
 
-  selectLanguage(book) {
+  selectLanguage (book) {
     return <LanguageList book={book} />;
   },
 
-  selectBook() {
+  selectBook () {
     return (
       <DocumentTitle title="Select a book">
         <div>
@@ -84,71 +80,91 @@ let App = createReactClass({
     );
   },
 
-  showAutoPage(book, language, page) {
+  showAutoPage (book, language, page) {
     return this.showPage(book, language, page, true);
   },
 
-  loadBook(bookName, language) {
+  loadBook (bookName, language) {
     let key = ['book', bookName, 'lang', language].join('_');
     if (key !== this.loadingBook) {
       this.loadingBook = key;
       this.startAssetTracking();
-      BookStore.getBook(bookName, language).then((bookData) => {
-        this.stopAssetTracking();
-        this.setState({ book: bookData });
-      }).catch(function(ex) {
-        console.log('error', ex);
-      });
+      BookStore.getBook(bookName, language)
+        .then(bookData => {
+          this.stopAssetTracking();
+          this.setState({ book: bookData });
+        })
+        .catch(function (ex) {
+          console.log('error', ex);
+        });
     }
   },
 
-  showPage(bookName, language, page, autoplay) {
+  showPage (bookName, language, page, autoplay) {
     page = typeof page === 'object' ? 'home' : page;
     autoplay = typeof autoplay === 'object' ? false : autoplay;
     this.loadBook(bookName, language);
 
     if (this.state.book.id) {
-      return <Book book={this.state.book} language={language} page={page} autoplay={autoplay}></Book>;
+      return (
+        <Book
+          book={this.state.book}
+          language={language}
+          page={page}
+          autoplay={autoplay}
+        />
+      );
     } else {
       let percent = 0;
       if (this.state.assetsStarted && this.state.assetsEnded) {
-        percent = (this.state.assetsEnded / this.state.assetsStarted) * 100;
+        percent = this.state.assetsEnded / this.state.assetsStarted * 100;
       }
 
-      var style = {
+      let style = {
         width: Math.max(0, Math.min(percent, 100)) + '%',
         transition: 'width 200ms'
       };
 
       return (
-        <div className="progressbar-container" >
-          <div className="progressbar-progress" style={style}>{this.props.children}</div>
+        <div className="progressbar-container">
+          <div className="progressbar-progress" style={style}>
+            {this.props.children}
+          </div>
         </div>
       );
     }
   },
 
-  onAssetStarted(asset) { this.started++; },
-  onAssetEnded(asset) { this.ended++; },
+  onAssetStarted (asset) {
+    this.started++;
+  },
+  onAssetEnded (asset) {
+    this.ended++;
+  },
 
-  onAssetError(asset, path) {
+  onAssetError (asset, path) {
     // FIXME - need to handle something here
     console.log('error', asset);
   },
 
-  startAssetTracking() {
+  startAssetTracking () {
     this.started = this.ended = 0;
 
     AssetManager.on('started', this.onAssetStarted);
     AssetManager.on('error', this.onAssetError);
     AssetManager.on('ended', this.onAssetEnded);
     this.assetInterval = setInterval(() => {
-      if (this.state.assetsStarted === this.started && this.state.assetsEnded === this.ended) { return; }
+      if (
+        this.state.assetsStarted === this.started &&
+        this.state.assetsEnded === this.ended
+      ) {
+        return;
+      }
       this.setState({ assetsStarted: this.started, assetsEnded: this.ended });
     }, 100);
   },
 
-  stopAssetTracking() {
+  stopAssetTracking () {
     if (this.assetInterval) {
       clearInterval(this.assetInterval);
       delete this.assetInterval;
@@ -158,21 +174,21 @@ let App = createReactClass({
     AssetManager.off('ended', this.onAssetEnded);
   },
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.stopAssetTracking();
   },
 
-  componentDidMount() {
+  componentDidMount () {
     window.addEventListener('resize', this.handleResize, true);
-    AppDispatcher.register((payload) => {
+    AppDispatcher.register(payload => {
       let action = payload.action;
 
-      switch(action.type) {
+      switch (action.type) {
         case Constants.ActionTypes.ADD_FONT:
           let fonts = this.state.fonts || {};
           if (!fonts[action.fontFamily]) {
             fonts[action.fontFamily] = action.fontPath;
-            this.setState({fonts: fonts});
+            this.setState({ fonts: fonts });
             this.updateFonts();
           }
           break;
@@ -187,12 +203,29 @@ let App = createReactClass({
             },
             action.data
           );
-          if (parts.page === 0) { return null; }
+          if (parts.page === 0) {
+            return null;
+          }
           if (parts.page) {
             if (this.state.book.hasPage(parts.page)) {
-              return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/' + parts.page + (parts.autoplay ? '/autoplay' : ''));
+              return navigate(
+                '/book/' +
+                  parts.book +
+                  '/lang/' +
+                  parts.language +
+                  '/page/' +
+                  parts.page +
+                  (parts.autoplay ? '/autoplay' : '')
+              );
             } else if (!isNaN(parts.page)) {
-              return navigate('/book/' + parts.book + '/lang/' + parts.language + '/page/end' + (parts.autoplay ? '/autoplay' : ''));
+              return navigate(
+                '/book/' +
+                  parts.book +
+                  '/lang/' +
+                  parts.language +
+                  '/page/end' +
+                  (parts.autoplay ? '/autoplay' : '')
+              );
             }
           } else if (parts.language) {
             return navigate('/book/' + parts.book + '/lang/' + parts.language);
@@ -209,32 +242,53 @@ let App = createReactClass({
     });
   },
 
-  updateFonts() {
-
-    let css = Object.keys(this.state.fonts).map((font) => {
-      return "@font-face {"+
-        "  font-family: '" + font + "';" +
-        "  src: url(" + this.state.fonts[font] + ".eot'); " +
-        "  src: " + fontTypes.map((type) => {
-            return "url('" + this.state.fonts[font] + '.' + type[0] + "') format('" + type[1] + "')";
-          }).join(', ') + ";" +
-        "}";
-    }).join('');
+  updateFonts () {
+    let css = Object.keys(this.state.fonts)
+      .map(font => {
+        return (
+          '@font-face {' +
+          "  font-family: '" +
+          font +
+          "';" +
+          '  src: url(' +
+          this.state.fonts[font] +
+          ".eot'); " +
+          '  src: ' +
+          fontTypes
+            .map(type => {
+              return (
+                "url('" +
+                this.state.fonts[font] +
+                '.' +
+                type[0] +
+                "') format('" +
+                type[1] +
+                "')"
+              );
+            })
+            .join(', ') +
+          ';' +
+          '}'
+        );
+      })
+      .join('');
 
     let styleId = 'ReactHtmlReaderFonts';
     let style = document.getElementById(styleId);
-    if (style) { style.parentNode.removeChild(style); }
+    if (style) {
+      style.parentNode.removeChild(style);
+    }
 
     style = document.createElement('style');
     style.id = styleId;
     style.type = 'text/css';
-    if (style.styleSheet){
+    if (style.styleSheet) {
       style.styleSheet.cssText = css;
     } else {
       style.appendChild(document.createTextNode(css));
     }
     document.getElementsByTagName('head')[0].appendChild(style);
-  },
+  }
 });
 
 module.exports = App;
