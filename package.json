@@ -90,11 +90,13 @@
     "webpack-dev-server": "^2.7.1"
   },
   "scripts": {
-    "test": "jest",
+    "build:dev": "NODE_ENV=development webpack --env.prod=true",
+    "build:prod": "NODE_ENV=production webpack --env.prod=true",
+    "codacy": "cat ./coverage/lcov.info | codacy-coverage",
+    "coverage": "jest --coverage",
     "dev": "webpack-dev-server --port=3000",
     "lint": "eslint --ignore-path .gitignore .",
-    "build:prod": "NODE_ENV=production webpack --env.prod=true",
-    "build:dev": "NODE_ENV=development webpack --env.prod=true"
+    "test": "jest"
   },
   "jest": {
     "moduleNameMapper": {
