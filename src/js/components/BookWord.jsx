@@ -90,7 +90,8 @@ class BookWord extends React.Component {
         backgroundColor: 'transparent',
         textTransform: 'none',
         padding: '4px',
-        minWidth: 'initial'
+        minWidth: 'initial',
+        height: 'initial'
       },
       this.props.styles[this.state.state]
     );
