@@ -16,9 +16,6 @@ class GamePP extends React.Component {
   };
 
   isEndGame = () => {
-    if (!this.refs) {
-      return false;
-    }
     if (!this.gamescreen) {
       return false;
     }
