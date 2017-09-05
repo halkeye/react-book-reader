@@ -99,7 +99,7 @@
     "react-mini-router": "^2.0.0",
     "react-tap-event-plugin": "^1.0.0",
     "react-tools": "^0.13.3",
-    "should": "^11.1.1",
+    "should": "^13.0.0",
     "shuffle": "^0.2.2",
     "whatwg-fetch": "^1.0.0"
   }
