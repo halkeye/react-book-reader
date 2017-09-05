@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-//const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+// const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const sourcePath = path.join(__dirname, './src');
@@ -50,6 +50,7 @@ module.exports = function (env) {
 
   if (isProd) {
     plugins.push(
+      new webpack.DefinePlugin({GA_TRACKING_CODE: JSON.stringify('UA-89920-17')}),
       new webpack.LoaderOptionsPlugin({
         minimize: true,
         debug: false

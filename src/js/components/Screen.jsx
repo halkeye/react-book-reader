@@ -103,7 +103,11 @@ let Screen = createReactClass({
     if (this.hotspotMap) {
       let x = ev.pageX - ev.currentTarget.offsetLeft;
       let y = ev.pageY - ev.currentTarget.offsetTop;
-      this.hotspotMap.onClickImage(x, y);
+      if (this.hotspotMap.onClickImage(x, y)) {
+        ev.preventDefault();
+        console.log('map');
+        ev.stopPropagation();
+      }
     }
   },
 

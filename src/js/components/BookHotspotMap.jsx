@@ -18,7 +18,7 @@ export default class BookHotspotMap extends React.Component {
 
   onClickImage (x, y) {
     if (!this.props.image) {
-      return;
+      return false;
     }
     let canvasIndex = (x + y * this.props.width) * 4;
 
@@ -34,7 +34,9 @@ export default class BookHotspotMap extends React.Component {
     if (hotspots && hotspots.length) {
       let item = hotspots[Math.floor(Math.random() * hotspots.length)];
       this.props.onHotspot(item, x, y);
+      return true;
     }
+    return false;
   }
 
   draw () {
