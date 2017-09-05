@@ -17,7 +17,7 @@
     "autoprefixer-loader": "^3.2.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^7.2.3",
-    "babel-jest": "^20.0.3",
+    "babel-jest": "^21.0.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-react-transform": "^2.0.2",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -71,7 +71,6 @@
     "prettier-eslint-cli": "^4.3.0",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
-    "react-animate": "github:arian/react-animate#master",
     "react-dom": "^15.6.1",
     "react-motion": "^0.5.1",
     "react-test-renderer": "^15.6.1",
@@ -100,7 +99,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css)$": "<rootDir>/tests/__mocks__/fileMock.js"
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css|scss)$": "<rootDir>/__tests__/__mocks__/fileMock.js"
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
