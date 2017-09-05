@@ -105,7 +105,6 @@ let Screen = createReactClass({
       let y = ev.pageY - ev.currentTarget.offsetTop;
       if (this.hotspotMap.onClickImage(x, y)) {
         ev.preventDefault();
-        console.log('map');
         ev.stopPropagation();
       }
     }
