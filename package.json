@@ -51,7 +51,7 @@
     "prettier-eslint": "^8.0.0",
     "prettier-eslint-cli": "^4.3.0",
     "prop-types": "^15.5.10",
-    "react": "^15.6.1",
+    "react": "^16.0.0",
     "react-dom": "^15.6.1",
     "react-motion": "^0.5.1",
     "react-test-renderer": "^15.6.1",
