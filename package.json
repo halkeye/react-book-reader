@@ -52,7 +52,7 @@
     "prettier-eslint-cli": "^4.3.0",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1",
+    "react-dom": "^16.0.0",
     "react-motion": "^0.5.1",
     "react-test-renderer": "^16.0.0",
     "react-transform-hmr": "^1.0.4",
@@ -106,7 +106,7 @@
     "react-document-title": "^2.0.3",
     "react-hammerjs": "^0.5.0",
     "react-mini-router": "^2.2.1",
-    "react-tap-event-plugin": "^2.0.1",
+    "react-tap-event-plugin": "^3.0.0",
     "react-tools": "^0.13.3",
     "shuffle": "^0.2.2",
     "whatwg-fetch": "^2.0.3"
