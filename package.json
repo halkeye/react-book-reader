@@ -91,7 +91,7 @@
     "br-mousetrap": "^1.1.3",
     "diacritics": "^1.3.0",
     "es6-promise": "^4.1.1",
-    "file-loader": "^0.11.2",
+    "file-loader": "^1.1.0",
     "flux": "^3.1.3",
     "hammerjs": "^2.0.8",
     "howler": "^2.0.4",
