@@ -28,24 +28,24 @@ describe('BookWord', function () {
   });
   it('confirm default state is unread', () => {
     expect(this.sot.state('state')).toEqual('unread');
-    expect(this.sot.getNodes()[0].props.style.color).toEqual('red');
+    expect(this.sot.props().style.color).toEqual('red');
   });
 
   it('confirm time before start is unread', () => {
     this.sot.setProps({audioTime: 0.1});
     expect(this.sot.state('state')).toEqual('unread');
-    expect(this.sot.getNodes()[0].props.style.color).toEqual('red');
+    expect(this.sot.props().style.color).toEqual('red');
   });
 
   it('confirm time between start and end is reading', () => {
     this.sot.setProps({audioTime: 1.1});
     expect(this.sot.state('state')).toEqual('reading');
-    expect(this.sot.getNodes()[0].props.style.color).toEqual('green');
+    expect(this.sot.props().style.color).toEqual('green');
   });
 
   it('confirm time after end is read', () => {
     this.sot.setProps({audioTime: 3.1});
     expect(this.sot.state('state')).toEqual('read');
-    expect(this.sot.getNodes()[0].props.style.color).toEqual('blue');
+    expect(this.sot.props().style.color).toEqual('blue');
   });
 });

@@ -9,7 +9,6 @@
   ],
   "presets": [
     ["env", { "targets": { "node": "current" } }],
-    ["es2015", { "modules": false }],
     "react"
   ],
   "env": {
