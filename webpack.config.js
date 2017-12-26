@@ -50,7 +50,9 @@ module.exports = function (env) {
 
   if (isProd) {
     plugins.push(
-      new webpack.DefinePlugin({GA_TRACKING_CODE: JSON.stringify('UA-89920-17')}),
+      new webpack.DefinePlugin({
+        GA_TRACKING_CODE: JSON.stringify('UA-89920-17')
+      }),
       new webpack.LoaderOptionsPlugin({
         minimize: true,
         debug: false
@@ -75,7 +77,7 @@ module.exports = function (env) {
     );
   } else {
     plugins.push(
-      new CopyWebpackPlugin([{ from: '../books', to: 'books' }]),
+      // new CopyWebpackPlugin([{ from: '../books', to: 'books' }]),
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NoEmitOnErrorsPlugin()
     );

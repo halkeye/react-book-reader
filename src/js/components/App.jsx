@@ -1,6 +1,10 @@
 'use strict';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { init } from '../actions.js';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+
 const React = require('react');
 const assign = require('object-assign');
 
@@ -35,6 +39,10 @@ const navigate = (...args) => {
 };
 
 class App extends React.Component {
+  static propTypes = {
+    dispatch: PropTypes.func.isRequired
+  };
+
   handleResize () {
     this.forceUpdate();
   }
@@ -195,6 +203,8 @@ class App extends React.Component {
   }
 
   componentDidMount () {
+    this.props.dispatch(init());
+
     window.addEventListener('resize', this.handleResize, true);
     AppDispatcher.register(payload => {
       let action = payload.action;
@@ -307,4 +317,12 @@ class App extends React.Component {
   }
 }
 
-module.exports = App;
+function mapStateToProps (state) {
+  const { book } = state;
+
+  return {
+    book
+  };
+}
+
+export default connect(mapStateToProps)(App);
