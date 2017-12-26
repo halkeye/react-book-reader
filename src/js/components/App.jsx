@@ -1,13 +1,10 @@
 'use strict';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 const React = require('react');
-const createReactClass = require('create-react-class');
-const RouterMixin = require('react-mini-router').RouterMixin;
-const navigate = require('react-mini-router').navigate;
 const assign = require('object-assign');
 
 require('../../styles/main.scss');
-
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 /* Components */
 const BookList = require('./BookList.jsx');
@@ -32,42 +29,60 @@ let fontTypes = [
   ['svg', 'svg']
 ];
 
-let App = createReactClass({
-  displayName: 'App',
-  mixins: [RouterMixin],
+const navigate = (...args) => {
+  debugger; // eslint-disable-line
+  alert([...args].join('---'));
+};
 
-  handleResize: function () {
+class App extends React.Component {
+  handleResize () {
     this.forceUpdate();
-  },
+  }
 
-  getInitialState () {
-    return {
+  constructor () {
+    super();
+    this.state = {
       assetsStarted: 0,
       assetsEnded: 0,
       fonts: {},
-      book: {}
+      book: {},
+      path: '/'
     };
-  },
+  }
 
-  routes: {
-    '/': 'selectBook',
-    '/book/:book': 'selectLanguage',
-    '/book/:book/lang/:language': 'showPage',
-    '/book/:book/lang/:language/page/:page': 'showPage',
-    '/book/:book/lang/:language/page/:page/autoplay': 'showAutoPage'
-  },
-
-  notFound: function (path) {
+  notFound (path) {
     return <div className="not-found">Page Not Found: {path}</div>;
-  },
+  }
 
-  render: function () {
-    return <MuiThemeProvider>{this.renderCurrentRoute()}</MuiThemeProvider>;
-  },
+  render () {
+    return (
+      <MuiThemeProvider>
+        <Router>
+          <Switch>
+            <Route exact path="/" render={this.selectBook} />
+            <Route path="/book/:book" render={this.selectLanguage} />
+            <Route path="/book/:book/lang/:language" render={this.showPage} />
+            <Route
+              path="/book/:book/lang/:language/page"
+              render={this.showPage}
+            />
+            <Route
+              path="/book/:book/lang/:language/page/:page"
+              render={this.showPage}
+            />
+            <Route
+              path="/book/:book/lang/:language/page/:page/autoplay"
+              render={this.showAutoPage}
+            />
+          </Switch>
+        </Router>
+      </MuiThemeProvider>
+    );
+  }
 
-  selectLanguage (book) {
-    return <LanguageList book={book} />;
-  },
+  selectLanguage ({ match }) {
+    return <LanguageList book={match.params.book} />;
+  }
 
   selectBook () {
     return (
@@ -78,11 +93,11 @@ let App = createReactClass({
         </div>
       </DocumentTitle>
     );
-  },
+  }
 
   showAutoPage (book, language, page) {
     return this.showPage(book, language, page, true);
-  },
+  }
 
   loadBook (bookName, language) {
     let key = ['book', bookName, 'lang', language].join('_');
@@ -98,7 +113,7 @@ let App = createReactClass({
           console.log('error', ex);
         });
     }
-  },
+  }
 
   showPage (bookName, language, page, autoplay) {
     page = typeof page === 'object' ? 'home' : page;
@@ -133,19 +148,20 @@ let App = createReactClass({
         </div>
       );
     }
-  },
+  }
 
   onAssetStarted (asset) {
     this.started++;
-  },
+  }
+
   onAssetEnded (asset) {
     this.ended++;
-  },
+  }
 
   onAssetError (asset, path) {
     // FIXME - need to handle something here
     console.log('error', asset);
-  },
+  }
 
   startAssetTracking () {
     this.started = this.ended = 0;
@@ -162,7 +178,7 @@ let App = createReactClass({
       }
       this.setState({ assetsStarted: this.started, assetsEnded: this.ended });
     }, 100);
-  },
+  }
 
   stopAssetTracking () {
     if (this.assetInterval) {
@@ -172,11 +188,11 @@ let App = createReactClass({
     AssetManager.off('started', this.onAssetStarted);
     AssetManager.off('error', this.onAssetError);
     AssetManager.off('ended', this.onAssetEnded);
-  },
+  }
 
   componentWillUnmount () {
     this.stopAssetTracking();
-  },
+  }
 
   componentDidMount () {
     window.addEventListener('resize', this.handleResize, true);
@@ -240,7 +256,7 @@ let App = createReactClass({
       }
       return null;
     });
-  },
+  }
 
   updateFonts () {
     let css = Object.keys(this.state.fonts)
@@ -289,6 +305,6 @@ let App = createReactClass({
     }
     document.getElementsByTagName('head')[0].appendChild(style);
   }
-});
+}
 
 module.exports = App;

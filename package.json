@@ -30,7 +30,6 @@
     "babel-preset-react-hmre": "^1.1.1",
     "codacy-coverage": "^2.0.3",
     "copy-webpack-plugin": "^4.0.1",
-    "create-react-class": "^15.6.2",
     "css-loader": "^0.28.7",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
@@ -106,7 +105,8 @@
     "react-document-meta": "^2.1.2",
     "react-document-title": "^2.0.3",
     "react-hammerjs": "^1.0.1",
-    "react-mini-router": "^2.2.1",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
     "react-tap-event-plugin": "^3.0.0",
     "shuffle": "^0.2.2",
     "whatwg-fetch": "^2.0.3"

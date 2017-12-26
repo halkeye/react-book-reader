@@ -1,6 +1,5 @@
 const React = require('react');
 const mui = require('material-ui');
-const navigate = require('react-mini-router').navigate;
 
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');

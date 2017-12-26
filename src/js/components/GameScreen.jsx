@@ -1,6 +1,5 @@
 'use strict';
 const React = require('react');
-const createReactClass = require('create-react-class');
 const assign = require('object-assign');
 const Shuffle = require('shuffle');
 
@@ -15,19 +14,15 @@ const GameOverDialog = require('./GameOverDialog.jsx');
 
 const BookUtilities = require('../constants/BookUtilities.jsx');
 
-const GameScreen = createReactClass({
-  displayName: 'GameScreen',
-
-  getDefaultProps () {
-    return {
-      getCupboardContents: function () {
-        return [];
-      },
-      clickedOnDoor: function (isOpen) {
-        return true;
-      }
-    };
-  },
+class GameScreen extends React.Component {
+  static defaultProps = {
+    getCupboardContents: function () {
+      return [];
+    },
+    clickedOnDoor: function (isOpen) {
+      return true;
+    }
+  };
 
   startingState () {
     return {
@@ -35,15 +30,16 @@ const GameScreen = createReactClass({
       triesScore: 0,
       matchesScore: 0
     };
-  },
+  }
 
-  getInitialState () {
-    return this.startingState();
-  },
+  constructor () {
+    super();
+    this.state = this.startingState();
+  }
 
   getDefaultReaction () {
     return this.state.defaultAnimation || 'neutral';
-  },
+  }
 
   componentDidMount () {
     let promises = [];
@@ -78,11 +74,11 @@ const GameScreen = createReactClass({
         this.resetGame(this.props);
       });
     });
-  },
+  }
 
   numberOfDoors () {
     return this.props.page.boxes.matchLocs.length;
-  },
+  }
 
   resetGame (props) {
     let state = this.startingState();
@@ -103,7 +99,7 @@ const GameScreen = createReactClass({
       state[`cupboard_${idx}`] = content;
     });
     this.setState(state);
-  },
+  }
 
   render () {
     let triesBoxStyle = assign(
@@ -191,35 +187,35 @@ const GameScreen = createReactClass({
         </Screen>
       </div>
     );
-  },
+  }
 
   getCupboards () {
     return this.props.page.boxes.matchLocs.map((loc, idx) => {
       return this[`cupboard_${idx}`];
     });
-  },
+  }
 
   onPlayAgain () {
     this.resetGame(this.props);
-  },
+  }
 
   onChangeDiff () {
     return BookActionCreators.changePage({ page: this.props.page.back });
-  },
+  }
 
   onBackGameMenu () {
     return BookActionCreators.changePage({ page: 'game' });
-  },
+  }
 
   onCupboardClick (idx) {
     let stateVar = {};
     let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
     this.props.clickedOnDoor(this[`cupboard_${idx}`]);
-  },
+  }
 
   hasStarted () {
     return this.state.started;
-  },
+  }
 
   closeAllDoors () {
     Object.keys(this)
@@ -229,35 +225,35 @@ const GameScreen = createReactClass({
       .forEach(key => {
         this[key].close(false);
       });
-  },
+  }
 
   start () {
     this.closeAllDoors();
     this.setState({ started: true });
-  },
+  }
 
   onCompleteReaction (reaction) {
     let defaultMode = this.getDefaultReaction();
     if (reaction !== defaultMode) {
       this.setState({ reaction: defaultMode });
     }
-  },
+  }
 
   playMp3 (mp3) {
     this.props.page.asset_manager.getAsset(mp3).then(asset => {
       asset.audio.play();
     });
-  },
+  }
 
   showGoodReaction () {
     this.setState({ reaction: 'good' });
     this.playMp3('game/game_cupbard_correct.mp3');
-  },
+  }
 
   showBadReaction () {
     this.setState({ reaction: 'bad' });
     this.playMp3('game/game_cupbard_incorrect.mp3');
   }
-});
+}
 
 module.exports = GameScreen;

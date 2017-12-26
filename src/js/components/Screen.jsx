@@ -1,6 +1,5 @@
 'use strict';
 const React = require('react');
-const createReactClass = require('create-react-class');
 const HammerJS = require('hammerjs');
 const Hammer = require('react-hammerjs');
 
@@ -20,32 +19,29 @@ import { IconButton } from 'material-ui';
 
 let clickThreshold = 5;
 
-let Screen = createReactClass({
-  displayName: 'Screen',
-
+class Screen extends React.Component {
   // FIXME - move later
-  mixins: [MousetrapMixins],
+  // mixins: [MousetrapMixins],
 
-  propTypes: {
+  static propTypes = {
     // audio: React.PropTypes.string,
-  },
+  };
 
-  getInitialProps () {
-    return {
-      styles: {}
-    };
-  },
+  static initialProps = {
+    styles: {}
+  };
 
   restartState () {
     return {
       audioTime: 0,
       playButton: 'play'
     };
-  },
+  }
 
-  getInitialState () {
-    return this.restartState();
-  },
+  constructor () {
+    super();
+    this.state = this.restartState();
+  }
 
   componentDidMount () {
     let audio = new BookAudio(this.props.page.asset_manager);
@@ -60,19 +56,19 @@ let Screen = createReactClass({
     this.bindShortcut('right', this.pageNext);
 
     this.onNewPage(this.props);
-  },
+  }
 
   componentWillUnmount () {
     this.audio.removeAll();
     this.unbindShortcut('left');
     this.unbindShortcut('right');
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps (nextProps) {
     if (this.props.page !== nextProps.page) {
       this.onNewPage(nextProps);
     }
-  },
+  }
 
   onNewPage (props) {
     this.audio.stop();
@@ -81,7 +77,7 @@ let Screen = createReactClass({
         this.audio.play('page', props.page.pageAudio);
       }
     });
-  },
+  }
 
   getPageStyle () {
     let ret = {
@@ -97,7 +93,7 @@ let Screen = createReactClass({
         ')';
     }
     return ret;
-  },
+  }
 
   onClickPage (ev) {
     if (this.hotspotMap) {
@@ -108,7 +104,7 @@ let Screen = createReactClass({
         ev.stopPropagation();
       }
     }
-  },
+  }
 
   render () {
     let key = [
@@ -260,14 +256,14 @@ let Screen = createReactClass({
         </div>
       </Hammer>
     );
-  },
+  }
 
   onHotspot (hotspot, x, y) {
     this.setState({ audioTime: 0 });
     this.audio.stop();
     this.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
     this.audio.play('hotspot', hotspot.audio);
-  },
+  }
 
   getPageHeight () {
     return Constants.Dimensions.HEIGHT;
@@ -275,7 +271,7 @@ let Screen = createReactClass({
     let dom = this.bookpage.getDOMNode();
     return dom.offsetHeight || dom.clientHeight;
     */
-  },
+  }
 
   getPageWidth () {
     return Constants.Dimensions.WIDTH;
@@ -283,7 +279,7 @@ let Screen = createReactClass({
     let dom = this.bookpage.getDOMNode();
     return dom.offsetWidth || dom.clientWidth;
     */
-  },
+  }
 
   onSwipe (e) {
     if (e.direction & HammerJS.DIRECTION_LEFT) {
@@ -295,27 +291,27 @@ let Screen = createReactClass({
         this.pagePrev();
       }
     }
-  },
+  }
 
   hasHomeButton () {
     return this.props.page.id !== 'home';
-  },
+  }
 
   hasBackButton () {
     return this.hasHomeButton() && this.props.page.back;
-  },
+  }
 
   hasPlayButton () {
     return !!this.props.page.pageAudio;
-  },
+  }
 
   onBackButtonClick () {
     return BookActionCreators.changePage({ page: this.props.page.back });
-  },
+  }
 
   onHomeButtonClick () {
     return BookActionCreators.changePage({ page: '', autoplay: false });
-  },
+  }
 
   onButtonClick (page) {
     if (page === 'read' || page === 'readAudio') {
@@ -325,26 +321,27 @@ let Screen = createReactClass({
       });
     }
     return BookActionCreators.changePage({ page: page });
-  },
+  }
 
   onPagePlay () {
     this.setState({ playButton: 'pause' });
-  },
+  }
+
   onPagePause () {
     this.setState({ playButton: 'play' });
-  },
+  }
 
   onPageEnded () {
     this.setState({
       playButton: 'play'
     });
-  },
+  }
 
   onPageTime (time) {
     if (time) {
       this.setState({ audioTime: time });
     }
-  },
+  }
 
   onPlayPauseButtonClick () {
     if (this.state.playButton === 'play') {
@@ -352,13 +349,13 @@ let Screen = createReactClass({
     } else {
       this.audio.pause();
     }
-  },
+  }
 
   onWordClick (word) {
     this.setState({ audioTime: 0 });
     this.audio.stop();
     this.audio.play('word', word.audio);
-  },
+  }
 
   /* FIXME */
   pagePrev () {
@@ -368,7 +365,7 @@ let Screen = createReactClass({
 
     let newPage = this.props.page.id - 1;
     BookActionCreators.changePage({ page: newPage });
-  },
+  }
 
   pageNext () {
     if (isNaN(this.props.page.id)) {
@@ -378,5 +375,6 @@ let Screen = createReactClass({
     let newPage = this.props.page.id + 1;
     BookActionCreators.changePage({ page: newPage });
   }
-});
+}
+
 module.exports = Screen;

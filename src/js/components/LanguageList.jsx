@@ -1,17 +1,22 @@
 const React = require('react');
-const mui = require('material-ui');
+const PropTypes = require('prop-types');
 const BookActionCreators = require('../actions/BookActionCreators');
 const BookStore = require('../stores/BookStore');
 
 const DocumentTitle = require('react-document-title');
 const LanguageIcon = require('./LanguageIcon.jsx');
 
-let { RaisedButton, Dialog } = mui;
-
 class LanguageList extends React.Component {
-  state = {
-    book: null
+  static propTypes = {
+    book: PropTypes.string
   };
+
+  constructor () {
+    super();
+    this.state = {
+      book: null
+    };
+  }
 
   componentDidMount () {
     BookStore.getAll().then(books => {
@@ -57,9 +62,9 @@ class LanguageList extends React.Component {
     );
   }
 
-  handleSelectLanguageClick = language => {
+  handleSelectLanguageClick (language) {
     BookActionCreators.chooseLanguage(this.props.book, language);
-  };
+  }
 }
 
 module.exports = LanguageList;

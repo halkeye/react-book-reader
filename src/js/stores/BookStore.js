@@ -22,14 +22,15 @@ let BookStore = assign({}, BaseStore, {
         return resolve(_bookList);
       }
       _urls = {};
-      fetch('books/index.json?_cacheBust=' + new Date().getTime())
+      const baseUrl = 'https://books.saltystories.ca/';
+      fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
         .then(response => response.json())
         .then(json => {
           _bookList = json.map(book => {
             book = assign({}, book);
-            _urls[book.id] = 'books/' + book.url;
-            book.iconBig = 'books/' + (book.iconBig || book.icon);
-            book.icon = 'books/' + book.icon;
+            _urls[book.id] = baseUrl + 'books/' + book.url;
+            book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
+            book.icon = baseUrl + 'books/' + book.icon;
             return book;
           });
           resolve(_bookList);

@@ -1,9 +1,7 @@
 'use strict';
 const React = require('react');
-const createReactClass = require('create-react-class');
-const ScoreCardBox = createReactClass({
-  displayName: 'ScoreCardBox',
 
+class ScoreCardBox extends React.Component {
   render () {
     return (
       <canvas
@@ -13,11 +11,11 @@ const ScoreCardBox = createReactClass({
         style={this.props.style}
       />
     );
-  },
+  }
 
   getCanvas () {
     return this.canvas;
-  },
+  }
 
   draw () {
     let canvas = this.getCanvas();
@@ -43,14 +41,14 @@ const ScoreCardBox = createReactClass({
       console.log(fontSize, size);
     } while (fontSize <= 120);
     */
-  },
+  }
 
   componentDidMount () {
     this.draw();
-  },
+  }
 
-  componentDidUpdate: function (prevProps, prevState) {
+  componentDidUpdate (prevProps, prevState) {
     this.draw();
   }
-});
+}
 module.exports = ScoreCardBox;
