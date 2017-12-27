@@ -1,10 +1,10 @@
 'use strict';
 const React = require('react');
+const PropTypes = require('prop-types');
 const assign = require('object-assign');
 const Shuffle = require('shuffle');
 
-const BookActionCreators = require('../actions/BookActionCreators');
-const Constants = require('../constants/AppConstants');
+const { choosePage } = require('../actions.js');
 
 const Screen = require('./Screen.jsx');
 const ScoreCardBox = require('./ScoreCardBox.jsx');
@@ -21,7 +21,18 @@ class GameScreen extends React.Component {
     },
     clickedOnDoor: function (isOpen) {
       return true;
+    },
+    isEndGame: function () {
+      throw new Error('overwrite please');
     }
+  };
+
+  static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    getCupboardContents: PropTypes.func.isRequired,
+    clickedOnDoor: PropTypes.func.isRequired,
+    isEndGame: PropTypes.func.isRequired,
+    page: PropTypes.object
   };
 
   startingState () {
@@ -134,7 +145,7 @@ class GameScreen extends React.Component {
           objectName: cupbardObject.key,
           onClick: this.onCupboardClick.bind(this, idx)
         };
-        return <CupboardWithDoor {...props} />;
+        return <CupboardWithDoor key={idx} {...props} />;
       });
     }
     if (
@@ -200,16 +211,16 @@ class GameScreen extends React.Component {
   }
 
   onChangeDiff () {
-    return BookActionCreators.changePage({ page: this.props.page.back });
+    return this.props.dispatch(choosePage(this.props.page.back));
   }
 
   onBackGameMenu () {
-    return BookActionCreators.changePage({ page: 'game' });
+    return this.props.dispatch(choosePage('game'));
   }
 
   onCupboardClick (idx) {
-    let stateVar = {};
-    let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
+    // FIXME - let stateVar = {};
+    // FIXME - let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
     this.props.clickedOnDoor(this[`cupboard_${idx}`]);
   }
 

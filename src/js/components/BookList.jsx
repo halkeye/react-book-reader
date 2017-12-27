@@ -1,15 +1,22 @@
 const React = require('react');
+const PropTypes = require('prop-types');
 const mui = require('material-ui');
 
-const BookActionCreators = require('../actions/BookActionCreators');
+const { chooseBook } = require('../actions.js');
 const BookStore = require('../stores/BookStore');
 
 let { RaisedButton } = mui;
 
 class BookList extends React.Component {
-  state = {
-    books: []
+  static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    bookName: PropTypes.string
   };
+
+  constructor (props) {
+    super(props);
+    this.state = { books: [] };
+  }
 
   componentDidMount () {
     BookStore.getAll().then(books => {
@@ -25,7 +32,7 @@ class BookList extends React.Component {
 
     let booksStr = this.state.books.map(book => {
       return (
-        <div id={book.id}>
+        <div key={book.id} id={book.id}>
           <RaisedButton
             onClick={this.handleSelectBookClick.bind(this, book.id)}
           >
@@ -38,9 +45,9 @@ class BookList extends React.Component {
     return <div>{booksStr}</div>;
   }
 
-  handleSelectBookClick = book => {
-    BookActionCreators.chooseBook(book);
-  };
+  handleSelectBookClick (bookId) {
+    this.props.dispatch(chooseBook(bookId));
+  }
 }
 
 module.exports = BookList;

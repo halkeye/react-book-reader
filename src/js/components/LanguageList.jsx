@@ -1,42 +1,27 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const BookActionCreators = require('../actions/BookActionCreators');
-const BookStore = require('../stores/BookStore');
+const { chooseLanguage } = require('../actions.js');
 
 const DocumentTitle = require('react-document-title');
 const LanguageIcon = require('./LanguageIcon.jsx');
 
 class LanguageList extends React.Component {
   static propTypes = {
-    book: PropTypes.string
+    dispatch: PropTypes.func.isRequired,
+    languages: PropTypes.array,
+    iconBig: PropTypes.string
   };
 
-  constructor () {
-    super();
-    this.state = {
-      book: null
-    };
-  }
-
-  componentDidMount () {
-    BookStore.getAll().then(books => {
-      this.setState({
-        book: books.filter(elm => {
-          return elm.id === this.props.book;
-        })[0]
-      });
-    });
-  }
-
   render () {
-    if (this.state.book === null) {
+    const {languages} = this.props;
+    if (!languages) {
       return <div>Loading...</div>;
     }
-    if (this.state.book.languages.length === 1) {
-      return this.handleSelectLanguageClick(this.state.book.languages[0]);
+    if (languages.length === 1) {
+      return this.handleSelectLanguageClick(languages[0]);
     }
 
-    let languages = this.state.book.languages.map(language => {
+    let html = languages.map(language => {
       return (
         <button
           className="button"
@@ -49,21 +34,21 @@ class LanguageList extends React.Component {
     });
 
     let circularIcon = {
-      backgroundImage: 'url(' + this.state.book.iconBig + ')'
+      backgroundImage: 'url(' + this.props.iconBig + ')'
     };
     return (
       <DocumentTitle title="Select a language">
         <div className="LanguageList">
           <img className="bookIcon" style={circularIcon} />
           <h1>Select a language</h1>
-          {languages}
+          {html}
         </div>
       </DocumentTitle>
     );
   }
 
   handleSelectLanguageClick (language) {
-    BookActionCreators.chooseLanguage(this.props.book, language);
+    this.props.dispatch(chooseLanguage(language));
   }
 }
 

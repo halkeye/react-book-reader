@@ -1,7 +1,6 @@
 'use strict';
 const PropTypes = require('prop-types');
 const React = require('react');
-const Constants = require('../constants/AppConstants');
 
 const DocumentMeta = require('react-document-meta');
 const DocumentTitle = require('react-document-title');
@@ -12,9 +11,11 @@ const GameFullMonty = require('./GameFullMonty.jsx');
 
 class Book extends React.Component {
   static propTypes = {
+    dispatch: PropTypes.func.isRequired,
     book: PropTypes.object.isRequired,
     language: PropTypes.string.isRequired,
-    page: PropTypes.string.isRequired
+    page: PropTypes.string.isRequired,
+    autoplay: PropTypes.bool.isRequired
   };
 
   getInitialProps = () => {
@@ -75,18 +76,20 @@ class Book extends React.Component {
       } else if (page.gameName === 'PP' || page.gameName === 'WP') {
         body = (
           <GamePP
+            dispatch={this.props.dispatch}
             key={'screen_' + this.props.page}
             page={page}
             mode={page.gameName}
           />
         );
       } else if (page.gameName === 'fullMonty') {
-        body = <GameFullMonty key={'screen_' + this.props.page} page={page} />;
+        body = <GameFullMonty key={'screen_' + this.props.page} page={page} dispatch={this.props.dispatch} />;
       }
     } else {
       let page = this.props.book.pages[this.props.page];
       body = (
         <Screen
+          dispatch={this.props.dispatch}
           key={'screen_' + this.props.page}
           page={page}
           autoplay={this.props.autoplay}

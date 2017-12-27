@@ -1,21 +1,20 @@
 'use strict';
+import BookHotspotMap from '../components/BookHotspotMap.jsx';
+import BookHotspotPhrase from '../components/BookHotspotPhrase.jsx';
+import { IconButton } from 'material-ui';
+
 const React = require('react');
+const PropTypes = require('prop-types');
 const HammerJS = require('hammerjs');
 const Hammer = require('react-hammerjs');
 
-const MousetrapMixins = require('../mixins/MousetrapMixins.js');
-const BookActionCreators = require('../actions/BookActionCreators');
+// FIXME - const MousetrapMixins = require('../mixins/MousetrapMixins.js');
 
 const Constants = require('../constants/AppConstants');
-
 const BookAudio = require('../models/BookAudio.jsx');
-
-import BookHotspotMap from '../components/BookHotspotMap.jsx';
-import BookHotspotPhrase from '../components/BookHotspotPhrase.jsx';
-
 const BookWord = require('../components/BookWord.jsx');
 const ImageButton = require('../components/ImageButton.jsx');
-import { IconButton } from 'material-ui';
+const { choosePage, chooseAutoplay } = require('../actions.js');
 
 let clickThreshold = 5;
 
@@ -24,6 +23,11 @@ class Screen extends React.Component {
   // mixins: [MousetrapMixins],
 
   static propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    page: PropTypes.object.isRequired,
+    book: PropTypes.string.isRequired,
+    language: PropTypes.string.isRequired,
+    children: PropTypes.node.isRequired
     // audio: React.PropTypes.string,
   };
 
@@ -306,21 +310,21 @@ class Screen extends React.Component {
   }
 
   onBackButtonClick () {
-    return BookActionCreators.changePage({ page: this.props.page.back });
+    this.props.dispatch(choosePage(this.props.page.back));
   }
 
   onHomeButtonClick () {
-    return BookActionCreators.changePage({ page: '', autoplay: false });
+    this.props.dispatch(choosePage(''));
+    this.props.dispatch(chooseAutoplay(false));
   }
 
   onButtonClick (page) {
     if (page === 'read' || page === 'readAudio') {
-      return BookActionCreators.changePage({
-        page: 1,
-        autoplay: page === 'readAudio'
-      });
+      this.props.dispatch(choosePage(1));
+      this.props.dispatch(chooseAutoplay(page === 'readAudio'));
+      return;
     }
-    return BookActionCreators.changePage({ page: page });
+    this.props.dispatch(choosePage(page));
   }
 
   onPagePlay () {
@@ -364,7 +368,7 @@ class Screen extends React.Component {
     }
 
     let newPage = this.props.page.id - 1;
-    BookActionCreators.changePage({ page: newPage });
+    this.props.dispatch(choosePage(newPage));
   }
 
   pageNext () {
@@ -373,7 +377,7 @@ class Screen extends React.Component {
     }
 
     let newPage = this.props.page.id + 1;
-    BookActionCreators.changePage({ page: newPage });
+    this.props.dispatch(choosePage(newPage));
   }
 }
 

@@ -1,12 +1,13 @@
 'use strict';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { init } from '../actions.js';
+import { ConnectedRouter } from 'react-router-redux';
+import { init, push } from '../actions.js';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { history } from '../configureStore.js';
 
 const React = require('react');
-const assign = require('object-assign');
+// TODO - remove const assign = require('object-assign');
 
 require('../../styles/main.scss');
 
@@ -33,13 +34,15 @@ let fontTypes = [
   ['svg', 'svg']
 ];
 
-const navigate = (...args) => {
-  debugger; // eslint-disable-line
-  alert([...args].join('---'));
-};
-
 class App extends React.Component {
   static propTypes = {
+    children: PropTypes.node,
+    language: PropTypes.string,
+    bookName: PropTypes.string,
+    books: PropTypes.array,
+    book: PropTypes.object,
+    page: PropTypes.string,
+    autoplay: PropTypes.string,
     dispatch: PropTypes.func.isRequired
   };
 
@@ -52,44 +55,35 @@ class App extends React.Component {
     this.state = {
       assetsStarted: 0,
       assetsEnded: 0,
-      fonts: {},
-      book: {},
-      path: '/'
+      fonts: {}
     };
   }
 
-  notFound (path) {
-    return <div className="not-found">Page Not Found: {path}</div>;
-  }
-
   render () {
-    return (
-      <MuiThemeProvider>
-        <Router>
-          <Switch>
-            <Route exact path="/" render={this.selectBook} />
-            <Route path="/book/:book" render={this.selectLanguage} />
-            <Route path="/book/:book/lang/:language" render={this.showPage} />
-            <Route
-              path="/book/:book/lang/:language/page"
-              render={this.showPage}
-            />
-            <Route
-              path="/book/:book/lang/:language/page/:page"
-              render={this.showPage}
-            />
-            <Route
-              path="/book/:book/lang/:language/page/:page/autoplay"
-              render={this.showAutoPage}
-            />
-          </Switch>
-        </Router>
-      </MuiThemeProvider>
-    );
+    const ret = (() => {
+      if (this.props.book && this.props.language && this.props.page) {
+        return this.showPage();
+      }
+      if (this.props.book && this.props.language) {
+        return this.showPage();
+      }
+      if (this.props.bookName) {
+        return this.selectLanguage();
+      }
+      return this.selectBook();
+    })();
+    return (<MuiThemeProvider><ConnectedRouter history={history}>{ret}</ConnectedRouter></MuiThemeProvider>);
   }
 
-  selectLanguage ({ match }) {
-    return <LanguageList book={match.params.book} />;
+  selectLanguage () {
+    if (!this.props.book) {
+      return <div>Loading...</div>;
+    }
+    return <LanguageList
+      iconBig={this.props.book.iconBig}
+      languages={this.props.book.languages}
+      dispatch={this.props.dispatch}
+    />;
   }
 
   selectBook () {
@@ -97,14 +91,10 @@ class App extends React.Component {
       <DocumentTitle title="Select a book">
         <div>
           <h1>Select a book</h1>
-          <BookList />
+          <BookList books={this.props.books} dispatch={this.props.dispatch} />
         </div>
       </DocumentTitle>
     );
-  }
-
-  showAutoPage (book, language, page) {
-    return this.showPage(book, language, page, true);
   }
 
   loadBook (bookName, language) {
@@ -123,18 +113,21 @@ class App extends React.Component {
     }
   }
 
-  showPage (bookName, language, page, autoplay) {
-    page = typeof page === 'object' ? 'home' : page;
-    autoplay = typeof autoplay === 'object' ? false : autoplay;
+  showPage () {
+    const {book, bookName, language, page, autoplay} = this.props;
+    // const page = typeof page === 'object' ? 'home' : page;
+    // autoplay = typeof autoplay === 'object' ? false : autoplay;
+    if (!bookName) { return; }
     this.loadBook(bookName, language);
 
-    if (this.state.book.id) {
+    if (book.id) {
       return (
         <Book
-          book={this.state.book}
+          dispatch={this.props.dispatch}
+          book={book}
           language={language}
-          page={page}
-          autoplay={autoplay}
+          page={page || 'home'}
+          autoplay={autoplay || false}
         />
       );
     } else {
@@ -174,9 +167,9 @@ class App extends React.Component {
   startAssetTracking () {
     this.started = this.ended = 0;
 
-    AssetManager.on('started', this.onAssetStarted);
-    AssetManager.on('error', this.onAssetError);
-    AssetManager.on('ended', this.onAssetEnded);
+    AssetManager.on('started', this.onAssetStarted.bind(this));
+    AssetManager.on('error', this.onAssetError.bind(this));
+    AssetManager.on('ended', this.onAssetEnded.bind(this));
     this.assetInterval = setInterval(() => {
       if (
         this.state.assetsStarted === this.started &&
@@ -219,22 +212,14 @@ class App extends React.Component {
           }
           break;
         case Constants.ActionTypes.NAVIGATE_PAGE:
-          let parts = this.state.path.split('/');
-          parts = assign(
-            {
-              book: parts[2],
-              language: parts[4],
-              page: parts[6],
-              autoplay: parts[7]
-            },
-            action.data
-          );
+          const parts = this.props;
+          console.log('parts', parts);
           if (parts.page === 0) {
             return null;
           }
           if (parts.page) {
-            if (this.state.book.hasPage(parts.page)) {
-              return navigate(
+            if (this.props.book.hasPage(parts.page)) {
+              return this.props.dispatch(push(
                 '/book/' +
                   parts.book +
                   '/lang/' +
@@ -242,23 +227,23 @@ class App extends React.Component {
                   '/page/' +
                   parts.page +
                   (parts.autoplay ? '/autoplay' : '')
-              );
+              ));
             } else if (!isNaN(parts.page)) {
-              return navigate(
+              return this.props.dispatch(push(
                 '/book/' +
                   parts.book +
                   '/lang/' +
                   parts.language +
                   '/page/end' +
                   (parts.autoplay ? '/autoplay' : '')
-              );
+              ));
             }
           } else if (parts.language) {
-            return navigate('/book/' + parts.book + '/lang/' + parts.language);
+            return this.props.dispatch(push('/book/' + parts.book + '/lang/' + parts.language));
           } else if (parts.book) {
-            return navigate('/book/' + parts.book);
+            return this.props.dispatch(push('/book/' + parts.book));
           } else {
-            return navigate('/');
+            return this.props.dispatch(push('/'));
           }
           console.log('payload', action.data, this.state.path.split('/'));
           break;
@@ -318,10 +303,19 @@ class App extends React.Component {
 }
 
 function mapStateToProps (state) {
-  const { book } = state;
+  const { bookName, language, page, autoplay, books } = state;
+  let book = null;
+  if (books && bookName) {
+    book = books.find(b => b.id === bookName);
+  }
 
   return {
-    book
+    language,
+    books,
+    book,
+    bookName,
+    page,
+    autoplay
   };
 }
 

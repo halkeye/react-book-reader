@@ -44,6 +44,9 @@ let BookStore = assign({}, BaseStore, {
 
   /* FIXME - return book object */
   getBook (book, language) {
+    if (!book) {
+      throw new Error('No such book');
+    }
     return new Promise((resolve, reject) => {
       if (_bookData && _bookData.id === book) {
         return resolve(_bookData);
@@ -53,13 +56,14 @@ let BookStore = assign({}, BaseStore, {
           return data.id === book;
         });
 
-        fetch(_urls[book])
+        return fetch(_urls[book])
           .then(response => {
+            console.log('a', book, _urls[book]);
             return response.json();
           })
           .then(json => {
             let assetBaseUrl = BookUtilities.dirname(_urls[book]);
-            BookUtilities.processBookData(
+            return BookUtilities.processBookData(
               {},
               assetBaseUrl,
               json,
