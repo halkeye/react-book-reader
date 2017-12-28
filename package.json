@@ -48,7 +48,7 @@
     "jsx-loader": "^0.13.2",
     "node-libs-browser": "^2.0.0",
     "node-sass": "^4.5.3",
-    "prettier-eslint": "^8.2.0",
+    "prettier-eslint": "^8.7.0",
     "prettier-eslint-cli": "^4.4.0",
     "prop-types": "^15.6.0",
     "react": "^16.1.0",
