@@ -84,7 +84,7 @@ module.exports = function (env) {
   }
 
   return {
-    devtool: isProd ? 'source-map' : 'eval',
+    devtool: 'source-map',
     context: sourcePath,
     entry: ['js/index'],
     output: {
@@ -172,6 +172,13 @@ module.exports = function (env) {
     resolve: {
       extensions: ['.js', '.jsx', '.scss', '.css'],
       modules: [path.resolve(__dirname, 'node_modules'), sourcePath]
+    },
+    // Some libraries import Node modules but don't use them in the browser.
+    // Tell Webpack to provide empty mocks for them so importing them works.
+    node: {
+      fs: 'empty',
+      net: 'empty',
+      tls: 'empty'
     },
 
     plugins,

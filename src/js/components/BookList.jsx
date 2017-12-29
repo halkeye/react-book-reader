@@ -1,36 +1,22 @@
+import ImmutablePropTypes from 'react-immutable-proptypes';
 const React = require('react');
 const PropTypes = require('prop-types');
-const mui = require('material-ui');
-
+const { RaisedButton } = require('material-ui');
 const { chooseBook } = require('../actions.js');
-const BookStore = require('../stores/BookStore');
-
-let { RaisedButton } = mui;
 
 class BookList extends React.Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
-    bookName: PropTypes.string
+    books: ImmutablePropTypes.list.isRequired
   };
 
-  constructor (props) {
-    super(props);
-    this.state = { books: [] };
-  }
-
-  componentDidMount () {
-    BookStore.getAll().then(books => {
-      this.setState({ books: books });
-    });
-  }
-
   render () {
-    if (this.state.books.length === 1) {
-      this.handleSelectBookClick(this.state.books[0].id);
+    if (this.props.books.size === 1) {
+      this.handleSelectBookClick(this.props.books.get(0).id);
       return <div>Auto selecting book</div>;
     }
 
-    let booksStr = this.state.books.map(book => {
+    let booksStr = this.props.books.map(book => {
       return (
         <div key={book.id} id={book.id}>
           <RaisedButton
@@ -46,7 +32,7 @@ class BookList extends React.Component {
   }
 
   handleSelectBookClick (bookId) {
-    this.props.dispatch(chooseBook(bookId));
+    this.props.dispatch(chooseBook(this.props.books.find(b => b.id === bookId)));
   }
 }
 

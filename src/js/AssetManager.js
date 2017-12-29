@@ -62,7 +62,7 @@ class AssetManager {
         },
         false
       );
-      img.src = this.baseUrl + path;
+      img.src = `${this.baseUrl}${path}`;
     });
   }
 

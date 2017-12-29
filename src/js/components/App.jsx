@@ -3,8 +3,10 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ConnectedRouter } from 'react-router-redux';
 import { init, push } from '../actions.js';
 import PropTypes from 'prop-types';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 import { connect } from 'react-redux';
 import { history } from '../configureStore.js';
+import { List } from 'immutable';
 
 const React = require('react');
 // TODO - remove const assign = require('object-assign');
@@ -34,17 +36,23 @@ let fontTypes = [
   ['svg', 'svg']
 ];
 
-class App extends React.Component {
+export class App extends React.Component {
   static propTypes = {
     children: PropTypes.node,
     language: PropTypes.string,
     bookName: PropTypes.string,
-    books: PropTypes.array,
+    bookIconBig: PropTypes.string,
+    bookLanguages: PropTypes.array,
+    books: ImmutablePropTypes.list.isRequired,
     book: PropTypes.object,
     page: PropTypes.string,
     autoplay: PropTypes.string,
     dispatch: PropTypes.func.isRequired
   };
+
+  static defaultProps = {
+    books: new List([])
+  }
 
   handleResize () {
     this.forceUpdate();
@@ -64,7 +72,7 @@ class App extends React.Component {
       if (this.props.book && this.props.language && this.props.page) {
         return this.showPage();
       }
-      if (this.props.book && this.props.language) {
+      if (this.props.language) {
         return this.showPage();
       }
       if (this.props.bookName) {
@@ -76,17 +84,20 @@ class App extends React.Component {
   }
 
   selectLanguage () {
-    if (!this.props.book) {
-      return <div>Loading...</div>;
+    if (!this.props.bookLanguages) {
+      return <div>Loading Language Choices...</div>;
     }
     return <LanguageList
-      iconBig={this.props.book.iconBig}
-      languages={this.props.book.languages}
+      iconBig={this.props.bookIconBig}
+      languages={this.props.bookLanguages}
       dispatch={this.props.dispatch}
     />;
   }
 
   selectBook () {
+    if (!this.props.books) {
+      return <div>Loading Books...</div>;
+    }
     return (
       <DocumentTitle title="Select a book">
         <div>
@@ -303,17 +314,14 @@ class App extends React.Component {
 }
 
 function mapStateToProps (state) {
-  const { bookName, language, page, autoplay, books } = state;
-  let book = null;
-  if (books && bookName) {
-    book = books.find(b => b.id === bookName);
-  }
+  const { bookName, language, page, autoplay, books, bookLanguages, bookIconsBig } = state;
 
   return {
     language,
     books,
-    book,
-    bookName,
+    bookName, // FIXME remove when fully removed old stores
+    bookIconBig: bookIconsBig[bookName],
+    bookLanguages: bookLanguages[bookName],
     page,
     autoplay
   };
