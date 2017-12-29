@@ -12,12 +12,16 @@ const loggerMiddleware = createLogger();
 export const history = createHistory();
 
 // Build the middleware for intercepting and dispatching navigation actions
-const middleware = routerMiddleware(history);
+const routerHistoryMiddleware = routerMiddleware(history);
 
 export default function configureStore (preloadedState) {
+  const middlewares = [thunkMiddleware, routerHistoryMiddleware];
+  if (process.env.NODE_ENV === 'development') {
+    middlewares.push(loggerMiddleware);
+  }
   return createStore(
     rootReducer,
     preloadedState,
-    applyMiddleware(thunkMiddleware, middleware, loggerMiddleware)
+    applyMiddleware(...middlewares)
   );
 }
