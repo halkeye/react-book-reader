@@ -4,7 +4,8 @@ import configureStore from './configureStore.js';
 import {
   assetDownloadStarted,
   assetDownloadSuccess,
-  assetDownloadError
+  assetDownloadError,
+  assetDownloadReset
 } from './actions.js';
 
 describe('reducers', function () {
@@ -13,6 +14,13 @@ describe('reducers', function () {
     expect(store.getState().assets).toEqual({ total: null, loaded: null });
   });
   describe('assets', () => {
+    describe('assetDownloadReset', () => {
+      it('single reset', () => {
+        const store = configureStore();
+        store.dispatch(assetDownloadReset());
+        expect(store.getState().assets).toEqual({ total: null, loaded: null });
+      });
+    });
     describe('assetDownloadStarted', () => {
       it('single started', () => {
         const store = configureStore();

@@ -5,7 +5,8 @@ import {
   LOADED_BOOK_LIST_ITEM,
   ASSET_MANAGER_INCR_STARTED,
   ASSET_MANAGER_INCR_SUCCESS,
-  ASSET_MANAGER_INCR_ERROR
+  ASSET_MANAGER_INCR_ERROR,
+  ASSET_MANAGER_RESET
 } from './actions.js';
 
 const BookListRecordClass = Record({
@@ -22,6 +23,8 @@ export class BookListRecord extends BookListRecordClass {}
 
 function assets (state = { total: null, loaded: null }, action) {
   switch (action.type) {
+    case ASSET_MANAGER_RESET:
+      return { total: null, loaded: null };
     case ASSET_MANAGER_INCR_STARTED:
       return { ...state, total: (state.total || 0) + 1 };
     case ASSET_MANAGER_INCR_SUCCESS:

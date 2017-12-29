@@ -6,9 +6,11 @@ import {
   assetDownloadSuccess,
   assetDownloadError,
   assetDownloadStarted,
+  assetDownloadReset,
   ASSET_MANAGER_INCR_STARTED,
   ASSET_MANAGER_INCR_SUCCESS,
-  ASSET_MANAGER_INCR_ERROR
+  ASSET_MANAGER_INCR_ERROR,
+  ASSET_MANAGER_RESET
 } from './actions.js';
 
 describe('actions', function () {
@@ -31,6 +33,13 @@ describe('actions', function () {
     store.dispatch(assetDownloadStarted({}));
     expect(store.getActions()).toEqual([
       { payload: {}, type: ASSET_MANAGER_INCR_STARTED }
+    ]);
+  });
+  it('assetDownloaReset', () => {
+    const store = configureMockStore([thunk])();
+    store.dispatch(assetDownloadReset());
+    expect(store.getActions()).toEqual([
+      { payload: {}, type: ASSET_MANAGER_RESET }
     ]);
   });
 });

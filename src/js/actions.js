@@ -8,6 +8,7 @@ export const LOADED_BOOK_LIST_ITEM = 'LOADED_BOOK_LIST_ITEM';
 export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
 export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
 export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
+export const ASSET_MANAGER_RESET = 'ASSET_MANAGER_RESET';
 
 const BookUtilities = require('./constants/BookUtilities.jsx');
 
@@ -37,14 +38,22 @@ export function init () {
 export function chooseAutoplay (autoPlay) {
   return (dispatch, getState) => {
     const state = getState();
-    return dispatch(push(`/book/${state.bookName}/lang/${state.language}/page/${state.page}/${autoPlay}`));
+    return dispatch(
+      push(
+        `/book/${state.bookName}/lang/${state.language}/page/${
+          state.page
+        }/${autoPlay}`
+      )
+    );
   };
 }
 
 export function choosePage (page) {
   return (dispatch, getState) => {
     const state = getState();
-    return dispatch(push(`/book/${state.bookName}/lang/${state.language}/page/${page}`));
+    return dispatch(
+      push(`/book/${state.bookName}/lang/${state.language}/page/${page}`)
+    );
   };
 }
 
@@ -62,17 +71,15 @@ export function chooseLanguage (language) {
           assetBaseUrl,
           json,
           language
-        ).then(
-          function (values) {
-            dispatch({
-              type: 'LOADED_BOOK',
-              payload: {
-                ...book,
-                ...values[0]
-              }
-            });
-          }
-        );
+        ).then(function (values) {
+          dispatch({
+            type: 'LOADED_BOOK',
+            payload: {
+              ...book,
+              ...values[0]
+            }
+          });
+        });
       });
   };
 }
@@ -101,5 +108,11 @@ export function assetDownloadSuccess (asset) {
   return {
     type: ASSET_MANAGER_INCR_SUCCESS,
     payload: asset
+  };
+}
+export function assetDownloadReset () {
+  return {
+    type: ASSET_MANAGER_RESET,
+    payload: {}
   };
 }
