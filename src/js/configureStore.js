@@ -1,27 +1,33 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import rootReducer from './reducers';
-
-import createHistory from 'history/createBrowserHistory';
 import { routerMiddleware } from 'react-router-redux';
+import createHistory from 'history/createBrowserHistory';
+// import createHistory from 'history/createHashHistory';
 
-const loggerMiddleware = createLogger();
+import rootReducer from './reducers.js';
 
 // Create a history of your choosing (we're using a browser history in this case)
 export const history = createHistory();
+const historyMiddleware = routerMiddleware(history);
 
-// Build the middleware for intercepting and dispatching navigation actions
-const routerHistoryMiddleware = routerMiddleware(history);
+const hasReduxDevToolsInstalled = !!(
+  typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+);
 
+const composeEnhancers = hasReduxDevToolsInstalled
+  ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+  : compose;
 export default function configureStore (preloadedState) {
-  const middlewares = [thunkMiddleware, routerHistoryMiddleware];
+  const middleware = [thunkMiddleware, historyMiddleware];
   if (process.env.NODE_ENV === 'development') {
-    middlewares.push(loggerMiddleware);
+    if (!hasReduxDevToolsInstalled) {
+      middleware.push(createLogger());
+    }
   }
   return createStore(
     rootReducer,
     preloadedState,
-    applyMiddleware(...middlewares)
+    composeEnhancers(applyMiddleware(...middleware))
   );
 }
