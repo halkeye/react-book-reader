@@ -5,8 +5,9 @@ require('whatwg-fetch'); // polyfill
 export { push };
 
 export const LOADED_BOOK_LIST_ITEM = 'LOADED_BOOK_LIST_ITEM';
-export const ASSET_MANAGER_INCR_TOTAL = 'ASSET_MANAGER_INCR_TOTAL';
-export const ASSET_MANAGER_INCR_LOADED = 'ASSET_MANAGER_INCR_LOADED';
+export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
+export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
+export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
 
 const BookUtilities = require('./constants/BookUtilities.jsx');
 
@@ -79,5 +80,26 @@ export function chooseLanguage (language) {
 export function chooseBook (book) {
   return dispatch => {
     dispatch(push(`/book/${book.id}`));
+  };
+}
+
+export function assetDownloadStarted () {
+  return {
+    type: ASSET_MANAGER_INCR_STARTED,
+    payload: {}
+  };
+}
+
+export function assetDownloadError (asset) {
+  return {
+    type: ASSET_MANAGER_INCR_ERROR,
+    payload: asset
+  };
+}
+
+export function assetDownloadSuccess (asset) {
+  return {
+    type: ASSET_MANAGER_INCR_SUCCESS,
+    payload: asset
   };
 }

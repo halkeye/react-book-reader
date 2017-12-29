@@ -3,8 +3,9 @@ import { routerReducer, LOCATION_CHANGE } from 'react-router-redux';
 import { Record, List } from 'immutable';
 import {
   LOADED_BOOK_LIST_ITEM,
-  ASSET_MANAGER_INCR_LOADED,
-  ASSET_MANAGER_INCR_TOTAL
+  ASSET_MANAGER_INCR_STARTED,
+  ASSET_MANAGER_INCR_SUCCESS,
+  ASSET_MANAGER_INCR_ERROR
 } from './actions.js';
 
 const BookListRecordClass = Record({
@@ -20,11 +21,12 @@ const BookListRecordClass = Record({
 export class BookListRecord extends BookListRecordClass {}
 
 function assets (state = { total: null, loaded: null }, action) {
-  if (action.type === ASSET_MANAGER_INCR_LOADED) {
-    return { ...state, loaded: state.loaded + action.payload.loaded };
-  }
-  if (action.type === ASSET_MANAGER_INCR_TOTAL) {
-    return { ...state, total: action.payload.total };
+  switch (action.type) {
+    case ASSET_MANAGER_INCR_STARTED:
+      return { ...state, total: (state.total || 0) + 1 };
+    case ASSET_MANAGER_INCR_SUCCESS:
+    case ASSET_MANAGER_INCR_ERROR:
+      return { ...state, loaded: (state.loaded || 0) + 1 };
   }
   return state;
 }

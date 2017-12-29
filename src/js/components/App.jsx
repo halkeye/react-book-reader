@@ -115,7 +115,6 @@ export class App extends React.Component {
       this.startAssetTracking();
       BookStore.getBook(bookName, language)
         .then(bookData => {
-          this.stopAssetTracking();
           this.setState({ book: bookData });
         })
         .catch(function (ex) {
@@ -178,32 +177,9 @@ export class App extends React.Component {
   startAssetTracking () {
     this.started = this.ended = 0;
 
-    AssetManager.on('started', this.onAssetStarted.bind(this));
-    AssetManager.on('error', this.onAssetError.bind(this));
-    AssetManager.on('ended', this.onAssetEnded.bind(this));
-    this.assetInterval = setInterval(() => {
-      if (
-        this.state.assetsStarted === this.started &&
-        this.state.assetsEnded === this.ended
-      ) {
-        return;
-      }
-      this.setState({ assetsStarted: this.started, assetsEnded: this.ended });
-    }, 100);
-  }
-
-  stopAssetTracking () {
-    if (this.assetInterval) {
-      clearInterval(this.assetInterval);
-      delete this.assetInterval;
-    }
-    AssetManager.off('started', this.onAssetStarted);
-    AssetManager.off('error', this.onAssetError);
-    AssetManager.off('ended', this.onAssetEnded);
-  }
-
-  componentWillUnmount () {
-    this.stopAssetTracking();
+    AssetManager.on('started', () => dispatch(assetDownloadStarted()));
+    AssetManager.on('error', (asset) => dispatch(assetDownloadError(asset)));
+    AssetManager.on('ended', (asset) => dispatch(assetDownloadSuccess(asset)));
   }
 
   componentDidMount () {
