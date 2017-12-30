@@ -1,7 +1,8 @@
 'use strict';
+import React from 'react';
+import PropTypes from 'prop-types';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ConnectedRouter } from 'react-router-redux';
-import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { connect } from 'react-redux';
 import { history } from '../configureStore.js';
@@ -14,8 +15,8 @@ import {
   assetDownloadError,
   assetDownloadReset
 } from '../actions.js';
+import ProgressBar from './ProgressBar.jsx';
 
-const React = require('react');
 // TODO - remove const assign = require('object-assign');
 
 require('../../styles/main.scss');
@@ -148,7 +149,7 @@ export class App extends React.Component {
     }
     this.loadBook(bookName, language);
 
-    if (book.id) {
+    if (book && book.id) {
       return (
         <Book
           dispatch={this.props.dispatch}
@@ -159,23 +160,7 @@ export class App extends React.Component {
         />
       );
     } else {
-      let percent = 0;
-      if (this.props.assets.total && this.props.assets.loaded) {
-        percent = this.props.assets.loaded / this.props.assets.total * 100;
-      }
-
-      let style = {
-        width: Math.max(0, Math.min(percent, 100)) + '%',
-        transition: 'width 200ms'
-      };
-
-      return (
-        <div className="progressbar-container">
-          <div className="progressbar-progress" style={style}>
-            {this.props.children}
-          </div>
-        </div>
-      );
+      return <ProgressBar {...this.props.assets} />;
     }
   }
 
