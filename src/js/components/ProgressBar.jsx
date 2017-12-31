@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Line, Circle } from 'rc-progress';
 
 export default function ProgressBar ({ total, loaded }) {
   if (total === null || loaded === null) {
@@ -7,18 +8,16 @@ export default function ProgressBar ({ total, loaded }) {
   }
 
   let percent = 0;
-  if (total && this.props.loaded) {
-    percent = loaded / this.props.total * 100;
+  if (total && loaded) {
+    percent = loaded / total * 100;
   }
 
-  let style = {
-    width: Math.max(0, Math.min(percent, 100)) + '%',
-    transition: 'width 200ms'
-  };
-
   return (
-    <div className="progressbar-container">
-      <div className="progressbar-progress" style={style} />
+    <div>
+      <h1>Loading {percent}%</h1>
+      <div style={{ margin: 10, width: 600 }}>
+        <Circle percent={percent} strokeWidth="6" />;
+      </div>
     </div>
   );
 }

@@ -125,21 +125,6 @@ export class App extends React.Component {
     );
   }
 
-  loadBook (bookName, language) {
-    let key = ['book', bookName, 'lang', language].join('_');
-    if (key !== this.loadingBook) {
-      this.loadingBook = key;
-      this.startAssetTracking();
-      BookStore.getBook(bookName, language)
-        .then(bookData => {
-          this.setState({ book: bookData });
-        })
-        .catch(function (ex) {
-          console.log('error', ex);
-        });
-    }
-  }
-
   showPage () {
     const { book, bookName, language, page, autoplay } = this.props;
     // const page = typeof page === 'object' ? 'home' : page;
@@ -147,7 +132,6 @@ export class App extends React.Component {
     if (!bookName) {
       return;
     }
-    this.loadBook(bookName, language);
 
     if (book && book.id) {
       return (
@@ -175,6 +159,7 @@ export class App extends React.Component {
 
   componentDidMount () {
     this.props.dispatch(init());
+    this.startAssetTracking();
 
     window.addEventListener('resize', this.handleResize, true);
     AppDispatcher.register(payload => {

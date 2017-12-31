@@ -1,9 +1,8 @@
 import { push } from 'react-router-redux';
-
-require('whatwg-fetch'); // polyfill
-
 export { push };
 
+export const LOADING_BOOK = 'LOADING_BOOK';
+export const LOADED_BOOK = 'LOADED_BOOK';
 export const LOADED_BOOK_LIST_ITEM = 'LOADED_BOOK_LIST_ITEM';
 export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
 export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
@@ -14,11 +13,23 @@ const BookUtilities = require('./constants/BookUtilities.jsx');
 
 export function init () {
   return dispatch => {
+    dispatch(loadBooks());
+  };
+}
+
+export function loadBooks () {
+  return dispatch => {
     const baseUrl = 'https://books.saltystories.ca/';
-    fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
-      .then(response => response.json())
+    return dispatch({
+      type: 'LOAD_BOOK_LIST_ITEMS',
+      payload: {
+        request: {
+          url: baseUrl + 'books/index.json'
+        }
+      }
+    })
       .then(json => {
-        for (let book of json) {
+        for (let book of json.data) {
           book.url = baseUrl + 'books/' + book.url;
           book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
           book.icon = baseUrl + 'books/' + book.icon;
@@ -34,7 +45,6 @@ export function init () {
       });
   };
 }
-
 export function chooseAutoplay (autoPlay) {
   return (dispatch, getState) => {
     const state = getState();
@@ -61,32 +71,48 @@ export function chooseLanguage (language) {
   return (dispatch, getState) => {
     const state = getState();
     dispatch(push(`/book/${state.bookName}/lang/${language}`));
-    const book = state.books.find(b => b.id === state.bookName);
-    return fetch(book.url)
-      .then(response => response.json())
-      .then(json => {
-        let assetBaseUrl = BookUtilities.dirname(book.url);
-        return BookUtilities.processBookData(
-          {},
-          assetBaseUrl,
-          json,
-          language
-        ).then(function (values) {
-          dispatch({
-            type: 'LOADED_BOOK',
-            payload: {
-              ...book,
-              ...values[0]
-            }
-          });
-        });
-      });
+    dispatch(loadBook(state.bookName, language));
   };
 }
 
 export function chooseBook (book) {
   return dispatch => {
     dispatch(push(`/book/${book.id}`));
+  };
+}
+
+export function loadBook (bookName, language) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const book = state.books.find(b => b.id === bookName);
+    const loadPromise = dispatch({
+      type: LOADING_BOOK,
+      payload: {
+        request: {
+          url: book.url
+        },
+        book: book
+      }
+    });
+    return loadPromise
+      .then(function (json) {
+        let assetBaseUrl = BookUtilities.dirname(book.url);
+        return {};
+        return BookUtilities.processBookData(
+          {},
+          assetBaseUrl,
+          json.data,
+          language
+        );
+      })
+      .then(function (book) {
+        dispatch({
+          type: LOADED_BOOK,
+          payload: {
+            book: book
+          }
+        });
+      });
   };
 }
 
