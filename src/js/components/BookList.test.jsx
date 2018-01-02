@@ -11,7 +11,7 @@ describe('BookList', function () {
   it('Shows loading screen when no books are available', () => {
     const onChooseBook = jest.fn();
     const wrapper = shallow(<BookList onChooseBook={onChooseBook} />);
-    expect(wrapper.text()).toEqual('Loading Books...');
+    expect(wrapper.find('div').text()).toEqual('Loading Books...');
     expect(onChooseBook).not.toHaveBeenCalled();
   });
   it('shows a list of books', () => {
@@ -48,7 +48,7 @@ describe('BookList', function () {
     const wrapper = shallow(
       <BookList books={new List([book1])} onChooseBook={onChooseBook} />
     );
-    expect(wrapper.html()).toEqual(null);
+    expect(wrapper.html()).toEqual('');
     expect(onChooseBook).toHaveBeenCalled();
     expect(onChooseBook).toHaveBeenCalledWith(book1);
   });
@@ -62,7 +62,7 @@ describe('BookList', function () {
     const wrapper = shallow(
       <BookList books={new List([])} onChooseBook={onChooseBook} />
     );
-    expect(wrapper.text()).toEqual('Loading Books...');
+    expect(wrapper.find('div').text()).toEqual('Loading Books...');
     expect(onChooseBook).not.toHaveBeenCalled();
     wrapper.setProps({ books: new List([book1]) });
     expect(onChooseBook).toHaveBeenCalled();

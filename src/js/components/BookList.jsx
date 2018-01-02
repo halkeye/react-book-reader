@@ -3,6 +3,7 @@ import { List } from 'immutable';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from 'material-ui/Button';
+import DocumentTitle from 'react-document-title';
 
 export default class BookList extends React.PureComponent {
   static propTypes = {
@@ -29,6 +30,14 @@ export default class BookList extends React.PureComponent {
   }
 
   render () {
+    return (
+      <DocumentTitle title="Select a book">
+        {this.renderContents()}
+      </DocumentTitle>
+    );
+  }
+
+  renderContents () {
     if (this.props.books.size === 0) {
       return <div>Loading Books...</div>;
     }
@@ -47,7 +56,12 @@ export default class BookList extends React.PureComponent {
         </div>
       );
     });
-    return <div>{contents}</div>;
+    return (
+      <div>
+        <h1>Select a book</h1>
+        {contents}
+      </div>
+    );
   }
 
   handleSelectBookClick (book) {
