@@ -1,39 +1,56 @@
 import ImmutablePropTypes from 'react-immutable-proptypes';
-const React = require('react');
-const PropTypes = require('prop-types');
-const { RaisedButton } = require('material-ui');
-const { chooseBook } = require('../actions.js');
+import { List } from 'immutable';
+import React from 'react';
+import PropTypes from 'prop-types';
+import Button from 'material-ui/Button';
 
-class BookList extends React.Component {
+export default class BookList extends React.PureComponent {
   static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    books: ImmutablePropTypes.list.isRequired
+    onChooseBook: PropTypes.func.isRequired,
+    books: ImmutablePropTypes.list
   };
 
+  static defaultProps = {
+    books: new List([])
+  };
+
+  constructor (props) {
+    super(props);
+    if (props.books.size === 1) {
+      this.handleSelectBookClick(props.books.get(0));
+    }
+  }
+  componentWillReceiveProps (nextProps) {
+    if (this.props.books !== nextProps.books) {
+      if (nextProps.books.size === 1) {
+        this.handleSelectBookClick(nextProps.books.get(0));
+      }
+    }
+  }
+
   render () {
-    if (this.props.books.size === 1) {
-      this.handleSelectBookClick(this.props.books.get(0).id);
-      return <div>Auto selecting book</div>;
+    if (this.props.books.size === 0) {
+      return <div>Loading Books...</div>;
     }
 
-    let booksStr = this.props.books.map(book => {
+    if (this.props.books.size === 1) {
+      return null;
+    }
+
+    const contents = this.props.books.map(book => {
       return (
         <div key={book.id} id={book.id}>
-          <RaisedButton
-            onClick={this.handleSelectBookClick.bind(this, book.id)}
-          >
+          <Button raised onClick={this.handleSelectBookClick.bind(this, book)}>
             <img src={book.icon} />
             <span className="mui-raised-button-label">{book.title}</span>
-          </RaisedButton>
+          </Button>
         </div>
       );
     });
-    return <div>{booksStr}</div>;
+    return <div>{contents}</div>;
   }
 
-  handleSelectBookClick (bookId) {
-    this.props.dispatch(chooseBook(this.props.books.find(b => b.id === bookId)));
+  handleSelectBookClick (book) {
+    this.props.onChooseBook(book);
   }
 }
-
-module.exports = BookList;
