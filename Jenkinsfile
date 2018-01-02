@@ -27,7 +27,7 @@ pipeline {
           wget -O cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
           chmod +x cc-test-reporter
           ./cc-test-reporter before-build
-          npm run lint -- --coverage
+          npm run lint
           npm run test -- --coverage
           ./cc-test-reporter after-build -r $CC_TEST_REPORTER_ID --debug || true;
         """
