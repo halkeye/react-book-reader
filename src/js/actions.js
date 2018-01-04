@@ -1,51 +1,37 @@
-import { push } from 'react-router-redux';
+import { push } from "react-router-redux";
 export { push };
 
-export const LOADING_BOOK = 'LOADING_BOOK';
-export const LOADED_BOOK = 'LOADED_BOOK';
-export const LOADED_BOOK_LIST_ITEM = 'LOADED_BOOK_LIST_ITEM';
-export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
-export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
-export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
-export const ASSET_MANAGER_RESET = 'ASSET_MANAGER_RESET';
+export const LOADING_BOOK = "LOADING_BOOK";
+export const LOADED_BOOK = "LOADED_BOOK";
+export const LOADED_BOOK_LIST_ITEM = "LOADED_BOOK_LIST_ITEM";
+export const ASSET_MANAGER_INCR_STARTED = "ASSET_MANAGER_INCR_STARTED";
+export const ASSET_MANAGER_INCR_SUCCESS = "ASSET_MANAGER_INCR_SUCCESS";
+export const ASSET_MANAGER_INCR_ERROR = "ASSET_MANAGER_INCR_ERROR";
+export const ASSET_MANAGER_RESET = "ASSET_MANAGER_RESET";
 
-const BookUtilities = require('./constants/BookUtilities.jsx');
+const BookUtilities = require("./constants/BookUtilities.jsx");
 
-export function init () {
+export function init() {
   return dispatch => {
     dispatch(loadBooks());
   };
 }
 
-export function loadBooks () {
+export function loadBooks() {
   return dispatch => {
-    const baseUrl = 'https://books.saltystories.ca/';
+    const baseUrl = "https://books.saltystories.ca/";
     return dispatch({
-      type: 'LOAD_BOOK_LIST_ITEMS',
+      type: "LOAD_BOOK_LIST_ITEMS",
       payload: {
+        baseUrl: baseUrl,
         request: {
-          url: baseUrl + 'books/index.json'
+          url: baseUrl + "books/index.json"
         }
       }
-    })
-      .then(json => {
-        for (let book of json.data) {
-          book.url = baseUrl + 'books/' + book.url;
-          book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
-          book.icon = baseUrl + 'books/' + book.icon;
-          dispatch({
-            type: 'LOADED_BOOK_LIST_ITEM',
-            payload: book
-          });
-        }
-      })
-      .catch(function (ex) {
-        console.log('parsing failed', ex);
-        throw ex;
-      });
+    });
   };
 }
-export function chooseAutoplay (autoPlay) {
+export function chooseAutoplay(autoPlay) {
   return (dispatch, getState) => {
     const state = getState();
     return dispatch(
@@ -58,7 +44,7 @@ export function chooseAutoplay (autoPlay) {
   };
 }
 
-export function choosePage (page) {
+export function choosePage(page) {
   return (dispatch, getState) => {
     const state = getState();
     return dispatch(
@@ -67,7 +53,7 @@ export function choosePage (page) {
   };
 }
 
-export function chooseLanguage (language) {
+export function chooseLanguage(language) {
   return (dispatch, getState) => {
     const state = getState();
     dispatch(push(`/book/${state.bookName}/lang/${language}`));
@@ -75,13 +61,13 @@ export function chooseLanguage (language) {
   };
 }
 
-export function chooseBook (book) {
+export function chooseBook(book) {
   return dispatch => {
     dispatch(push(`/book/${book.id}`));
   };
 }
 
-export function loadBook (bookName, language) {
+export function loadBook(bookName, language) {
   return (dispatch, getState) => {
     const state = getState();
     const book = state.books.find(b => b.id === bookName);
@@ -95,17 +81,17 @@ export function loadBook (bookName, language) {
       }
     });
     return loadPromise
-      .then(function (json) {
+      .then(function(action) {
         let assetBaseUrl = BookUtilities.dirname(book.url);
-        return {};
+        // create asset manager
+        // pass in dispatch
         return BookUtilities.processBookData(
-          {},
           assetBaseUrl,
-          json.data,
+          action.payload.data,
           language
         );
       })
-      .then(function (book) {
+      .then(function(book) {
         dispatch({
           type: LOADED_BOOK,
           payload: {
@@ -116,27 +102,27 @@ export function loadBook (bookName, language) {
   };
 }
 
-export function assetDownloadStarted () {
+export function assetDownloadStarted() {
   return {
     type: ASSET_MANAGER_INCR_STARTED,
     payload: {}
   };
 }
 
-export function assetDownloadError (asset) {
+export function assetDownloadError(asset) {
   return {
     type: ASSET_MANAGER_INCR_ERROR,
     payload: asset
   };
 }
 
-export function assetDownloadSuccess (asset) {
+export function assetDownloadSuccess(asset) {
   return {
     type: ASSET_MANAGER_INCR_SUCCESS,
     payload: asset
   };
 }
-export function assetDownloadReset () {
+export function assetDownloadReset() {
   return {
     type: ASSET_MANAGER_RESET,
     payload: {}

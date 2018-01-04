@@ -1,7 +1,7 @@
-import AssetManager from '../AssetManager.js';
+import AssetManager from "../AssetManager.js";
 
 export default class Book {
-  constructor (assetBaseUrl, language) {
+  constructor(assetBaseUrl, language) {
     this.assetManager = new AssetManager(assetBaseUrl);
     this.language = language;
     this.pages = {};
@@ -9,17 +9,13 @@ export default class Book {
     this.promises = [];
   }
 
-  addAssetPromises (promises) {
-    this.promises = this.promises.concat(promises);
+  hasGame(page) {
+    return typeof this.games[page] !== "undefined";
   }
-
-  hasGame (page) {
-    return typeof this.games[page] !== 'undefined';
-  }
-  hasPage (page) {
+  hasPage(page) {
     return (
-      typeof this.pages[page] !== 'undefined' ||
-      typeof this.games[page] !== 'undefined'
+      typeof this.pages[page] !== "undefined" ||
+      typeof this.games[page] !== "undefined"
     );
   }
 }

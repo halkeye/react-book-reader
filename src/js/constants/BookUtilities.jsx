@@ -297,7 +297,7 @@ class AssetManagerAudioType {
   }
 }
 
-function processBookData(settings, assetBaseUrl, bookData, language) {
+function processBookData(assetBaseUrl, bookData, language) {
   let promises = [];
 
   const book = new Book(assetBaseUrl, language);

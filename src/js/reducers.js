@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { routerReducer, LOCATION_CHANGE } from 'react-router-redux';
-import { Record, List } from 'immutable';
+import { List, Map } from 'immutable';
+import BookListItem from './models/BookListItem.js';
 import {
   LOADED_BOOK_LIST_ITEM,
   ASSET_MANAGER_INCR_STARTED,
@@ -9,17 +10,10 @@ import {
   ASSET_MANAGER_RESET
 } from './actions.js';
 
-const BookListRecordClass = Record({
-  id: '',
-  title: '',
-  url: '',
-  icon: '',
-  iconBig: '',
-  version: 1,
-  languages: []
-});
-
-export class BookListRecord extends BookListRecordClass {}
+function fonts (state = new Map(), action) {
+  // fonts[action.fontFamily] = action.fontPath;
+  return state;
+}
 
 function assets (state = { total: null, loaded: null }, action) {
   switch (action.type) {
@@ -63,8 +57,16 @@ function bookUrls (state = {}, action) {
 }
 
 function books (state = List([]), action) {
-  if (action.type === LOADED_BOOK_LIST_ITEM) {
-    return state.push(new BookListRecord(action.payload));
+  if (action.type === 'LOAD_BOOK_LIST_ITEMS_SUCCESS') {
+    const baseUrl = action.meta.previousAction.payload.baseUrl;
+    state = List([]);
+    for (let book of action.payload.data) {
+      book.url = baseUrl + 'books/' + book.url;
+      book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
+      book.icon = baseUrl + 'books/' + book.icon;
+      state = state.push(new BookListItem(book));
+    }
+    return state;
   }
   return state;
 }
@@ -106,6 +108,7 @@ const rootReducer = combineReducers({
   bookIconsBig,
   bookUrls,
   books,
+  fonts,
   /* Chosen state */
   language,
   page,
