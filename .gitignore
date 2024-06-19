@@ -4,4 +4,3 @@ node_modules/
 coverage/
 src/books
 books
-package-lock.json

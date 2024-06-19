@@ -1,8 +1,8 @@
-'use strict';
-const React = require('react');
-const assign = require('object-assign');
-const Shuffle = require('shuffle');
-const GameScreen = require('./GameScreen.jsx');
+"use strict";
+const React = require("react");
+const assign = require("object-assign");
+const Shuffle = require("shuffle");
+const GameScreen = require("./GameScreen.jsx");
 
 class GamePP extends React.Component {
   state = { openDoor1: null };
@@ -10,7 +10,7 @@ class GamePP extends React.Component {
   getCupboardContents = (parts, size) => {
     let deck = Shuffle.shuffle({ deck: parts });
     let array = deck.drawRandom(size);
-    return array.map(elm => {
+    return array.map((elm) => {
       return { key: elm.key, image: elm.image };
     });
   };
@@ -34,19 +34,19 @@ class GamePP extends React.Component {
   updateDisplayBox = (any = false) => {
     let cupboards =
       any === false
-        ? this.gamescreen.getCupboards().filter(elm => {
-          return elm.isClosed();
-        })
+        ? this.gamescreen.getCupboards().filter((elm) => {
+            return elm.isClosed();
+          })
         : this.gamescreen.getCupboards();
     let cupboard = cupboards[Math.floor(Math.random() * cupboards.length)];
     this.gamescreen.setState({ displayBox: cupboard });
   };
 
-  clickedOnDoor = cupboard => {
+  clickedOnDoor = (cupboard) => {
     if (!this.gamescreen.hasStarted()) {
       this.gamescreen.setState({
-        reaction: 'pointing',
-        defaultAnimation: 'pointing'
+        reaction: "pointing",
+        defaultAnimation: "pointing",
       });
       this.updateDisplayBox(true);
       this.gamescreen.start();
@@ -83,14 +83,14 @@ class GamePP extends React.Component {
     return true;
   };
 
-  render () {
+  render() {
     let props = assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,
-      clickedOnDoor: this.clickedOnDoor
+      clickedOnDoor: this.clickedOnDoor,
     });
-    return <GameScreen ref={node => (this.gamescreen = node)} {...props} />;
+    return <GameScreen ref={(node) => (this.gamescreen = node)} {...props} />;
   }
 }
 

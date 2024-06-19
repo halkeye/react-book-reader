@@ -1,19 +1,19 @@
-const React = require('react');
-const PropTypes = require('prop-types');
-const { chooseLanguage } = require('../actions.js');
+const React = require("react");
+const PropTypes = require("prop-types");
+const { chooseLanguage } = require("../actions.js");
 
-const DocumentTitle = require('react-document-title');
-const LanguageIcon = require('./LanguageIcon.jsx');
+const DocumentTitle = require("react-document-title");
+const LanguageIcon = require("./LanguageIcon.jsx");
 
 class LanguageList extends React.Component {
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
     languages: PropTypes.array,
-    iconBig: PropTypes.string
+    iconBig: PropTypes.string,
   };
 
-  render () {
-    const {languages} = this.props;
+  render() {
+    const { languages } = this.props;
     if (!languages) {
       return <div>Loading...</div>;
     }
@@ -21,7 +21,7 @@ class LanguageList extends React.Component {
       return this.handleSelectLanguageClick(languages[0]);
     }
 
-    let html = languages.map(language => {
+    let html = languages.map((language) => {
       return (
         <button
           className="button"
@@ -34,7 +34,7 @@ class LanguageList extends React.Component {
     });
 
     let circularIcon = {
-      backgroundImage: 'url(' + this.props.iconBig + ')'
+      backgroundImage: "url(" + this.props.iconBig + ")",
     };
     return (
       <DocumentTitle title="Select a language">
@@ -47,7 +47,7 @@ class LanguageList extends React.Component {
     );
   }
 
-  handleSelectLanguageClick (language) {
+  handleSelectLanguageClick(language) {
     this.props.dispatch(chooseLanguage(language));
   }
 }

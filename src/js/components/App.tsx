@@ -1,39 +1,39 @@
-'use strict';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { ConnectedRouter } from 'react-router-redux';
-import { init, push } from '../actions.js';
-import PropTypes from 'prop-types';
-import ImmutablePropTypes from 'react-immutable-proptypes';
-import { connect } from 'react-redux';
-import { history } from '../configureStore.js';
-import { List } from 'immutable';
+"use strict";
+import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import { ConnectedRouter } from "react-router-redux";
+import { init, push } from "../actions";
+import PropTypes from "prop-types";
+import ImmutablePropTypes from "react-immutable-proptypes";
+import { connect } from "react-redux";
+import { history } from "../store";
+import { List } from "immutable";
 
-const React = require('react');
+const React = require("react");
 // TODO - remove const assign = require('object-assign');
 
-require('../../styles/main.scss');
+require("../../styles/main.scss");
 
 /* Components */
-const BookList = require('./BookList.jsx');
-const LanguageList = require('./LanguageList.jsx');
-const Book = require('./Book.jsx');
-const DocumentTitle = require('react-document-title');
+const BookList = require("./BookList.jsx");
+const LanguageList = require("./LanguageList.jsx");
+const Book = require("./Book.jsx");
+const DocumentTitle = require("react-document-title");
 
 /* Stores */
-const BookStore = require('../stores/BookStore');
+const BookStore = require("../stores/BookStore.js");
 
 /* Dispatchers */
-const AppDispatcher = require('../dispatchers/AppDispatcher.js');
+const AppDispatcher = require("../dispatchers/AppDispatcher.js");
 
 /* Constants */
-const Constants = require('../constants/AppConstants');
-const AssetManager = require('../AssetManager.js');
+const Constants = require("../constants/AppConstants.js");
+const AssetManager = require("../AssetManager.js");
 
 let fontTypes = [
-  ['eot#iefix', 'embedded-opentype'],
-  ['woff', 'woff'],
-  ['ttf', 'truetype'],
-  ['svg', 'svg']
+  ["eot#iefix", "embedded-opentype"],
+  ["woff", "woff"],
+  ["ttf", "truetype"],
+  ["svg", "svg"],
 ];
 
 export class App extends React.Component {
@@ -47,27 +47,27 @@ export class App extends React.Component {
     book: PropTypes.object,
     page: PropTypes.string,
     autoplay: PropTypes.string,
-    dispatch: PropTypes.func.isRequired
+    dispatch: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
-    books: new List([])
-  }
+    books: new List([]),
+  };
 
-  handleResize () {
+  handleResize() {
     this.forceUpdate();
   }
 
-  constructor () {
+  constructor() {
     super();
     this.state = {
       assetsStarted: 0,
       assetsEnded: 0,
-      fonts: {}
+      fonts: {},
     };
   }
 
-  render () {
+  render() {
     const ret = (() => {
       if (this.props.book && this.props.language && this.props.page) {
         return this.showPage();
@@ -80,21 +80,27 @@ export class App extends React.Component {
       }
       return this.selectBook();
     })();
-    return (<MuiThemeProvider><ConnectedRouter history={history}>{ret}</ConnectedRouter></MuiThemeProvider>);
+    return (
+      <MuiThemeProvider>
+        <ConnectedRouter history={history}>{ret}</ConnectedRouter>
+      </MuiThemeProvider>
+    );
   }
 
-  selectLanguage () {
+  selectLanguage() {
     if (!this.props.bookLanguages) {
       return <div>Loading Language Choices...</div>;
     }
-    return <LanguageList
-      iconBig={this.props.bookIconBig}
-      languages={this.props.bookLanguages}
-      dispatch={this.props.dispatch}
-    />;
+    return (
+      <LanguageList
+        iconBig={this.props.bookIconBig}
+        languages={this.props.bookLanguages}
+        dispatch={this.props.dispatch}
+      />
+    );
   }
 
-  selectBook () {
+  selectBook() {
     if (!this.props.books) {
       return <div>Loading Books...</div>;
     }
@@ -108,26 +114,28 @@ export class App extends React.Component {
     );
   }
 
-  loadBook (bookName, language) {
-    let key = ['book', bookName, 'lang', language].join('_');
+  loadBook(bookName, language) {
+    let key = ["book", bookName, "lang", language].join("_");
     if (key !== this.loadingBook) {
       this.loadingBook = key;
       this.startAssetTracking();
       BookStore.getBook(bookName, language)
-        .then(bookData => {
+        .then((bookData) => {
           this.setState({ book: bookData });
         })
         .catch(function (ex) {
-          console.log('error', ex);
+          console.log("error", ex);
         });
     }
   }
 
-  showPage () {
-    const {book, bookName, language, page, autoplay} = this.props;
+  showPage() {
+    const { book, bookName, language, page, autoplay } = this.props;
     // const page = typeof page === 'object' ? 'home' : page;
     // autoplay = typeof autoplay === 'object' ? false : autoplay;
-    if (!bookName) { return; }
+    if (!bookName) {
+      return;
+    }
     this.loadBook(bookName, language);
 
     if (book.id) {
@@ -136,19 +144,19 @@ export class App extends React.Component {
           dispatch={this.props.dispatch}
           book={book}
           language={language}
-          page={page || 'home'}
+          page={page || "home"}
           autoplay={autoplay || false}
         />
       );
     } else {
       let percent = 0;
       if (this.state.assetsStarted && this.state.assetsEnded) {
-        percent = this.state.assetsEnded / this.state.assetsStarted * 100;
+        percent = (this.state.assetsEnded / this.state.assetsStarted) * 100;
       }
 
       let style = {
-        width: Math.max(0, Math.min(percent, 100)) + '%',
-        transition: 'width 200ms'
+        width: Math.max(0, Math.min(percent, 100)) + "%",
+        transition: "width 200ms",
       };
 
       return (
@@ -161,32 +169,32 @@ export class App extends React.Component {
     }
   }
 
-  onAssetStarted (asset) {
+  onAssetStarted(asset) {
     this.started++;
   }
 
-  onAssetEnded (asset) {
+  onAssetEnded(asset) {
     this.ended++;
   }
 
-  onAssetError (asset, path) {
+  onAssetError(asset, path) {
     // FIXME - need to handle something here
-    console.log('error', asset);
+    console.log("error", asset);
   }
 
-  startAssetTracking () {
+  startAssetTracking() {
     this.started = this.ended = 0;
 
-    AssetManager.on('started', () => dispatch(assetDownloadStarted()));
-    AssetManager.on('error', (asset) => dispatch(assetDownloadError(asset)));
-    AssetManager.on('ended', (asset) => dispatch(assetDownloadSuccess(asset)));
+    AssetManager.on("started", () => dispatch(assetDownloadStarted()));
+    AssetManager.on("error", (asset) => dispatch(assetDownloadError(asset)));
+    AssetManager.on("ended", (asset) => dispatch(assetDownloadSuccess(asset)));
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.props.dispatch(init());
 
-    window.addEventListener('resize', this.handleResize, true);
-    AppDispatcher.register(payload => {
+    window.addEventListener("resize", this.handleResize, true);
+    AppDispatcher.register((payload) => {
       let action = payload.action;
 
       switch (action.type) {
@@ -200,39 +208,45 @@ export class App extends React.Component {
           break;
         case Constants.ActionTypes.NAVIGATE_PAGE:
           const parts = this.props;
-          console.log('parts', parts);
+          console.log("parts", parts);
           if (parts.page === 0) {
             return null;
           }
           if (parts.page) {
             if (this.props.book.hasPage(parts.page)) {
-              return this.props.dispatch(push(
-                '/book/' +
-                  parts.book +
-                  '/lang/' +
-                  parts.language +
-                  '/page/' +
-                  parts.page +
-                  (parts.autoplay ? '/autoplay' : '')
-              ));
+              return this.props.dispatch(
+                push(
+                  "/book/" +
+                    parts.book +
+                    "/lang/" +
+                    parts.language +
+                    "/page/" +
+                    parts.page +
+                    (parts.autoplay ? "/autoplay" : ""),
+                ),
+              );
             } else if (!isNaN(parts.page)) {
-              return this.props.dispatch(push(
-                '/book/' +
-                  parts.book +
-                  '/lang/' +
-                  parts.language +
-                  '/page/end' +
-                  (parts.autoplay ? '/autoplay' : '')
-              ));
+              return this.props.dispatch(
+                push(
+                  "/book/" +
+                    parts.book +
+                    "/lang/" +
+                    parts.language +
+                    "/page/end" +
+                    (parts.autoplay ? "/autoplay" : ""),
+                ),
+              );
             }
           } else if (parts.language) {
-            return this.props.dispatch(push('/book/' + parts.book + '/lang/' + parts.language));
+            return this.props.dispatch(
+              push("/book/" + parts.book + "/lang/" + parts.language),
+            );
           } else if (parts.book) {
-            return this.props.dispatch(push('/book/' + parts.book));
+            return this.props.dispatch(push("/book/" + parts.book));
           } else {
-            return this.props.dispatch(push('/'));
+            return this.props.dispatch(push("/"));
           }
-          console.log('payload', action.data, this.state.path.split('/'));
+          console.log("payload", action.data, this.state.path.split("/"));
           break;
         // add more cases for other actionTypes...
       }
@@ -240,57 +254,65 @@ export class App extends React.Component {
     });
   }
 
-  updateFonts () {
+  updateFonts() {
     let css = Object.keys(this.state.fonts)
-      .map(font => {
+      .map((font) => {
         return (
-          '@font-face {' +
+          "@font-face {" +
           "  font-family: '" +
           font +
           "';" +
-          '  src: url(' +
+          "  src: url(" +
           this.state.fonts[font] +
           ".eot'); " +
-          '  src: ' +
+          "  src: " +
           fontTypes
-            .map(type => {
+            .map((type) => {
               return (
                 "url('" +
                 this.state.fonts[font] +
-                '.' +
+                "." +
                 type[0] +
                 "') format('" +
                 type[1] +
                 "')"
               );
             })
-            .join(', ') +
-          ';' +
-          '}'
+            .join(", ") +
+          ";" +
+          "}"
         );
       })
-      .join('');
+      .join("");
 
-    let styleId = 'ReactHtmlReaderFonts';
+    let styleId = "ReactHtmlReaderFonts";
     let style = document.getElementById(styleId);
     if (style) {
       style.parentNode.removeChild(style);
     }
 
-    style = document.createElement('style');
+    style = document.createElement("style");
     style.id = styleId;
-    style.type = 'text/css';
+    style.type = "text/css";
     if (style.styleSheet) {
       style.styleSheet.cssText = css;
     } else {
       style.appendChild(document.createTextNode(css));
     }
-    document.getElementsByTagName('head')[0].appendChild(style);
+    document.getElementsByTagName("head")[0].appendChild(style);
   }
 }
 
-function mapStateToProps (state) {
-  const { bookName, language, page, autoplay, books, bookLanguages, bookIconsBig } = state;
+function mapStateToProps(state) {
+  const {
+    bookName,
+    language,
+    page,
+    autoplay,
+    books,
+    bookLanguages,
+    bookIconsBig,
+  } = state;
 
   return {
     language,
@@ -299,7 +321,7 @@ function mapStateToProps (state) {
     bookIconBig: bookIconsBig[bookName],
     bookLanguages: bookLanguages[bookName],
     page,
-    autoplay
+    autoplay,
   };
 }
 
