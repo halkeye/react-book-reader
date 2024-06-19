@@ -1,6 +1,6 @@
 "use strict";
-const Dispatcher = require("flux").Dispatcher;
-const Constants = require("../constants/AppConstants");
+import { Dispatcher } from "flux";
+import Constants from "../constants/AppConstants";
 
 let AppDispatcher = Object.assign(new Dispatcher(), {
   handleServerAction(action) {
@@ -20,4 +20,4 @@ let AppDispatcher = Object.assign(new Dispatcher(), {
   },
 });
 
-module.exports = AppDispatcher;
+export default AppDispatcher;

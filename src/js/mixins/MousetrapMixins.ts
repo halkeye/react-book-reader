@@ -5,7 +5,7 @@
 'use strict';
 
 let MousetrapMixin;
-let Mousetrap = require('br-mousetrap');
+import Mousetrap from 'br-mousetrap';
 
 MousetrapMixin = {
   /**
@@ -62,4 +62,4 @@ MousetrapMixin = {
   }
 };
 
-module.exports = MousetrapMixin;
+export default MousetrapMixin;

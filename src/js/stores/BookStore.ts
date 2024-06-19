@@ -1,10 +1,11 @@
 "use strict";
-const BaseStore = require("./BaseStore");
-const _ = require("lodash");
+import BaseStore from "./BaseStore";
+import _ from "lodash";
 
-require("whatwg-fetch"); // polyfill
+import "whatwg-fetch"; // polyfill
+
 /* Other */
-const BookUtilities = require("../constants/BookUtilities.jsx");
+import BookUtilities from "../constants/BookUtilities.jsx";
 
 // data storage
 
@@ -88,4 +89,4 @@ let BookStore = Object.assign({}, BaseStore, {
   },
 });
 
-module.exports = BookStore;
+export default BookStore;

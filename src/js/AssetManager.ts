@@ -103,4 +103,4 @@ class AssetManager {
   }
 }
 
-module.exports = AssetManager;
+export default AssetManager;

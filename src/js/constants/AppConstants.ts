@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   ActionTypes: {
     ADD_FONT: 'ADD_FONT',
     NAVIGATE_PAGE: 'NAVIGATE_PAGE'

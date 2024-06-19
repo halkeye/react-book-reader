@@ -1,9 +1,9 @@
 "use strict";
-const EventEmitter = require("events").EventEmitter;
+import { EventEmitter } from "events";
 
 const CHANGE_EVENT = "change";
 
-module.exports = Object.assign({}, EventEmitter.prototype, {
+export default Object.assign({}, EventEmitter.prototype, {
   // Allow Controller-View to register itself with store
   addChangeListener(callback) {
     this.on(CHANGE_EVENT, callback);

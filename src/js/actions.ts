@@ -1,6 +1,6 @@
 import { push } from 'react-router-redux';
 
-require('whatwg-fetch'); // polyfill
+import 'whatwg-fetch'; // polyfill
 
 export { push };
 
@@ -9,7 +9,7 @@ export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
 export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
 export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
 
-const BookUtilities = require('./constants/BookUtilities.jsx');
+import BookUtilities from './constants/BookUtilities.jsx';
 
 export function init () {
   return dispatch => {
