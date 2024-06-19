@@ -1,125 +1,97 @@
 'use strict';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { ConnectedRouter } from 'react-router-redux';
 import { init, push } from '../actions';
-import PropTypes from 'prop-types';
-import ImmutablePropTypes from 'react-immutable-proptypes';
 import { connect } from 'react-redux';
-import { history } from '../store';
-import { List } from 'immutable';
+import { Helmet } from 'react-helmet-async';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import '../../styles/main.scss';
 
 /* Components */
 import BookList from './BookList.jsx';
 
-import LanguageList from './LanguageList.jsx';
+import LanguageList from './LanguageList.tsx';
 import Book from './Book.jsx';
-import DocumentTitle from 'react-document-title';
 
 /* Stores */
-import BookStore from '../stores/BookStore.js';
+import BookStore from '../stores/BookStore';
 
 /* Dispatchers */
-import AppDispatcher from '../dispatchers/AppDispatcher.js';
+import AppDispatcher from '../dispatchers/AppDispatcher';
 
 /* Constants */
-import Constants from '../constants/AppConstants.js';
+import Constants from '../constants/AppConstants';
 
-import AssetManager from '../AssetManager.js';
+import AssetManager from '../AssetManager';
+import { BookListRecord } from '../reducers';
 
-let fontTypes = [
+const fontTypes = [
   ['eot#iefix', 'embedded-opentype'],
   ['woff', 'woff'],
   ['ttf', 'truetype'],
   ['svg', 'svg'],
 ];
 
-export class App extends React.Component {
-  static propTypes = {
-    children: PropTypes.node,
-    language: PropTypes.string,
-    bookName: PropTypes.string,
-    bookIconBig: PropTypes.string,
-    bookLanguages: PropTypes.array,
-    books: ImmutablePropTypes.list.isRequired,
-    book: PropTypes.object,
-    page: PropTypes.string,
-    autoplay: PropTypes.string,
-    dispatch: PropTypes.func.isRequired,
-  };
+interface Props {
+  children?: ReactNode;
+  language: string;
+  bookName: string,
+  bookIconBig: string,
+  bookLanguages: Record<string, BookListRecord>,
+  books: Array<BookListRecord>,
+  book: BookListRecord | undefined,
+  page: string,
+  autoplay: string,
+  dispatch: FunctionConstructor, // FIXME - should be dispatch type
+}
 
-  static defaultProps = {
-    books: new List([]),
-  };
+export const App: React.FC<Props> = ({
+  books: [],
+  language,
+  page,
+  book,
+}) => {
+  const [state, setState] = React.useState({
+    assetsStarted: 0,
+    assetsEnded: 0,
+    fonts: {},
+  });
 
-  handleResize() {
-    this.forceUpdate();
-  }
-
-  constructor() {
-    super();
-    this.state = {
-      assetsStarted: 0,
-      assetsEnded: 0,
-      fonts: {},
-    };
-  }
-
-  render() {
-    const ret = (() => {
-      if (this.props.book && this.props.language && this.props.page) {
-        return this.showPage();
-      }
-      if (this.props.language) {
-        return this.showPage();
-      }
-      if (this.props.bookName) {
-        return this.selectLanguage();
-      }
-      return this.selectBook();
-    })();
-    return (
-      <MuiThemeProvider>
-        <ConnectedRouter history={history}>{ret}</ConnectedRouter>
-      </MuiThemeProvider>
-    );
-  }
-
-  selectLanguage() {
-    if (!this.props.bookLanguages) {
+  const selectLanguage = ({ bookLanguages }) => {
+    if (!bookLanguages) {
       return <div>Loading Language Choices...</div>;
     }
     return (
       <LanguageList
-        iconBig={this.props.bookIconBig}
-        languages={this.props.bookLanguages}
-        dispatch={this.props.dispatch}
+        iconBig={bookIconBig}
+        languages={bookLanguages}
+        dispatch={dispatch}
       />
     );
   }
 
-  selectBook() {
-    if (!this.props.books) {
+  const selectBook = () => {
+    if (!books) {
       return <div>Loading Books...</div>;
     }
     return (
-      <DocumentTitle title="Select a book">
+      <>
+        <Helmet>
+          <title>Select a book"</title>
+        </Helmet>
         <div>
           <h1>Select a book</h1>
-          <BookList books={this.props.books} dispatch={this.props.dispatch} />
+          <BookList books={books} dispatch={dispatch} />
         </div>
-      </DocumentTitle>
+      </>
     );
   }
 
-  loadBook(bookName, language) {
+  const loadBook = (bookName, language) => {
     let key = ['book', bookName, 'lang', language].join('_');
-    if (key !== this.loadingBook) {
-      this.loadingBook = key;
-      this.startAssetTracking();
+    if (key !== state.loadingBook) {
+      setState({ loadingBook: key });
+      startAssetTracking();
       BookStore.getBook(bookName, language)
         .then((bookData) => {
           this.setState({ book: bookData });
@@ -130,8 +102,7 @@ export class App extends React.Component {
     }
   }
 
-  showPage() {
-    const { book, bookName, language, page, autoplay } = this.props;
+  const showPage = ({ book, bookName, language, page, autoplay }) => {
     // const page = typeof page === 'object' ? 'home' : page;
     // autoplay = typeof autoplay === 'object' ? false : autoplay;
     if (!bookName) {
@@ -170,31 +141,34 @@ export class App extends React.Component {
     }
   }
 
-  onAssetStarted(asset) {
-    this.started++;
+  const onAssetStarted(_asset) => {
+    setState((prev) => {
+      return { started: prev.started + 1 }:
+    });
   }
 
-  onAssetEnded(asset) {
-    this.ended++;
+  const onAssetEnded(_asset) => {
+    setState((prev) => {
+      return { ended: prev.ended + 1 }:
+    });
   }
 
-  onAssetError(asset, path) {
+  const onAssetError = (asset, _path) => {
     // FIXME - need to handle something here
     console.log('error', asset);
   }
 
-  startAssetTracking() {
-    this.started = this.ended = 0;
+  const startAssetTracking = () => {
+    setSTate({ ended: 0, started: 0 });
 
     AssetManager.on('started', () => dispatch(assetDownloadStarted()));
     AssetManager.on('error', (asset) => dispatch(assetDownloadError(asset)));
     AssetManager.on('ended', (asset) => dispatch(assetDownloadSuccess(asset)));
   }
 
-  componentDidMount() {
-    this.props.dispatch(init());
+  React.useEffect(() => {
+    dispatch(init());
 
-    window.addEventListener('resize', this.handleResize, true);
     AppDispatcher.register((payload) => {
       let action = payload.action;
 
@@ -253,13 +227,13 @@ export class App extends React.Component {
       }
       return null;
     });
-  }
+  }, []);
 
-  updateFonts() {
+  const updateFonts = () => {
     let css = Object.keys(this.state.fonts)
-      .map((font) => {
-        return (
-          '@font-face {' +
+    .map((font) => {
+      return (
+        '@font-face {' +
           "  font-family: '" +
           font +
           "';" +
@@ -271,20 +245,20 @@ export class App extends React.Component {
             .map((type) => {
               return (
                 "url('" +
-                this.state.fonts[font] +
-                '.' +
-                type[0] +
-                "') format('" +
-                type[1] +
-                "')"
+                  this.state.fonts[font] +
+                  '.' +
+                  type[0] +
+                  "') format('" +
+                  type[1] +
+                  "')"
               );
             })
             .join(', ') +
           ';' +
           '}'
-        );
-      })
-      .join('');
+      );
+    })
+    .join('');
 
     let styleId = 'ReactHtmlReaderFonts';
     let style = document.getElementById(styleId);
@@ -302,7 +276,23 @@ export class App extends React.Component {
     }
     document.getElementsByTagName('head')[0].appendChild(style);
   }
+
+  const ret = React.useMemo(() => {
+    if (book && language && page) {
+      return showPage();
+    }
+    if (language) {
+      return showPage();
+    }
+    if (bookName) {
+      return selectLanguage();
+    }
+    return selectBook();
+  }, [book, language, page]);
+
+  return ret;
 }
+
 
 function mapStateToProps(state) {
   const {
