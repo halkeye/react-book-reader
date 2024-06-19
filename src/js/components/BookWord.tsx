@@ -4,14 +4,14 @@ import React from 'react';
 import _ from 'lodash';
 import AppDispatcher from '../dispatchers/AppDispatcher';
 import Constants from '../constants/AppConstants';
-import { FlatButton } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
-let isValidStyle = (obj) => {
+const isValidStyle = (obj) => {
   // if (!isDictionary(obj)) { return false; }
   if (!_.isPlainObject(obj)) {
     return false;
   }
-  let stateNames = ['reading', 'read', 'unread'].sort();
+  const stateNames = ['reading', 'read', 'unread'].sort();
   // check for extra or missing keys
   if (!_.isEqual(Object.keys(obj).sort(), stateNames)) {
     return false;
@@ -23,7 +23,7 @@ let isValidStyle = (obj) => {
   });
 };
 
-let stylePropType = function (props, propName, component) {
+const stylePropType = function (props, propName, component) {
   if (!isValidStyle(props)) {
     return new Error('Invalid styles!');
   }
@@ -80,7 +80,7 @@ class BookWord extends React.Component {
   }
 
   getElementStyle = () => {
-    let style = Object.assign(
+    const style = Object.assign(
       {
         cursor: 'pointer',
         backgroundColor: 'transparent',
@@ -97,13 +97,13 @@ class BookWord extends React.Component {
   };
 
   render() {
-    let style = this.getElementStyle();
+    const style = this.getElementStyle();
 
     return (
-      <FlatButton style={style} onClick={this.props.onClick}>
+      <Button style={style} onClick={this.props.onClick}>
         {' '}
         {this.props.word + ' '}{' '}
-      </FlatButton>
+      </Button>
     );
   }
 }

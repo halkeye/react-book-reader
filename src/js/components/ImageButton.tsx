@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
-import AppConstants from '../constants/AppConstants.js';
-import { IconButton } from '@material-ui/core';
+import AppConstants from '../constants/AppConstants';
+import IconButton from '@material-ui/core/IconButton';
 
 class ImageButton extends React.Component {
   render() {

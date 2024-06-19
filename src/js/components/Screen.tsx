@@ -1,9 +1,9 @@
 'use strict';
+import React from 'react';
 import BookHotspotMap from './BookHotspotMap.tsx';
 import BookHotspotPhrase from './BookHotspotPhrase.tsx';
-import { IconButton } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
 
-import React from 'react';
 import PropTypes from 'prop-types';
 import HammerJS from 'hammerjs';
 import Hammer from 'react-hammerjs';
