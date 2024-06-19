@@ -1,6 +1,7 @@
 'use strict';
+
 // require the core node events module
-const EventEmitter = require('events').EventEmitter;
+import { EventEmitter } from 'events';
 
 class BookAudio extends EventEmitter {
   constructor (asset_manager) {
@@ -114,4 +115,4 @@ class BookAudio extends EventEmitter {
   }
 }
 
-module.exports = BookAudio;
+export default BookAudio;

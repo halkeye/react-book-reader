@@ -1,5 +1,5 @@
 'use strict';
-const React = require('react');
+import React from 'react';
 
 class ScoreCardBox extends React.Component {
   render () {
@@ -51,4 +51,4 @@ class ScoreCardBox extends React.Component {
     this.draw();
   }
 }
-module.exports = ScoreCardBox;
+export default ScoreCardBox;

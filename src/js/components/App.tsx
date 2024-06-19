@@ -8,26 +8,29 @@ import { connect } from "react-redux";
 import { history } from "../store";
 import { List } from "immutable";
 
-const React = require("react");
+import React from "react";
+
 // TODO - remove const assign = require('object-assign');
 
-require("../../styles/main.scss");
+import "../../styles/main.scss";
 
 /* Components */
-const BookList = require("./BookList.jsx");
-const LanguageList = require("./LanguageList.jsx");
-const Book = require("./Book.jsx");
-const DocumentTitle = require("react-document-title");
+import BookList from "./BookList.jsx";
+
+import LanguageList from "./LanguageList.jsx";
+import Book from "./Book.jsx";
+import DocumentTitle from "react-document-title";
 
 /* Stores */
-const BookStore = require("../stores/BookStore.js");
+import BookStore from "../stores/BookStore.js";
 
 /* Dispatchers */
-const AppDispatcher = require("../dispatchers/AppDispatcher.js");
+import AppDispatcher from "../dispatchers/AppDispatcher.js";
 
 /* Constants */
-const Constants = require("../constants/AppConstants.js");
-const AssetManager = require("../AssetManager.js");
+import Constants from "../constants/AppConstants.js";
+
+import AssetManager from "../AssetManager.js";
 
 let fontTypes = [
   ["eot#iefix", "embedded-opentype"],

@@ -1,8 +1,8 @@
 'use strict';
 import { Motion, spring } from 'react-motion';
 
-const React = require('react');
-const assign = require('object-assign');
+import React from 'react';
+import assign from 'object-assign';
 
 export default class BookHotspotPhrase extends React.Component {
   constructor () {

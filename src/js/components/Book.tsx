@@ -1,13 +1,11 @@
 "use strict";
-const PropTypes = require("prop-types");
-const React = require("react");
-
-const DocumentMeta = require("react-document-meta");
-const DocumentTitle = require("react-document-title");
-
-const Screen = require("./Screen.jsx");
-const GamePP = require("./GamePP.jsx");
-const GameFullMonty = require("./GameFullMonty.jsx");
+import PropTypes from "prop-types";
+import React from "react";
+import DocumentMeta from "react-document-meta";
+import DocumentTitle from "react-document-title";
+import Screen from "./Screen.jsx";
+import GamePP from "./GamePP.jsx";
+import GameFullMonty from "./GameFullMonty.jsx";
 
 class Book extends React.Component {
   static propTypes = {
@@ -113,4 +111,4 @@ class Book extends React.Component {
   }
 }
 
-module.exports = Book;
+export default Book;

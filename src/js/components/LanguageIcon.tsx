@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 let languageMap = {
   en: 'English',
@@ -14,4 +14,4 @@ class LanguageIcon extends React.Component {
   }
 }
 
-module.exports = LanguageIcon;
+export default LanguageIcon;

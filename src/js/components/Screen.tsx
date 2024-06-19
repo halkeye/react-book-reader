@@ -3,18 +3,19 @@ import BookHotspotMap from "./BookHotspotMap.tsx";
 import BookHotspotPhrase from "./BookHotspotPhrase.tsx";
 import { IconButton } from "material-ui";
 
-const React = require("react");
-const PropTypes = require("prop-types");
-const HammerJS = require("hammerjs");
-const Hammer = require("react-hammerjs");
+import React from "react";
+import PropTypes from "prop-types";
+import HammerJS from "hammerjs";
+import Hammer from "react-hammerjs";
 
 // FIXME - const MousetrapMixins = require('../mixins/MousetrapMixins.js');
 
-const Constants = require("../constants/AppConstants.js");
-const BookAudio = require("../models/BookAudio.jsx");
-const BookWord = require("./BookWord.tsx");
-const ImageButton = require("./ImageButton.tsx");
-const { choosePage, chooseAutoplay } = require("../actions.js");
+import Constants from "../constants/AppConstants.js";
+
+import BookAudio from "../models/BookAudio.jsx";
+import BookWord from "./BookWord.tsx";
+import ImageButton from "./ImageButton.tsx";
+import { choosePage, chooseAutoplay } from "../actions.js";
 
 let clickThreshold = 5;
 
@@ -381,4 +382,4 @@ class Screen extends React.Component {
   }
 }
 
-module.exports = Screen;
+export default Screen;

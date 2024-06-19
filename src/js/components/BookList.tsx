@@ -1,8 +1,8 @@
 import ImmutablePropTypes from 'react-immutable-proptypes';
-const React = require('react');
-const PropTypes = require('prop-types');
-const { RaisedButton } = require('material-ui');
-const { chooseBook } = require('../actions.js');
+import React from 'react';
+import PropTypes from 'prop-types';
+import { RaisedButton } from 'material-ui';
+import { chooseBook } from '../actions.js';
 
 class BookList extends React.Component {
   static propTypes = {
@@ -36,4 +36,4 @@ class BookList extends React.Component {
   }
 }
 
-module.exports = BookList;
+export default BookList;

@@ -1,13 +1,11 @@
 "use strict";
-const PropTypes = require("prop-types");
-const React = require("react");
-const assign = require("object-assign");
-const _ = require("lodash");
-
-const AppDispatcher = require("../dispatchers/AppDispatcher.js");
-const Constants = require("../constants/AppConstants.js.js");
-
-const mui = require("material-ui");
+import PropTypes from "prop-types";
+import React from "react";
+import assign from "object-assign";
+import _ from "lodash";
+import AppDispatcher from "../dispatchers/AppDispatcher.js";
+import Constants from "../constants/AppConstants.js.js";
+import mui from "material-ui";
 let { FlatButton } = mui;
 
 let isValidStyle = (obj) => {
@@ -112,4 +110,4 @@ class BookWord extends React.Component {
   }
 }
 
-module.exports = BookWord;
+export default BookWord;

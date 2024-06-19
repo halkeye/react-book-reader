@@ -1,8 +1,8 @@
 "use strict";
-const React = require("react");
-const assign = require("object-assign");
-const Shuffle = require("shuffle");
-const GameScreen = require("./GameScreen.jsx");
+import React from "react";
+import assign from "object-assign";
+import Shuffle from "shuffle";
+import GameScreen from "./GameScreen.jsx";
 
 class GamePP extends React.Component {
   state = { openDoor1: null };
@@ -106,4 +106,4 @@ class GamePP extends React.Component {
   }
 }
 
-module.exports = GamePP;
+export default GamePP;

@@ -1,5 +1,5 @@
 'use strict';
-const React = require('react');
+import React from 'react';
 
 class CupboardWithDoor extends React.Component {
   constructor () {
@@ -81,4 +81,4 @@ class CupboardWithDoor extends React.Component {
     }
   }
 }
-module.exports = CupboardWithDoor;
+export default CupboardWithDoor;

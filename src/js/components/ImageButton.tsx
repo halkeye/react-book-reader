@@ -1,7 +1,7 @@
 'use strict';
-const React = require('react');
-const AppConstants = require('../constants/AppConstants.js');
-const mui = require('material-ui');
+import React from 'react';
+import AppConstants from '../constants/AppConstants.js';
+import mui from 'material-ui';
 let { IconButton } = mui;
 
 class ImageButton extends React.Component {
@@ -33,4 +33,4 @@ class ImageButton extends React.Component {
   }
 }
 
-module.exports = ImageButton;
+export default ImageButton;

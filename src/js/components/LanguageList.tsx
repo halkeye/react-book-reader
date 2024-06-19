@@ -1,9 +1,8 @@
-const React = require("react");
-const PropTypes = require("prop-types");
-const { chooseLanguage } = require("../actions.js");
-
-const DocumentTitle = require("react-document-title");
-const LanguageIcon = require("./LanguageIcon.jsx");
+import React from "react";
+import PropTypes from "prop-types";
+import { chooseLanguage } from "../actions.js";
+import DocumentTitle from "react-document-title";
+import LanguageIcon from "./LanguageIcon.jsx";
 
 class LanguageList extends React.Component {
   static propTypes = {
@@ -52,4 +51,4 @@ class LanguageList extends React.Component {
   }
 }
 
-module.exports = LanguageList;
+export default LanguageList;

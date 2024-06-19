@@ -1,6 +1,6 @@
 'use strict';
-const React = require('react');
-const BookStore = require('../stores/BookStore');
+import React from 'react';
+import BookStore from '../stores/BookStore';
 
 class ReactionBox extends React.Component {
   constructor () {
@@ -91,4 +91,4 @@ class ReactionBox extends React.Component {
   }
 }
 
-module.exports = ReactionBox;
+export default ReactionBox;

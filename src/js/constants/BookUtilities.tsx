@@ -1,10 +1,9 @@
-let assign = require('object-assign');
-let diacritics = require('diacritics');
-const AssetManager = require('../AssetManager.js');
-require('whatwg-fetch'); // polyfill
-const { Howl } = require('howler');
-
-const Constants = require('../constants/AppConstants.js');
+import assign from 'object-assign';
+import diacritics from 'diacritics';
+import AssetManager from '../AssetManager.js';
+import 'whatwg-fetch'; // polyfill
+import { Howl } from 'howler';
+import Constants from '../constants/AppConstants.js';
 
 let getAnimFile = (assetBaseUrl, animName) => {
   return new Promise((resolve, reject) => {
@@ -585,7 +584,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
   return Promise.all(promises);
 };
 
-module.exports = {
+export default {
   dirname: dirname,
   pad: pad_func,
   colorToInt: colorToInt,

@@ -1,18 +1,15 @@
 "use strict";
-const React = require("react");
-const PropTypes = require("prop-types");
-const assign = require("object-assign");
-const Shuffle = require("shuffle");
-
-const { choosePage } = require("../actions");
-
-const Screen = require("./Screen.jsx");
-const ScoreCardBox = require("./ScoreCardBox.jsx");
-const ReactionBox = require("./ReactionBox.jsx");
-const CupboardWithDoor = require("./CupboardWithDoor.jsx");
-const GameOverDialog = require("./GameOverDialog.jsx");
-
-const BookUtilities = require("../constants/BookUtilities.jsx");
+import React from "react";
+import PropTypes from "prop-types";
+import assign from "object-assign";
+import Shuffle from "shuffle";
+import { choosePage } from "../actions";
+import Screen from "./Screen.jsx";
+import ScoreCardBox from "./ScoreCardBox.jsx";
+import ReactionBox from "./ReactionBox.jsx";
+import CupboardWithDoor from "./CupboardWithDoor.jsx";
+import GameOverDialog from "./GameOverDialog.jsx";
+import BookUtilities from "../constants/BookUtilities.jsx";
 
 class GameScreen extends React.Component {
   static defaultProps = {
@@ -267,4 +264,4 @@ class GameScreen extends React.Component {
   }
 }
 
-module.exports = GameScreen;
+export default GameScreen;

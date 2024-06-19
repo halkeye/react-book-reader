@@ -1,6 +1,6 @@
 "use strict";
-const React = require("react");
-const ImageButton = require("./ImageButton.tsx");
+import React from "react";
+import ImageButton from "./ImageButton.tsx";
 
 class GameOverDialog extends React.Component {
   render() {
@@ -64,4 +64,4 @@ class GameOverDialog extends React.Component {
   }
 }
 
-module.exports = GameOverDialog;
+export default GameOverDialog;
