@@ -15,19 +15,18 @@ body {
   //background-image: url('../img/tile-bg.png');
 
   background-color: #fff;
-  background-image: linear-gradient(
-      90deg,
+  background-image: linear-gradient(90deg,
       transparent 79px,
       #abced4 79px,
       #abced4 81px,
-      transparent 81px
-    ),
+      transparent 81px),
     linear-gradient(#eee 0.1em, transparent 0.1em);
   background-size: 100% 1.2em;
 }
 
 .LanguageList {
   $bookIconCir: 272px;
+
   .bookIcon {
     width: $bookIconCir;
     height: $bookIconCir;
@@ -38,18 +37,22 @@ body {
     background-contain: 100% 100%;
     background-repeat: 'no-repeat';
   }
+
   h1 {
     color: #484848;
     font-weight: 600;
     font-size: 2em;
+
     /* Medium Phone Devices */
     @media only screen and (max-device-width: 480px) {
       font-size: 3em;
     }
   }
+
   .button:hover {
     background-color: #e4ebae;
   }
+
   .button {
     display: block;
     width: 300px;
@@ -60,12 +63,14 @@ body {
     background-color: #d6e39f;
     border-radius: 6px;
     margin: 20px auto;
+
     /* Small Screen */
     @media (max-width: 667px) {
       width: 90%;
       font-size: 24px;
       margin: 30px auto;
     }
+
     /* Medium Phone Devices */
     @media only screen and (max-device-width: 480px) {
       width: 75%;
@@ -75,7 +80,10 @@ body {
     }
   }
 
-  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  font-family: 'Open Sans',
+  'Helvetica Neue',
+  Helvetica,
+  sans-serif;
   margin: 100px auto 0;
   text-align: center;
 }
@@ -97,6 +105,7 @@ body {
   height: 100px;
   overflow: hidden;
 }
+
 .progressbar-progress {
   display: block;
   height: 100%;
@@ -105,17 +114,16 @@ body {
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
   background-color: rgb(43, 194, 83);
-  background-image: linear-gradient(
-    center bottom,
-    rgb(43, 194, 83) 37%,
-    rgb(84, 240, 84) 69%
-  );
+  background-image: linear-gradient(center bottom,
+      rgb(43, 194, 83) 37%,
+      rgb(84, 240, 84) 69%);
   box-shadow:
     inset 0 2px 9px rgba(255, 255, 255, 0.3),
     inset 0 -2px 6px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
 }
+
 .progressbar-progress:after {
   content: '';
   position: absolute;
@@ -125,16 +133,14 @@ body {
   right: 0;
   z-index: 1;
   background-color: rgb(43, 194, 83);
-  background-image: linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.2) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.2) 75%,
-    transparent 75%,
-    transparent
-  );
+  background-image: linear-gradient(-45deg,
+      rgba(255, 255, 255, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.2) 75%,
+      transparent 75%,
+      transparent);
   background-size: 50px 50px;
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;

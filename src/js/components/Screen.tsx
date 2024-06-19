@@ -1,7 +1,7 @@
 'use strict';
 import BookHotspotMap from './BookHotspotMap.tsx';
 import BookHotspotPhrase from './BookHotspotPhrase.tsx';
-import { IconButton } from 'material-ui';
+import { IconButton } from '@material-ui/core';
 
 import React from 'react';
 import PropTypes from 'prop-types';

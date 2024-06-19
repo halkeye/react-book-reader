@@ -1,7 +1,7 @@
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { RaisedButton } from 'material-ui';
+import { RaisedButton } from '@material-ui/core';
 import { chooseBook } from '../actions.js';
 
 class BookList extends React.Component {

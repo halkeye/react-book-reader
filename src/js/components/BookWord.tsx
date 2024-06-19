@@ -4,7 +4,7 @@ import React from 'react';
 import _ from 'lodash';
 import AppDispatcher from '../dispatchers/AppDispatcher';
 import Constants from '../constants/AppConstants';
-import { FlatButton } from 'material-ui';
+import { FlatButton } from '@material-ui/core';
 
 let isValidStyle = (obj) => {
   // if (!isDictionary(obj)) { return false; }
