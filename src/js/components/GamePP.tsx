@@ -1,6 +1,5 @@
 "use strict";
 import React from "react";
-import assign from "object-assign";
 import Shuffle from "shuffle";
 import GameScreen from "./GameScreen.jsx";
 
@@ -96,7 +95,7 @@ class GamePP extends React.Component {
   };
 
   render() {
-    let props = assign({}, this.props, {
+    let props = Object.assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,

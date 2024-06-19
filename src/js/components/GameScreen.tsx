@@ -1,7 +1,6 @@
 "use strict";
 import React from "react";
 import PropTypes from "prop-types";
-import assign from "object-assign";
 import Shuffle from "shuffle";
 import { choosePage } from "../actions";
 import Screen from "./Screen.jsx";
@@ -110,15 +109,15 @@ class GameScreen extends React.Component {
   }
 
   render() {
-    let triesBoxStyle = assign(
+    let triesBoxStyle = Object.assign(
       { position: "absolute" },
       this.props.page.boxes.tries,
     );
-    let matchBoxStyle = assign(
+    let matchBoxStyle = Object.assign(
       { position: "absolute" },
       this.props.page.boxes.match,
     );
-    let reactionBoxStyle = assign(
+    let reactionBoxStyle = Object.assign(
       { position: "absolute" },
       this.props.page.boxes.reactionBox,
     );
@@ -128,7 +127,7 @@ class GameScreen extends React.Component {
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-        let style = assign({ position: "absolute" }, loc);
+        let style = Object.assign({ position: "absolute" }, loc);
         let cupbardObject = this.state[`cupboard_${idx}`] || {};
 
         let props = {
@@ -150,7 +149,7 @@ class GameScreen extends React.Component {
       this.state.displayBox &&
       this.state.displayBox.props.objectImage
     ) {
-      let style = assign(
+      let style = Object.assign(
         { position: "absolute" },
         this.props.page.boxes.displayBox,
       );

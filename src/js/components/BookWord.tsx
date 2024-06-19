@@ -1,12 +1,10 @@
 "use strict";
 import PropTypes from "prop-types";
 import React from "react";
-import assign from "object-assign";
 import _ from "lodash";
-import AppDispatcher from "../dispatchers/AppDispatcher.js";
-import Constants from "../constants/AppConstants.js.js";
-import mui from "material-ui";
-let { FlatButton } = mui;
+import AppDispatcher from "../dispatchers/AppDispatcher";
+import Constants from "../constants/AppConstants";
+import { FlatButton } from "material-ui";
 
 let isValidStyle = (obj) => {
   // if (!isDictionary(obj)) { return false; }
@@ -82,7 +80,7 @@ class BookWord extends React.Component {
   }
 
   getElementStyle = () => {
-    let style = assign(
+    let style = Object.assign(
       {
         cursor: "pointer",
         backgroundColor: "transparent",

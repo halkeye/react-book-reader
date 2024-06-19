@@ -10,8 +10,6 @@ import { List } from "immutable";
 
 import React from "react";
 
-// TODO - remove const assign = require('object-assign');
-
 import "../../styles/main.scss";
 
 /* Components */

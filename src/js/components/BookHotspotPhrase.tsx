@@ -1,45 +1,44 @@
-'use strict';
-import { Motion, spring } from 'react-motion';
+"use strict";
+import { Motion, spring } from "react-motion";
 
-import React from 'react';
-import assign from 'object-assign';
+import React from "react";
 
 export default class BookHotspotPhrase extends React.Component {
-  constructor () {
+  constructor() {
     super();
     this.state = {
-      phrase: '',
-      display: 'none'
+      phrase: "",
+      display: "none",
     };
   }
 
-  onComplete () {
-    this.setState({ display: 'none' });
+  onComplete() {
+    this.setState({ display: "none" });
   }
 
-  triggerAnimation (phrase, x, y) {
+  triggerAnimation(phrase, x, y) {
     this.setState({
-      display: 'block',
+      display: "block",
       phrase: phrase,
       x: x,
-      y: y
+      y: y,
     });
   }
 
-  render () {
-    if (this.state.display === 'none') {
+  render() {
+    if (this.state.display === "none") {
       return <div />;
     }
 
-    let style = assign(
+    let style = Object.assign(
       {
-        position: 'absolute',
+        position: "absolute",
         display: this.state.display,
         top: this.state.y,
         left: this.state.x,
-        textShadow: '2px 2px 2px gray'
+        textShadow: "2px 2px 2px gray",
       },
-      this.props
+      this.props,
     );
 
     return (
@@ -49,12 +48,12 @@ export default class BookHotspotPhrase extends React.Component {
           style={{ opacity: 1, scale: spring(1) }}
           onRest={this.onComplete.bind(this)}
         >
-          {value => {
+          {(value) => {
             return (
               <div
                 style={assign({}, style, {
                   opacity: value.opacity,
-                  transform: `scale(${value.scale})`
+                  transform: `scale(${value.scale})`,
                 })}
               >
                 {this.state.phrase}
