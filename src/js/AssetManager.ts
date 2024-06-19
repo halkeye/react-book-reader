@@ -1,23 +1,23 @@
 'use strict';
 let events = {};
 class AssetManager {
-  static on (eventName, func) {
+  static on(eventName, func) {
     if (!events[eventName]) {
       events[eventName] = [];
     }
     events[eventName].push(func);
   }
 
-  static off (eventName, func) {
+  static off(eventName, func) {
     if (!events[eventName]) {
       events[eventName] = [];
     }
-    events[eventName] = events[eventName].filter(elm => {
+    events[eventName] = events[eventName].filter((elm) => {
       return elm !== func;
     });
   }
 
-  static trigger (eventName, asset) {
+  static trigger(eventName, asset) {
     if (!events[eventName]) {
       return;
     }
@@ -26,7 +26,7 @@ class AssetManager {
     });
   }
 
-  constructor (baseUrl, keepCached = false) {
+  constructor(baseUrl, keepCached = false) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
     this.types = { img: Image };
     this.cache = keepCached ? {} : null;
@@ -34,15 +34,15 @@ class AssetManager {
     this.downloadQueue = {};
   }
 
-  getBaseUrl () {
+  getBaseUrl() {
     return this.baseUrl;
   }
 
-  addType (type, cls) {
+  addType(type, cls) {
     this.types[type] = cls;
   }
 
-  _download (type, path) {
+  _download(type, path) {
     return new Promise((resolve, reject) => {
       let img = new this.types[type]();
       img.addEventListener(
@@ -66,17 +66,17 @@ class AssetManager {
     });
   }
 
-  queueDownload (type, path, name = path) {
+  queueDownload(type, path, name = path) {
     if (!this.downloadQueue[name]) {
       this.assets[name] = { src: path, type: type };
       AssetManager.trigger('started');
       this.downloadQueue[name] = this._download(type, path);
       this.downloadQueue[name]
         .then(
-          asset => {
+          (asset) => {
             AssetManager.trigger('ended', asset);
           },
-          asset => {
+          (asset) => {
             AssetManager.trigger('error', asset);
           }
         )
@@ -87,7 +87,7 @@ class AssetManager {
     return this.downloadQueue[name];
   }
 
-  getAsset (name) {
+  getAsset(name) {
     if (!this.cache) {
       // redowload - FIXME
       return this._download(this.assets[name].type, this.assets[name].src);
@@ -98,7 +98,7 @@ class AssetManager {
     return this.cache[name];
   }
 
-  getAssetSrc (name) {
+  getAssetSrc(name) {
     return this.baseUrl + this.assets[name].src;
   }
 }

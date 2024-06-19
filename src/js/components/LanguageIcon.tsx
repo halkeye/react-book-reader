@@ -2,11 +2,11 @@ import React from 'react';
 
 let languageMap = {
   en: 'English',
-  fr: 'French'
+  fr: 'French',
 };
 
 class LanguageIcon extends React.Component {
-  render () {
+  render() {
     let str = languageMap[this.props.language] || this.props.language;
 
     let classString = '';

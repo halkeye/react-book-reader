@@ -1,11 +1,11 @@
-"use strict";
-import PropTypes from "prop-types";
-import React from "react";
-import DocumentMeta from "react-document-meta";
-import DocumentTitle from "react-document-title";
-import Screen from "./Screen.jsx";
-import GamePP from "./GamePP.jsx";
-import GameFullMonty from "./GameFullMonty.jsx";
+'use strict';
+import PropTypes from 'prop-types';
+import React from 'react';
+import DocumentMeta from 'react-document-meta';
+import DocumentTitle from 'react-document-title';
+import Screen from './Screen.jsx';
+import GamePP from './GamePP.jsx';
+import GameFullMonty from './GameFullMonty.jsx';
 
 class Book extends React.Component {
   static propTypes = {
@@ -25,7 +25,7 @@ class Book extends React.Component {
   };
 
   getPageTitle = () => {
-    let str = this.props.book.title || "Untitled";
+    let str = this.props.book.title || 'Untitled';
     // if numeric page number
     // str += ' - ' + pageNumber
     // FIXME
@@ -37,15 +37,15 @@ class Book extends React.Component {
       title: this.getPageTitle(),
       // description
       meta: {
-        charset: "utf-8",
+        charset: 'utf-8',
         name: {
-          "apple-mobile-web-app-capable": "yes",
-          "mobile-web-app-capable": "yes",
+          'apple-mobile-web-app-capable': 'yes',
+          'mobile-web-app-capable': 'yes',
         },
       },
       link: {
         rel: {
-          "shortcut icon": [this.props.book.icon],
+          'shortcut icon': [this.props.book.icon],
         },
       },
       // <link rel="shortcut icon" sizes="196x196" href="icon-196x196.png">
@@ -66,24 +66,24 @@ class Book extends React.Component {
         <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
       );
     } */
-    let body = "";
+    let body = '';
     if (this.props.book.hasGame(this.props.page)) {
       let page = this.props.book.games[this.props.page];
       if (!page.gameName) {
         body = <h1>NO IDEA WHAT TO DO {this.props.page}</h1>;
-      } else if (page.gameName === "PP" || page.gameName === "WP") {
+      } else if (page.gameName === 'PP' || page.gameName === 'WP') {
         body = (
           <GamePP
             dispatch={this.props.dispatch}
-            key={"screen_" + this.props.page}
+            key={'screen_' + this.props.page}
             page={page}
             mode={page.gameName}
           />
         );
-      } else if (page.gameName === "fullMonty") {
+      } else if (page.gameName === 'fullMonty') {
         body = (
           <GameFullMonty
-            key={"screen_" + this.props.page}
+            key={'screen_' + this.props.page}
             page={page}
             dispatch={this.props.dispatch}
           />
@@ -94,7 +94,7 @@ class Book extends React.Component {
       body = (
         <Screen
           dispatch={this.props.dispatch}
-          key={"screen_" + this.props.page}
+          key={'screen_' + this.props.page}
           page={page}
           autoplay={this.props.autoplay}
         />

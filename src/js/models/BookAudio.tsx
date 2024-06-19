@@ -4,7 +4,7 @@
 import { EventEmitter } from 'events';
 
 class BookAudio extends EventEmitter {
-  constructor (asset_manager) {
+  constructor(asset_manager) {
     super();
     this.asset_manager = asset_manager;
     this.currentFilename = null;
@@ -12,12 +12,12 @@ class BookAudio extends EventEmitter {
     this.state = 'paused';
   }
 
-  bind (type, ev, func) {
+  bind(type, ev, func) {
     this.on(type + '-' + ev, func);
     return this;
   }
 
-  pause () {
+  pause() {
     this.stopUpdateCurrentDuration();
     if (!this.asset) {
       return this;
@@ -26,7 +26,7 @@ class BookAudio extends EventEmitter {
     return this;
   }
 
-  stop () {
+  stop() {
     this.stopUpdateCurrentDuration();
     if (!this.asset) {
       return this;
@@ -36,7 +36,7 @@ class BookAudio extends EventEmitter {
     return this;
   }
 
-  play (type, path) {
+  play(type, path) {
     // don't double play
     if (
       this.asset !== null &&
@@ -52,7 +52,7 @@ class BookAudio extends EventEmitter {
       }
       return this;
     }
-    this.asset_manager.getAsset(path).then(asset => {
+    this.asset_manager.getAsset(path).then((asset) => {
       asset = asset.audio;
       this.currentFilename = path;
       this.playMode = type;
@@ -96,7 +96,7 @@ class BookAudio extends EventEmitter {
     return this;
   }
 
-  removeAll () {
+  removeAll() {
     this.removeAllListeners();
     this.stop();
     this.stopUpdateCurrentDuration();
@@ -105,11 +105,11 @@ class BookAudio extends EventEmitter {
     }
   }
 
-  updateCurrentDuration (asset, type) {
+  updateCurrentDuration(asset, type) {
     this.emit(type + '-timeupdate', asset.pos());
   }
 
-  stopUpdateCurrentDuration () {
+  stopUpdateCurrentDuration() {
     clearInterval(this.interval);
     delete this.interval;
   }

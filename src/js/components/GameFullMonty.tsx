@@ -1,7 +1,7 @@
-"use strict";
-import React from "react";
-import Shuffle from "shuffle";
-import GameScreen from "./GameScreen.jsx";
+'use strict';
+import React from 'react';
+import Shuffle from 'shuffle';
+import GameScreen from './GameScreen.jsx';
 
 class GamePP extends React.Component {
   state = { openDoor1: null };
@@ -44,8 +44,8 @@ class GamePP extends React.Component {
   clickedOnDoor = (cupboard) => {
     if (!this.gamescreen.hasStarted()) {
       this.gamescreen.setState({
-        reaction: "pointing",
-        defaultAnimation: "pointing",
+        reaction: 'pointing',
+        defaultAnimation: 'pointing',
       });
       this.updateDisplayBox(true);
       this.gamescreen.start();

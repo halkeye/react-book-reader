@@ -1,14 +1,14 @@
-"use strict";
-import React from "react";
-import PropTypes from "prop-types";
-import Shuffle from "shuffle";
-import { choosePage } from "../actions";
-import Screen from "./Screen.jsx";
-import ScoreCardBox from "./ScoreCardBox.jsx";
-import ReactionBox from "./ReactionBox.jsx";
-import CupboardWithDoor from "./CupboardWithDoor.jsx";
-import GameOverDialog from "./GameOverDialog.jsx";
-import BookUtilities from "../constants/BookUtilities.jsx";
+'use strict';
+import React from 'react';
+import PropTypes from 'prop-types';
+import Shuffle from 'shuffle';
+import { choosePage } from '../actions';
+import Screen from './Screen.jsx';
+import ScoreCardBox from './ScoreCardBox.jsx';
+import ReactionBox from './ReactionBox.jsx';
+import CupboardWithDoor from './CupboardWithDoor.jsx';
+import GameOverDialog from './GameOverDialog.jsx';
+import BookUtilities from '../constants/BookUtilities.jsx';
 
 class GameScreen extends React.Component {
   static defaultProps = {
@@ -19,7 +19,7 @@ class GameScreen extends React.Component {
       return true;
     },
     isEndGame: function () {
-      throw new Error("overwrite please");
+      throw new Error('overwrite please');
     },
   };
 
@@ -45,7 +45,7 @@ class GameScreen extends React.Component {
   }
 
   getDefaultReaction() {
-    return this.state.defaultAnimation || "neutral";
+    return this.state.defaultAnimation || 'neutral';
   }
 
   componentDidMount() {
@@ -59,12 +59,12 @@ class GameScreen extends React.Component {
       promises.push(
         this.props.page.asset_manager.getAsset(part.image).then((img) => {
           gamePart.image = img;
-        }),
+        })
       );
       promises.push(
         this.props.page.asset_manager.getAsset(part.text).then((img) => {
           gamePart.text = img;
-        }),
+        })
       );
     });
     Object.keys(this.props.page.gameAssets).forEach((assetName) => {
@@ -92,7 +92,7 @@ class GameScreen extends React.Component {
     let contents = Shuffle.shuffle({
       deck: props.getCupboardContents(
         this.state.gameParts,
-        this.numberOfDoors(),
+        this.numberOfDoors()
       ),
     });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
@@ -110,16 +110,16 @@ class GameScreen extends React.Component {
 
   render() {
     let triesBoxStyle = Object.assign(
-      { position: "absolute" },
-      this.props.page.boxes.tries,
+      { position: 'absolute' },
+      this.props.page.boxes.tries
     );
     let matchBoxStyle = Object.assign(
-      { position: "absolute" },
-      this.props.page.boxes.match,
+      { position: 'absolute' },
+      this.props.page.boxes.match
     );
     let reactionBoxStyle = Object.assign(
-      { position: "absolute" },
-      this.props.page.boxes.reactionBox,
+      { position: 'absolute' },
+      this.props.page.boxes.reactionBox
     );
     let cupboardLocations = <div />;
     let displayBox = <div />;
@@ -127,7 +127,7 @@ class GameScreen extends React.Component {
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-        let style = Object.assign({ position: "absolute" }, loc);
+        let style = Object.assign({ position: 'absolute' }, loc);
         let cupbardObject = this.state[`cupboard_${idx}`] || {};
 
         let props = {
@@ -150,8 +150,8 @@ class GameScreen extends React.Component {
       this.state.displayBox.props.objectImage
     ) {
       let style = Object.assign(
-        { position: "absolute" },
-        this.props.page.boxes.displayBox,
+        { position: 'absolute' },
+        this.props.page.boxes.displayBox
       );
       displayBox = (
         <img
@@ -176,11 +176,11 @@ class GameScreen extends React.Component {
         <Screen {...this.props}>
           <ScoreCardBox
             style={triesBoxStyle}
-            text={BookUtilities.pad(this.state.triesScore, 2, "0")}
+            text={BookUtilities.pad(this.state.triesScore, 2, '0')}
           />
           <ScoreCardBox
             style={matchBoxStyle}
-            text={BookUtilities.pad(this.state.matchesScore, 2, "0")}
+            text={BookUtilities.pad(this.state.matchesScore, 2, '0')}
           />
           <ReactionBox
             onComplete={this.onCompleteReaction}
@@ -211,7 +211,7 @@ class GameScreen extends React.Component {
   }
 
   onBackGameMenu() {
-    return this.props.dispatch(choosePage("game"));
+    return this.props.dispatch(choosePage('game'));
   }
 
   onCupboardClick(idx) {
@@ -227,7 +227,7 @@ class GameScreen extends React.Component {
   closeAllDoors() {
     Object.keys(this)
       .filter((key) => {
-        return key.startsWith("cupboard_");
+        return key.startsWith('cupboard_');
       })
       .forEach((key) => {
         this[key].close(false);
@@ -253,13 +253,13 @@ class GameScreen extends React.Component {
   }
 
   showGoodReaction() {
-    this.setState({ reaction: "good" });
-    this.playMp3("game/game_cupbard_correct.mp3");
+    this.setState({ reaction: 'good' });
+    this.playMp3('game/game_cupbard_correct.mp3');
   }
 
   showBadReaction() {
-    this.setState({ reaction: "bad" });
-    this.playMp3("game/game_cupbard_incorrect.mp3");
+    this.setState({ reaction: 'bad' });
+    this.playMp3('game/game_cupbard_incorrect.mp3');
   }
 }
 

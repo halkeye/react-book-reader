@@ -9,16 +9,16 @@ import Mousetrap from 'br-mousetrap';
 
 MousetrapMixin = {
   /**
-     * Array for keeping track of shortcuts bindings
-     */
+   * Array for keeping track of shortcuts bindings
+   */
   mousetrapBindings: [],
 
   /**
-     * Bind a function to a keyboard shortcut
-     *
-     * @param key
-     * @param callback
-     */
+   * Bind a function to a keyboard shortcut
+   *
+   * @param key
+   * @param callback
+   */
   bindShortcut: function (key, callback) {
     Mousetrap.bind(key, callback);
 
@@ -26,10 +26,10 @@ MousetrapMixin = {
   },
 
   /**
-     * Unbind a keyboard shortcut
-     *
-     * @param key
-     */
+   * Unbind a keyboard shortcut
+   *
+   * @param key
+   */
   unbindShortcut: function (key) {
     let index = this.mousetrapBindings.indexOf(key);
 
@@ -41,8 +41,8 @@ MousetrapMixin = {
   },
 
   /**
-     * Remove any Mousetrap bindings
-     */
+   * Remove any Mousetrap bindings
+   */
   unbindAllShortcuts: function () {
     if (this.mousetrapBindings.length < 1) {
       return;
@@ -54,12 +54,12 @@ MousetrapMixin = {
   },
 
   /**
-     * Handle component unmount
-     */
+   * Handle component unmount
+   */
   componentWillUnmount: function () {
     // Remove any Mousetrap bindings before unmounting
     this.unbindAllShortcuts();
-  }
+  },
 };
 
 export default MousetrapMixin;

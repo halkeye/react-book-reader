@@ -5,7 +5,7 @@ import mui from 'material-ui';
 let { IconButton } = mui;
 
 class ImageButton extends React.Component {
-  render () {
+  render() {
     if (this.props.enabled === false) {
       return <div />;
     }
@@ -22,9 +22,9 @@ class ImageButton extends React.Component {
       backgroundSize: '100% 100%',
       backgroundColor: 'rgba(0,0,0,0)',
       backgroundImage: 'url(' + img + ')',
-      border: 'none'
+      border: 'none',
     };
-    ['top', 'left', 'right', 'bottom'].forEach(field => {
+    ['top', 'left', 'right', 'bottom'].forEach((field) => {
       if (this.props[field]) {
         style[field] = this.props[field];
       }

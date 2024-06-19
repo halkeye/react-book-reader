@@ -1,18 +1,18 @@
-import { routerReducer, LOCATION_CHANGE } from "react-router-redux";
-import { Record, List } from "immutable";
+import { routerReducer, LOCATION_CHANGE } from 'react-router-redux';
+import { Record, List } from 'immutable';
 import {
   LOADED_BOOK_LIST_ITEM,
   ASSET_MANAGER_INCR_STARTED,
   ASSET_MANAGER_INCR_SUCCESS,
   ASSET_MANAGER_INCR_ERROR,
-} from "./actions.js";
+} from './actions.js';
 
 const BookListRecordClass = Record({
-  id: "",
-  title: "",
-  url: "",
-  icon: "",
-  iconBig: "",
+  id: '',
+  title: '',
+  url: '',
+  icon: '',
+  iconBig: '',
   version: 1,
   languages: [],
 });
@@ -67,28 +67,28 @@ function books(state = List([]), action) {
 
 function bookName(state = null, action) {
   if (action.type === LOCATION_CHANGE) {
-    return action.payload.pathname.split("/")[2] || null;
+    return action.payload.pathname.split('/')[2] || null;
   }
   return state;
 }
 
 function language(state = null, action) {
   if (action.type === LOCATION_CHANGE) {
-    return action.payload.pathname.split("/")[4] || null;
+    return action.payload.pathname.split('/')[4] || null;
   }
   return state;
 }
 
 function page(state = null, action) {
   if (action.type === LOCATION_CHANGE) {
-    return action.payload.pathname.split("/")[6] || null;
+    return action.payload.pathname.split('/')[6] || null;
   }
   return state;
 }
 
 function autoPlay(state = null, action) {
   if (action.type === LOCATION_CHANGE) {
-    return action.payload.pathname.split("/")[7] || null;
+    return action.payload.pathname.split('/')[7] || null;
   }
   return state;
 }

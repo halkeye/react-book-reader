@@ -1,23 +1,23 @@
-"use strict";
-import PropTypes from "prop-types";
-import React from "react";
-import _ from "lodash";
-import AppDispatcher from "../dispatchers/AppDispatcher";
-import Constants from "../constants/AppConstants";
-import { FlatButton } from "material-ui";
+'use strict';
+import PropTypes from 'prop-types';
+import React from 'react';
+import _ from 'lodash';
+import AppDispatcher from '../dispatchers/AppDispatcher';
+import Constants from '../constants/AppConstants';
+import { FlatButton } from 'material-ui';
 
 let isValidStyle = (obj) => {
   // if (!isDictionary(obj)) { return false; }
   if (!_.isPlainObject(obj)) {
     return false;
   }
-  let stateNames = ["reading", "read", "unread"].sort();
+  let stateNames = ['reading', 'read', 'unread'].sort();
   // check for extra or missing keys
   if (!_.isEqual(Object.keys(obj).sort(), stateNames)) {
     return false;
   }
   return _.every(stateNames, (state) => {
-    return _.every(["fontFamily", "fontSize", "color"], (styleField) => {
+    return _.every(['fontFamily', 'fontSize', 'color'], (styleField) => {
       return !_.isNull(obj[state][styleField]);
     });
   });
@@ -25,7 +25,7 @@ let isValidStyle = (obj) => {
 
 let stylePropType = function (props, propName, component) {
   if (!isValidStyle(props)) {
-    return new Error("Invalid styles!");
+    return new Error('Invalid styles!');
   }
 };
 
@@ -42,7 +42,7 @@ class BookWord extends React.Component {
   };
 
   state = {
-    state: "unread",
+    state: 'unread',
   };
 
   getInitialProps = () => {
@@ -70,11 +70,11 @@ class BookWord extends React.Component {
     //    console.log('componentWillReceiveProps', nextProps);
     if (!_.isNull(this.props.start) && !_.isNull(this.props.end)) {
       if (nextProps.audioTime > this.props.end) {
-        this.setState({ state: "read" });
+        this.setState({ state: 'read' });
       } else if (nextProps.audioTime > this.props.start) {
-        this.setState({ state: "reading" });
+        this.setState({ state: 'reading' });
       } else {
-        this.setState({ state: "unread" });
+        this.setState({ state: 'unread' });
       }
     }
   }
@@ -82,16 +82,16 @@ class BookWord extends React.Component {
   getElementStyle = () => {
     let style = Object.assign(
       {
-        cursor: "pointer",
-        backgroundColor: "transparent",
-        textTransform: "none",
-        padding: "4px",
-        minWidth: "initial",
-        height: "initial",
+        cursor: 'pointer',
+        backgroundColor: 'transparent',
+        textTransform: 'none',
+        padding: '4px',
+        minWidth: 'initial',
+        height: 'initial',
       },
-      this.props.styles[this.state.state],
+      this.props.styles[this.state.state]
     );
-    style.fontSize = style.fontSize + "px";
+    style.fontSize = style.fontSize + 'px';
     delete style.fontPath;
     return style;
   };
@@ -101,8 +101,8 @@ class BookWord extends React.Component {
 
     return (
       <FlatButton style={style} onClick={this.props.onClick}>
-        {" "}
-        {this.props.word + " "}{" "}
+        {' '}
+        {this.props.word + ' '}{' '}
       </FlatButton>
     );
   }

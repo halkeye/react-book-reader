@@ -4,19 +4,19 @@ import React from 'react';
 import BookUtilities from '../constants/BookUtilities.tsx';
 
 export default class BookHotspotMap extends React.Component {
-  static getInitialProps () {
+  static getInitialProps() {
     return {
       height: 0,
       width: 0,
-      hotspots: []
+      hotspots: [],
     };
   }
 
-  getCanvas () {
+  getCanvas() {
     return this.canvas;
   }
 
-  onClickImage (x, y) {
+  onClickImage(x, y) {
     if (!this.props.image) {
       return false;
     }
@@ -26,7 +26,7 @@ export default class BookHotspotMap extends React.Component {
       r: this.imageData.data[canvasIndex],
       g: this.imageData.data[canvasIndex + 1],
       b: this.imageData.data[canvasIndex + 2],
-      a: this.imageData.data[canvasIndex + 3]
+      a: this.imageData.data[canvasIndex + 3],
     };
 
     let intColor = BookUtilities.colorToInt(color);
@@ -39,12 +39,12 @@ export default class BookHotspotMap extends React.Component {
     return false;
   }
 
-  draw () {
+  draw() {
     if (!this.props.image) {
       return;
     }
     let ctx = this.getCanvas().getContext('2d');
-    this.props.asset_manager.getAsset(this.props.image).then(img => {
+    this.props.asset_manager.getAsset(this.props.image).then((img) => {
       ctx.drawImage(img, 0, 0);
       this.imageData = ctx.getImageData(
         0,
@@ -55,15 +55,15 @@ export default class BookHotspotMap extends React.Component {
     });
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.draw();
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     this.draw();
   }
 
-  render () {
+  render() {
     if (!this.props.image) {
       return <div />;
     }
@@ -71,11 +71,11 @@ export default class BookHotspotMap extends React.Component {
       width: this.props.width,
       height: this.props.height,
       position: 'absolute',
-      display: 'none'
+      display: 'none',
     };
     return (
       <canvas
-        ref={canvas => {
+        ref={(canvas) => {
           this.canvas = canvas;
         }}
         height={this.props.height}

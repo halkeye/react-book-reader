@@ -1,7 +1,7 @@
-"use strict";
-import { EventEmitter } from "events";
+'use strict';
+import { EventEmitter } from 'events';
 
-const CHANGE_EVENT = "change";
+const CHANGE_EVENT = 'change';
 
 export default Object.assign({}, EventEmitter.prototype, {
   // Allow Controller-View to register itself with store

@@ -1,11 +1,11 @@
-"use strict";
-import BaseStore from "./BaseStore";
-import _ from "lodash";
+'use strict';
+import BaseStore from './BaseStore';
+import _ from 'lodash';
 
-import "whatwg-fetch"; // polyfill
+import 'whatwg-fetch'; // polyfill
 
 /* Other */
-import BookUtilities from "../constants/BookUtilities.jsx";
+import BookUtilities from '../constants/BookUtilities.jsx';
 
 // data storage
 
@@ -22,21 +22,21 @@ let BookStore = Object.assign({}, BaseStore, {
         return resolve(_bookList);
       }
       _urls = {};
-      const baseUrl = "https://books.saltystories.ca/";
-      fetch(baseUrl + "books/index.json?_cacheBust=" + new Date().getTime())
+      const baseUrl = 'https://books.saltystories.ca/';
+      fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
         .then((response) => response.json())
         .then((json) => {
           _bookList = json.map((book) => {
             book = Object.assign({}, book);
-            _urls[book.id] = baseUrl + "books/" + book.url;
-            book.iconBig = baseUrl + "books/" + (book.iconBig || book.icon);
-            book.icon = baseUrl + "books/" + book.icon;
+            _urls[book.id] = baseUrl + 'books/' + book.url;
+            book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
+            book.icon = baseUrl + 'books/' + book.icon;
             return book;
           });
           resolve(_bookList);
         })
         .catch(function (ex) {
-          console.log("parsing failed", ex);
+          console.log('parsing failed', ex);
           reject(ex);
         });
     });
@@ -45,7 +45,7 @@ let BookStore = Object.assign({}, BaseStore, {
   /* FIXME - return book object */
   getBook(book, language) {
     if (!book) {
-      throw new Error("No such book");
+      throw new Error('No such book');
     }
     return new Promise((resolve, reject) => {
       if (_bookData && _bookData.id === book) {
@@ -58,7 +58,7 @@ let BookStore = Object.assign({}, BaseStore, {
 
         return fetch(_urls[book])
           .then((response) => {
-            console.log("a", book, _urls[book]);
+            console.log('a', book, _urls[book]);
             return response.json();
           })
           .then((json) => {
@@ -67,7 +67,7 @@ let BookStore = Object.assign({}, BaseStore, {
               {},
               assetBaseUrl,
               json,
-              language,
+              language
             ).then(
               function (values) {
                 _bookData = values[0];
@@ -77,9 +77,9 @@ let BookStore = Object.assign({}, BaseStore, {
                 resolve(_bookData);
               },
               function (values) {
-                console.log("rejected processBookData", values);
+                console.log('rejected processBookData', values);
                 reject(values);
-              },
+              }
             );
           }) /* .catch(function(ex) {
             console.log('parsing failed', ex);

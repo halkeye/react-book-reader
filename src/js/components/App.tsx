@@ -1,40 +1,40 @@
-"use strict";
-import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import { ConnectedRouter } from "react-router-redux";
-import { init, push } from "../actions";
-import PropTypes from "prop-types";
-import ImmutablePropTypes from "react-immutable-proptypes";
-import { connect } from "react-redux";
-import { history } from "../store";
-import { List } from "immutable";
+'use strict';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { ConnectedRouter } from 'react-router-redux';
+import { init, push } from '../actions';
+import PropTypes from 'prop-types';
+import ImmutablePropTypes from 'react-immutable-proptypes';
+import { connect } from 'react-redux';
+import { history } from '../store';
+import { List } from 'immutable';
 
-import React from "react";
+import React from 'react';
 
-import "../../styles/main.scss";
+import '../../styles/main.scss';
 
 /* Components */
-import BookList from "./BookList.jsx";
+import BookList from './BookList.jsx';
 
-import LanguageList from "./LanguageList.jsx";
-import Book from "./Book.jsx";
-import DocumentTitle from "react-document-title";
+import LanguageList from './LanguageList.jsx';
+import Book from './Book.jsx';
+import DocumentTitle from 'react-document-title';
 
 /* Stores */
-import BookStore from "../stores/BookStore.js";
+import BookStore from '../stores/BookStore.js';
 
 /* Dispatchers */
-import AppDispatcher from "../dispatchers/AppDispatcher.js";
+import AppDispatcher from '../dispatchers/AppDispatcher.js';
 
 /* Constants */
-import Constants from "../constants/AppConstants.js";
+import Constants from '../constants/AppConstants.js';
 
-import AssetManager from "../AssetManager.js";
+import AssetManager from '../AssetManager.js';
 
 let fontTypes = [
-  ["eot#iefix", "embedded-opentype"],
-  ["woff", "woff"],
-  ["ttf", "truetype"],
-  ["svg", "svg"],
+  ['eot#iefix', 'embedded-opentype'],
+  ['woff', 'woff'],
+  ['ttf', 'truetype'],
+  ['svg', 'svg'],
 ];
 
 export class App extends React.Component {
@@ -116,7 +116,7 @@ export class App extends React.Component {
   }
 
   loadBook(bookName, language) {
-    let key = ["book", bookName, "lang", language].join("_");
+    let key = ['book', bookName, 'lang', language].join('_');
     if (key !== this.loadingBook) {
       this.loadingBook = key;
       this.startAssetTracking();
@@ -125,7 +125,7 @@ export class App extends React.Component {
           this.setState({ book: bookData });
         })
         .catch(function (ex) {
-          console.log("error", ex);
+          console.log('error', ex);
         });
     }
   }
@@ -145,7 +145,7 @@ export class App extends React.Component {
           dispatch={this.props.dispatch}
           book={book}
           language={language}
-          page={page || "home"}
+          page={page || 'home'}
           autoplay={autoplay || false}
         />
       );
@@ -156,8 +156,8 @@ export class App extends React.Component {
       }
 
       let style = {
-        width: Math.max(0, Math.min(percent, 100)) + "%",
-        transition: "width 200ms",
+        width: Math.max(0, Math.min(percent, 100)) + '%',
+        transition: 'width 200ms',
       };
 
       return (
@@ -180,21 +180,21 @@ export class App extends React.Component {
 
   onAssetError(asset, path) {
     // FIXME - need to handle something here
-    console.log("error", asset);
+    console.log('error', asset);
   }
 
   startAssetTracking() {
     this.started = this.ended = 0;
 
-    AssetManager.on("started", () => dispatch(assetDownloadStarted()));
-    AssetManager.on("error", (asset) => dispatch(assetDownloadError(asset)));
-    AssetManager.on("ended", (asset) => dispatch(assetDownloadSuccess(asset)));
+    AssetManager.on('started', () => dispatch(assetDownloadStarted()));
+    AssetManager.on('error', (asset) => dispatch(assetDownloadError(asset)));
+    AssetManager.on('ended', (asset) => dispatch(assetDownloadSuccess(asset)));
   }
 
   componentDidMount() {
     this.props.dispatch(init());
 
-    window.addEventListener("resize", this.handleResize, true);
+    window.addEventListener('resize', this.handleResize, true);
     AppDispatcher.register((payload) => {
       let action = payload.action;
 
@@ -209,7 +209,7 @@ export class App extends React.Component {
           break;
         case Constants.ActionTypes.NAVIGATE_PAGE:
           const parts = this.props;
-          console.log("parts", parts);
+          console.log('parts', parts);
           if (parts.page === 0) {
             return null;
           }
@@ -217,37 +217,37 @@ export class App extends React.Component {
             if (this.props.book.hasPage(parts.page)) {
               return this.props.dispatch(
                 push(
-                  "/book/" +
+                  '/book/' +
                     parts.book +
-                    "/lang/" +
+                    '/lang/' +
                     parts.language +
-                    "/page/" +
+                    '/page/' +
                     parts.page +
-                    (parts.autoplay ? "/autoplay" : ""),
-                ),
+                    (parts.autoplay ? '/autoplay' : '')
+                )
               );
             } else if (!isNaN(parts.page)) {
               return this.props.dispatch(
                 push(
-                  "/book/" +
+                  '/book/' +
                     parts.book +
-                    "/lang/" +
+                    '/lang/' +
                     parts.language +
-                    "/page/end" +
-                    (parts.autoplay ? "/autoplay" : ""),
-                ),
+                    '/page/end' +
+                    (parts.autoplay ? '/autoplay' : '')
+                )
               );
             }
           } else if (parts.language) {
             return this.props.dispatch(
-              push("/book/" + parts.book + "/lang/" + parts.language),
+              push('/book/' + parts.book + '/lang/' + parts.language)
             );
           } else if (parts.book) {
-            return this.props.dispatch(push("/book/" + parts.book));
+            return this.props.dispatch(push('/book/' + parts.book));
           } else {
-            return this.props.dispatch(push("/"));
+            return this.props.dispatch(push('/'));
           }
-          console.log("payload", action.data, this.state.path.split("/"));
+          console.log('payload', action.data, this.state.path.split('/'));
           break;
         // add more cases for other actionTypes...
       }
@@ -259,48 +259,48 @@ export class App extends React.Component {
     let css = Object.keys(this.state.fonts)
       .map((font) => {
         return (
-          "@font-face {" +
+          '@font-face {' +
           "  font-family: '" +
           font +
           "';" +
-          "  src: url(" +
+          '  src: url(' +
           this.state.fonts[font] +
           ".eot'); " +
-          "  src: " +
+          '  src: ' +
           fontTypes
             .map((type) => {
               return (
                 "url('" +
                 this.state.fonts[font] +
-                "." +
+                '.' +
                 type[0] +
                 "') format('" +
                 type[1] +
                 "')"
               );
             })
-            .join(", ") +
-          ";" +
-          "}"
+            .join(', ') +
+          ';' +
+          '}'
         );
       })
-      .join("");
+      .join('');
 
-    let styleId = "ReactHtmlReaderFonts";
+    let styleId = 'ReactHtmlReaderFonts';
     let style = document.getElementById(styleId);
     if (style) {
       style.parentNode.removeChild(style);
     }
 
-    style = document.createElement("style");
+    style = document.createElement('style');
     style.id = styleId;
-    style.type = "text/css";
+    style.type = 'text/css';
     if (style.styleSheet) {
       style.styleSheet.cssText = css;
     } else {
       style.appendChild(document.createTextNode(css));
     }
-    document.getElementsByTagName("head")[0].appendChild(style);
+    document.getElementsByTagName('head')[0].appendChild(style);
   }
 }
 

@@ -1,7 +1,7 @@
-"use strict";
-import React from "react";
-import Shuffle from "shuffle";
-import GameScreen from "./GameScreen.jsx";
+'use strict';
+import React from 'react';
+import Shuffle from 'shuffle';
+import GameScreen from './GameScreen.jsx';
 
 class GamePP extends React.Component {
   state = { openDoor1: null };
@@ -9,21 +9,21 @@ class GamePP extends React.Component {
   getCupboardContents = (gameParts, size) => {
     let deck = Shuffle.shuffle({ deck: gameParts });
     let array = deck.drawRandom(Math.floor(size / 2));
-    if (this.props.mode === "PP") {
+    if (this.props.mode === 'PP') {
       return array.concat(array).map((elm) => {
         return { key: elm.key, image: elm.image };
       });
-    } else if (this.props.mode === "WP") {
+    } else if (this.props.mode === 'WP') {
       return []
         .concat(
           array.map((elm) => {
             return { key: elm.key, image: elm.image };
-          }),
+          })
         )
         .concat(
           array.map((elm) => {
             return { key: elm.key, image: elm.text };
-          }),
+          })
         );
     }
     return [];

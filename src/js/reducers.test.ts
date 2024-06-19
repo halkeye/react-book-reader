@@ -4,7 +4,7 @@ import configureStore from './configureStore.js';
 import {
   assetDownloadStarted,
   assetDownloadSuccess,
-  assetDownloadError
+  assetDownloadError,
 } from './actions.js';
 
 describe('reducers', function () {

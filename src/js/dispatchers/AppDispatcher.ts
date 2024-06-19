@@ -1,6 +1,6 @@
-"use strict";
-import { Dispatcher } from "flux";
-import Constants from "../constants/AppConstants";
+'use strict';
+import { Dispatcher } from 'flux';
+import Constants from '../constants/AppConstants';
 
 let AppDispatcher = Object.assign(new Dispatcher(), {
   handleServerAction(action) {

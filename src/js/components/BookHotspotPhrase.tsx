@@ -1,24 +1,24 @@
-"use strict";
-import { Motion, spring } from "react-motion";
+'use strict';
+import { Motion, spring } from 'react-motion';
 
-import React from "react";
+import React from 'react';
 
 export default class BookHotspotPhrase extends React.Component {
   constructor() {
     super();
     this.state = {
-      phrase: "",
-      display: "none",
+      phrase: '',
+      display: 'none',
     };
   }
 
   onComplete() {
-    this.setState({ display: "none" });
+    this.setState({ display: 'none' });
   }
 
   triggerAnimation(phrase, x, y) {
     this.setState({
-      display: "block",
+      display: 'block',
       phrase: phrase,
       x: x,
       y: y,
@@ -26,19 +26,19 @@ export default class BookHotspotPhrase extends React.Component {
   }
 
   render() {
-    if (this.state.display === "none") {
+    if (this.state.display === 'none') {
       return <div />;
     }
 
     let style = Object.assign(
       {
-        position: "absolute",
+        position: 'absolute',
         display: this.state.display,
         top: this.state.y,
         left: this.state.x,
-        textShadow: "2px 2px 2px gray",
+        textShadow: '2px 2px 2px gray',
       },
-      this.props,
+      this.props
     );
 
     return (

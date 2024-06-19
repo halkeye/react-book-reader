@@ -11,19 +11,19 @@ export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
 
 import BookUtilities from './constants/BookUtilities.jsx';
 
-export function init () {
-  return dispatch => {
+export function init() {
+  return (dispatch) => {
     const baseUrl = 'https://books.saltystories.ca/';
     fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
-      .then(response => response.json())
-      .then(json => {
+      .then((response) => response.json())
+      .then((json) => {
         for (let book of json) {
           book.url = baseUrl + 'books/' + book.url;
           book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
           book.icon = baseUrl + 'books/' + book.icon;
           dispatch({
             type: 'LOADED_BOOK_LIST_ITEM',
-            payload: book
+            payload: book,
           });
         }
       })
@@ -34,72 +34,76 @@ export function init () {
   };
 }
 
-export function chooseAutoplay (autoPlay) {
+export function chooseAutoplay(autoPlay) {
   return (dispatch, getState) => {
     const state = getState();
-    return dispatch(push(`/book/${state.bookName}/lang/${state.language}/page/${state.page}/${autoPlay}`));
+    return dispatch(
+      push(
+        `/book/${state.bookName}/lang/${state.language}/page/${state.page}/${autoPlay}`
+      )
+    );
   };
 }
 
-export function choosePage (page) {
+export function choosePage(page) {
   return (dispatch, getState) => {
     const state = getState();
-    return dispatch(push(`/book/${state.bookName}/lang/${state.language}/page/${page}`));
+    return dispatch(
+      push(`/book/${state.bookName}/lang/${state.language}/page/${page}`)
+    );
   };
 }
 
-export function chooseLanguage (language) {
+export function chooseLanguage(language) {
   return (dispatch, getState) => {
     const state = getState();
     dispatch(push(`/book/${state.bookName}/lang/${language}`));
-    const book = state.books.find(b => b.id === state.bookName);
+    const book = state.books.find((b) => b.id === state.bookName);
     return fetch(book.url)
-      .then(response => response.json())
-      .then(json => {
+      .then((response) => response.json())
+      .then((json) => {
         let assetBaseUrl = BookUtilities.dirname(book.url);
         return BookUtilities.processBookData(
           {},
           assetBaseUrl,
           json,
           language
-        ).then(
-          function (values) {
-            dispatch({
-              type: 'LOADED_BOOK',
-              payload: {
-                ...book,
-                ...values[0]
-              }
-            });
-          }
-        );
+        ).then(function (values) {
+          dispatch({
+            type: 'LOADED_BOOK',
+            payload: {
+              ...book,
+              ...values[0],
+            },
+          });
+        });
       });
   };
 }
 
-export function chooseBook (book) {
-  return dispatch => {
+export function chooseBook(book) {
+  return (dispatch) => {
     dispatch(push(`/book/${book.id}`));
   };
 }
 
-export function assetDownloadStarted () {
+export function assetDownloadStarted() {
   return {
     type: ASSET_MANAGER_INCR_STARTED,
-    payload: {}
+    payload: {},
   };
 }
 
-export function assetDownloadError (asset) {
+export function assetDownloadError(asset) {
   return {
     type: ASSET_MANAGER_INCR_ERROR,
-    payload: asset
+    payload: asset,
   };
 }
 
-export function assetDownloadSuccess (asset) {
+export function assetDownloadSuccess(asset) {
   return {
     type: ASSET_MANAGER_INCR_SUCCESS,
-    payload: asset
+    payload: asset,
   };
 }

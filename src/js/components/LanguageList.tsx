@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { chooseLanguage } from "../actions.js";
-import DocumentTitle from "react-document-title";
-import LanguageIcon from "./LanguageIcon.jsx";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { chooseLanguage } from '../actions.js';
+import DocumentTitle from 'react-document-title';
+import LanguageIcon from './LanguageIcon.jsx';
 
 class LanguageList extends React.Component {
   static propTypes = {
@@ -33,7 +33,7 @@ class LanguageList extends React.Component {
     });
 
     let circularIcon = {
-      backgroundImage: "url(" + this.props.iconBig + ")",
+      backgroundImage: 'url(' + this.props.iconBig + ')',
     };
     return (
       <DocumentTitle title="Select a language">

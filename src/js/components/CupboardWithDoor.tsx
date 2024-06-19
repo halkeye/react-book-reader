@@ -2,20 +2,20 @@
 import React from 'react';
 
 class CupboardWithDoor extends React.Component {
-  constructor () {
+  constructor() {
     super();
     this.state = { status: 'open' };
   }
 
-  reset () {
+  reset() {
     this.replaceState({ status: 'open' });
   }
 
-  getCanvas () {
+  getCanvas() {
     return this.canvas;
   }
 
-  draw () {
+  draw() {
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -28,18 +28,18 @@ class CupboardWithDoor extends React.Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.draw();
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     this.draw();
   }
 
-  render () {
+  render() {
     return (
       <canvas
-        ref={node => (this.canvas = node)}
+        ref={(node) => (this.canvas = node)}
         width={this.props.style.width}
         height={this.props.style.height}
         style={this.props.style}
@@ -48,24 +48,24 @@ class CupboardWithDoor extends React.Component {
     );
   }
 
-  playDoorSound () {
+  playDoorSound() {
     this.props.asset_manager
       .getAsset('game/game_cupbard_door_sound.mp3')
-      .then(asset => {
+      .then((asset) => {
         asset.audio.play();
       });
   }
 
-  isOpen () {
+  isOpen() {
     return this.doorState === 'open';
   }
 
-  isClosed () {
+  isClosed() {
     return !this.isOpen();
   }
 
   // Actions
-  open (playSound = true) {
+  open(playSound = true) {
     this.doorState = 'open';
     this.setState({ status: this.doorState });
     if (playSound === true) {
@@ -73,7 +73,7 @@ class CupboardWithDoor extends React.Component {
     }
   }
 
-  close (playSound = true) {
+  close(playSound = true) {
     this.doorState = 'closed';
     this.setState({ status: this.doorState });
     if (playSound === true) {

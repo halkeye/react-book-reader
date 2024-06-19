@@ -2,10 +2,10 @@
 import React from 'react';
 
 class ScoreCardBox extends React.Component {
-  render () {
+  render() {
     return (
       <canvas
-        ref={node => (this.canvas = node)}
+        ref={(node) => (this.canvas = node)}
         width={this.props.style.width}
         height={this.props.style.height}
         style={this.props.style}
@@ -13,11 +13,11 @@ class ScoreCardBox extends React.Component {
     );
   }
 
-  getCanvas () {
+  getCanvas() {
     return this.canvas;
   }
 
-  draw () {
+  draw() {
     let canvas = this.getCanvas();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -43,11 +43,11 @@ class ScoreCardBox extends React.Component {
     */
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.draw();
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     this.draw();
   }
 }
