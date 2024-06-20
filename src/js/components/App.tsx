@@ -17,48 +17,43 @@ import Book from './Book.jsx';
 import BookStore from '../stores/BookStore';
 
 /* Dispatchers */
-import AppDispatcher from '../dispatchers/AppDispatcher';
 
 /* Constants */
 import Constants from '../constants/AppConstants';
 
 import AssetManager from '../AssetManager';
 import { BookListRecord } from '../reducers';
-
-const fontTypes = [
-  ['eot#iefix', 'embedded-opentype'],
-  ['woff', 'woff'],
-  ['ttf', 'truetype'],
-  ['svg', 'svg'],
-];
+import { Fonts } from '../hooks/useFonts';
+import { AppDispatch } from '../store.ts';
 
 interface Props {
   children?: ReactNode;
   language: string;
-  bookName: string,
-  bookIconBig: string,
-  bookLanguages: Record<string, BookListRecord>,
-  books: Array<BookListRecord>,
-  book: BookListRecord | undefined,
-  page: string,
-  autoplay: string,
-  dispatch: FunctionConstructor, // FIXME - should be dispatch type
+  bookName: string;
+  bookIconBig: string;
+  bookLanguages: Record<string, BookListRecord>;
+  books: Array<BookListRecord>;
+  book: BookListRecord | undefined;
+  page: string;
+  autoplay: string;
+  dispatch: AppDispatch;
 }
 
-export const App: React.FC<Props> = ({
-  books: [],
-  language,
-  page,
-  book,
-}) => {
-  const [state, setState] = React.useState({
+interface State {
+  assetsStarted: 0;
+  assetsEnded: 0;
+  fonts: Fonts;
+}
+
+export const App: React.FC<React.PropsWithChildren<Props>> = ({ books: [], language, page, book }) => {
+  const [state, setState] = React.useState<State>({
     assetsStarted: 0,
     assetsEnded: 0,
     fonts: {},
   });
 
   const selectLanguage = ({ bookLanguages }) => {
-    if (!bookLanguages) {
+    if (bookLanguages == null) {
       return <div>Loading Language Choices...</div>;
     }
     return (
@@ -68,7 +63,7 @@ export const App: React.FC<Props> = ({
         dispatch={dispatch}
       />
     );
-  }
+  };
 
   const selectBook = () => {
     if (!books) {
@@ -85,7 +80,7 @@ export const App: React.FC<Props> = ({
         </div>
       </>
     );
-  }
+  };
 
   const loadBook = (bookName, language) => {
     let key = ['book', bookName, 'lang', language].join('_');
@@ -100,20 +95,28 @@ export const App: React.FC<Props> = ({
           console.log('error', ex);
         });
     }
-  }
+  };
 
-  const showPage = ({ book, bookName, language, page, autoplay }) => {
+  const showPage = ({
+    children,
+    book,
+    bookName,
+    language,
+    page,
+    autoplay,
+    dispatch,
+  }) => {
     // const page = typeof page === 'object' ? 'home' : page;
     // autoplay = typeof autoplay === 'object' ? false : autoplay;
     if (!bookName) {
       return;
     }
-    this.loadBook(bookName, language);
+    loadBook(bookName, language);
 
     if (book.id) {
       return (
         <Book
-          dispatch={this.props.dispatch}
+          dispatch={dispatch}
           book={book}
           language={language}
           page={page || 'home'}
@@ -122,8 +125,8 @@ export const App: React.FC<Props> = ({
       );
     } else {
       let percent = 0;
-      if (this.state.assetsStarted && this.state.assetsEnded) {
-        percent = (this.state.assetsEnded / this.state.assetsStarted) * 100;
+      if (assetsStarted && assetsEnded) {
+        percent = (assetsEnded / assetsStarted) * 100;
       }
 
       let style = {
@@ -134,37 +137,37 @@ export const App: React.FC<Props> = ({
       return (
         <div className="progressbar-container">
           <div className="progressbar-progress" style={style}>
-            {this.props.children}
+            {children}
           </div>
         </div>
       );
     }
-  }
+  };
 
-  const onAssetStarted(_asset) => {
+  const onAssetStarted = (_asset) => {
     setState((prev) => {
-      return { started: prev.started + 1 }:
+      return { started: prev.started + 1 };
     });
-  }
+  };
 
-  const onAssetEnded(_asset) => {
+  const onAssetEnded = (_asset) => {
     setState((prev) => {
-      return { ended: prev.ended + 1 }:
+      return { ended: prev.ended + 1 };
     });
-  }
+  };
 
   const onAssetError = (asset, _path) => {
     // FIXME - need to handle something here
     console.log('error', asset);
-  }
+  };
 
   const startAssetTracking = () => {
-    setSTate({ ended: 0, started: 0 });
+    setState({ ended: 0, started: 0 });
 
     AssetManager.on('started', () => dispatch(assetDownloadStarted()));
     AssetManager.on('error', (asset) => dispatch(assetDownloadError(asset)));
     AssetManager.on('ended', (asset) => dispatch(assetDownloadSuccess(asset)));
-  }
+  };
 
   React.useEffect(() => {
     dispatch(init());
@@ -182,14 +185,13 @@ export const App: React.FC<Props> = ({
           }
           break;
         case Constants.ActionTypes.NAVIGATE_PAGE:
-          const parts = this.props;
-          console.log('parts', parts);
+          const parts = console.log('parts', parts);
           if (parts.page === 0) {
             return null;
           }
           if (parts.page) {
-            if (this.props.book.hasPage(parts.page)) {
-              return this.props.dispatch(
+            if (book.hasPage(parts.page)) {
+              return dispatch(
                 push(
                   '/book/' +
                     parts.book +
@@ -201,7 +203,7 @@ export const App: React.FC<Props> = ({
                 )
               );
             } else if (!isNaN(parts.page)) {
-              return this.props.dispatch(
+              return dispatch(
                 push(
                   '/book/' +
                     parts.book +
@@ -213,13 +215,13 @@ export const App: React.FC<Props> = ({
               );
             }
           } else if (parts.language) {
-            return this.props.dispatch(
+            return dispatch(
               push('/book/' + parts.book + '/lang/' + parts.language)
             );
           } else if (parts.book) {
-            return this.props.dispatch(push('/book/' + parts.book));
+            return dispatch(push('/book/' + parts.book));
           } else {
-            return this.props.dispatch(push('/'));
+            return dispatch(push('/'));
           }
           console.log('payload', action.data, this.state.path.split('/'));
           break;
@@ -229,70 +231,19 @@ export const App: React.FC<Props> = ({
     });
   }, []);
 
-  const updateFonts = () => {
-    let css = Object.keys(this.state.fonts)
-    .map((font) => {
-      return (
-        '@font-face {' +
-          "  font-family: '" +
-          font +
-          "';" +
-          '  src: url(' +
-          this.state.fonts[font] +
-          ".eot'); " +
-          '  src: ' +
-          fontTypes
-            .map((type) => {
-              return (
-                "url('" +
-                  this.state.fonts[font] +
-                  '.' +
-                  type[0] +
-                  "') format('" +
-                  type[1] +
-                  "')"
-              );
-            })
-            .join(', ') +
-          ';' +
-          '}'
-      );
-    })
-    .join('');
-
-    let styleId = 'ReactHtmlReaderFonts';
-    let style = document.getElementById(styleId);
-    if (style) {
-      style.parentNode.removeChild(style);
-    }
-
-    style = document.createElement('style');
-    style.id = styleId;
-    style.type = 'text/css';
-    if (style.styleSheet) {
-      style.styleSheet.cssText = css;
-    } else {
-      style.appendChild(document.createTextNode(css));
-    }
-    document.getElementsByTagName('head')[0].appendChild(style);
+  if (book && language && page) {
+    return showPage();
   }
-
-  const ret = React.useMemo(() => {
-    if (book && language && page) {
-      return showPage();
-    }
-    if (language) {
-      return showPage();
-    }
-    if (bookName) {
-      return selectLanguage();
-    }
-    return selectBook();
-  }, [book, language, page]);
+  if (language) {
+    return showPage();
+  }
+  if (bookName) {
+    return selectLanguage();
+  }
+  return selectBook();
 
   return ret;
-}
-
+};
 
 function mapStateToProps(state) {
   const {
