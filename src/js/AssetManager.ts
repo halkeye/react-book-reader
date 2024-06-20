@@ -1,32 +1,57 @@
-'use strict';
-let events = {};
+type EventName = string;
+
+export interface HTMLElementConstructor {
+  new (): HTMLElement;
+}
+
+export interface AssetType extends HTMLElement {}
+
+export interface Asset {
+  src: string;
+  asset: AssetType | null;
+  type: string;
+}
+
+export type DownloadQueueItem = Asset;
+
+type EventFunc = (asset: Asset | null) => void;
+
+const events: Record<EventName, Array<EventFunc>> = {};
+
 class AssetManager {
-  static on(eventName, func) {
+  private baseUrl: string;
+  private cache: Record<string, unknown> | null;
+  private types: Record<string, HTMLElementConstructor>;
+  private assets: Record<string, Asset> = {};
+  private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
+
+  static on(eventName: EventName, func: EventFunc) {
     if (!events[eventName]) {
       events[eventName] = [];
     }
     events[eventName].push(func);
   }
 
-  static off(eventName, func) {
+  static off(eventName: EventName, func: EventFunc) {
     if (!events[eventName]) {
       events[eventName] = [];
     }
-    events[eventName] = events[eventName].filter((elm) => {
-      return elm !== func;
+    events[eventName] = events[eventName].filter((cb) => {
+      return cb !== func;
     });
   }
 
-  static trigger(eventName, asset) {
+  static trigger(eventName: EventName, asset: Asset | null) {
     if (!events[eventName]) {
       return;
     }
+
     events[eventName].forEach(function (func) {
       func(asset);
     });
   }
 
-  constructor(baseUrl, keepCached = false) {
+  constructor(baseUrl: string, keepCached = false) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
     this.types = { img: Image };
     this.cache = keepCached ? {} : null;
@@ -38,38 +63,40 @@ class AssetManager {
     return this.baseUrl;
   }
 
-  addType(type, cls) {
+  addType(type: string, cls: HTMLElementConstructor) {
     this.types[type] = cls;
   }
 
-  _download(type, path) {
+  _download(type: string, path: string): Promise<DownloadQueueItem> {
     return new Promise((resolve, reject) => {
-      let img = new this.types[type]();
-      img.addEventListener(
+      const asset = new this.types[type]();
+      asset.addEventListener(
         'load',
         () => {
           if (this.cache) {
-            this.cache[name] = img;
+            this.cache[path] = asset;
           }
-          resolve(img, path);
+          resolve({ asset, type, src: path });
         },
         false
       );
-      img.addEventListener(
+      asset.addEventListener(
         'error',
         () => {
-          reject(img, path);
+          reject({ asset, type, src: path });
         },
         false
       );
-      img.src = `${this.baseUrl}${path}`;
+      if ('src' in asset) {
+        asset.src = `${this.baseUrl}${path}`;
+      }
     });
   }
 
-  queueDownload(type, path, name = path) {
+  queueDownload(type: string, path: string, name = path) {
     if (!this.downloadQueue[name]) {
-      this.assets[name] = { src: path, type: type };
-      AssetManager.trigger('started');
+      this.assets[name] = { asset: null, src: path, type: type };
+      AssetManager.trigger('started', null);
       this.downloadQueue[name] = this._download(type, path);
       this.downloadQueue[name]
         .then(
@@ -87,7 +114,7 @@ class AssetManager {
     return this.downloadQueue[name];
   }
 
-  getAsset(name) {
+  getAsset(name: string) {
     if (!this.cache) {
       // redowload - FIXME
       return this._download(this.assets[name].type, this.assets[name].src);
@@ -98,7 +125,7 @@ class AssetManager {
     return this.cache[name];
   }
 
-  getAssetSrc(name) {
+  getAssetSrc(name: string) {
     return this.baseUrl + this.assets[name].src;
   }
 }

@@ -48,7 +48,7 @@ export const App: React.FC<React.PropsWithChildren<Props>> = ({}) => {
     data: booksData,
     error: booksError,
     isLoading: booksIsLoading,
-  } = useGetBooksQuery('');
+  } = useGetBooksQuery();
   return (
     <div>
       <div>Loading: {booksIsLoading}</div>

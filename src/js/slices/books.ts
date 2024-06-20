@@ -36,7 +36,7 @@ export const booksApi = createApi({
     baseUrl: 'https://books.saltystories.ca/books/',
   }),
   endpoints: (builder) => ({
-    getBooks: builder.query<BookListRecord, string>({
+    getBooks: builder.query<BookListRecord, void>({
       query: () => `index.json`,
     }),
     getBookByURL: builder.query<Book, string>({

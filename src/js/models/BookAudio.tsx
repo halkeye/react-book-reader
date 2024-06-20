@@ -12,8 +12,8 @@ class BookAudio extends EventEmitter {
     this.state = 'paused';
   }
 
-  bind(type, ev, func) {
-    this.on(type + '-' + ev, func);
+  bind(type: string, ev: string, func: Parameters<EventEmitter['on']>[1]): this {
+    this.on(`${type}-${ev}`, func);
     return this;
   }
 
