@@ -1,42 +1,40 @@
 'use strict';
-import { init, push } from '../actions';
-import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
 import React, { ReactNode } from 'react';
+import { useGetBooksQuery } from '../slices/books.ts';
 
-import '../../styles/main.scss';
+// import '../../styles/main.scss';
 
-/* Components */
-import BookList from './BookList.jsx';
-
-import LanguageList from './LanguageList.tsx';
-import Book from './Book.jsx';
-
-/* Stores */
-import BookStore from '../stores/BookStore';
-
-/* Dispatchers */
-
-/* Constants */
-import Constants from '../constants/AppConstants';
-
-import AssetManager from '../AssetManager';
-import { BookListRecord } from '../reducers';
-import { Fonts } from '../hooks/useFonts';
-import { AppDispatch } from '../store.ts';
+// /* Components */
+// import BookList from './BookList.jsx';
+//
+// import LanguageList from './LanguageList.tsx';
+// import Book from './Book.jsx';
+//
+// /* Stores */
+// import BookStore from '../stores/BookStore';
+//
+// /* Dispatchers */
+//
+// /* Constants */
+// import Constants from '../constants/AppConstants';
+//
+// import AssetManager from '../AssetManager';
+// import { BookListRecord } from '../reducers';
+// import { Fonts } from '../hooks/useFonts';
+// import { AppDispatch } from '../store.ts';
 
 interface Props {
-  children?: ReactNode;
-  language: string;
-  bookName: string;
-  bookIconBig: string;
-  bookLanguages: Record<string, BookListRecord>;
-  books: Array<BookListRecord>;
-  book: BookListRecord | undefined;
-  page: string;
-  autoplay: string;
-  dispatch: AppDispatch;
+  // language: string;
+  // bookName: string;
+  // bookIconBig: string;
+  // bookLanguages: Record<string, BookListRecord>;
+  // books: Array<BookListRecord>;
+  // book: BookListRecord | undefined;
+  // page: string;
+  // autoplay: string;
+  // dispatch: AppDispatch;
 }
 
 interface State {
@@ -45,7 +43,21 @@ interface State {
   fonts: Fonts;
 }
 
-export const App: React.FC<React.PropsWithChildren<Props>> = ({ books: [], language, page, book }) => {
+export const App: React.FC<React.PropsWithChildren<Props>> = ({}) => {
+  const {
+    data: booksData,
+    error: booksError,
+    isLoading: booksIsLoading,
+  } = useGetBooksQuery('');
+  return (
+    <div>
+      <div>Loading: {booksIsLoading}</div>
+      <div>Error: {JSON.stringify(booksError)}</div>
+      <div>Data: {JSON.stringify(booksData)}</div>
+    </div>
+  );
+  /*
+
   const [state, setState] = React.useState<State>({
     assetsStarted: 0,
     assetsEnded: 0,
@@ -72,7 +84,7 @@ export const App: React.FC<React.PropsWithChildren<Props>> = ({ books: [], langu
     return (
       <>
         <Helmet>
-          <title>Select a book"</title>
+          <title>Select a book</title>
         </Helmet>
         <div>
           <h1>Select a book</h1>
@@ -241,30 +253,30 @@ export const App: React.FC<React.PropsWithChildren<Props>> = ({ books: [], langu
     return selectLanguage();
   }
   return selectBook();
-
-  return ret;
+  */
 };
 
-function mapStateToProps(state) {
-  const {
-    bookName,
-    language,
-    page,
-    autoplay,
-    books,
-    bookLanguages,
-    bookIconsBig,
-  } = state;
-
-  return {
-    language,
-    books,
-    bookName, // FIXME remove when fully removed old stores
-    bookIconBig: bookIconsBig[bookName],
-    bookLanguages: bookLanguages[bookName],
-    page,
-    autoplay,
-  };
-}
-
-export default connect(mapStateToProps)(App);
+// function mapStateToProps(state) {
+//   const {
+//     bookName,
+//     language,
+//     page,
+//     autoplay,
+//     books,
+//     bookLanguages,
+//     bookIconsBig,
+//   } = state;
+//
+//   return {
+//     language,
+//     books,
+//     bookName, // FIXME remove when fully removed old stores
+//     bookIconBig: bookIconsBig[bookName],
+//     bookLanguages: bookLanguages[bookName],
+//     page,
+//     autoplay,
+//   };
+// }
+//
+// export default connect(mapStateToProps)(App);
+export default App;

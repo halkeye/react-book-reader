@@ -4,34 +4,28 @@ import 'whatwg-fetch'; // polyfill
 import { Howl } from 'howler';
 import Constants from '../constants/AppConstants.js';
 
-let getAnimFile = (assetBaseUrl, animName) => {
-  return new Promise((resolve, reject) => {
-    fetch(assetBaseUrl + 'animations/' + animName + '/anim.txt')
-      .then((response) => response.text())
-      .then((text) => {
-        let array = [];
-        text
-          .replace('\r', '\n')
-          .replace(/\n+/, '\n')
-          .split('\n')
-          .forEach((line) => {
-            if (!line) {
-              return;
-            }
-            let [frameNo, timing] = line.split(',');
-            array.push({
-              filename:
-                'animations/' + animName + '/' + animName + frameNo + '.png',
-              nextTiming: parseInt(timing, 10),
-            });
-          });
-
-        resolve(array);
-      });
-  });
+const getAnimFile = async (assetBaseUrl: string, animName: string) => {
+  const text = await fetch(
+    assetBaseUrl + 'animations/' + animName + '/anim.txt'
+  ).then((response) => response.text());
+  const arr = [];
+  for (const line of text
+    .replace('\r', '\n')
+    .replace(/\n+/, '\n')
+    .split('\n')) {
+    if (!line) {
+      continue;
+    }
+    const [frameNo, timing] = line.split(',');
+    arr.push({
+      filename: 'animations/' + animName + '/' + animName + frameNo + '.png',
+      nextTiming: parseInt(timing, 10),
+    });
+  }
+  return arr;
 };
 
-let rewritePageName = (pageName) => {
+const rewritePageName = (pageName: string) => {
   pageName += '';
   return pageName
     .replace(/^WP$/, 'gameDifficultyWP')
@@ -42,7 +36,7 @@ let rewritePageName = (pageName) => {
     .replace(/^games$/, 'game');
 };
 
-let audioFilename = (filename) => {
+const audioFilename = (filename: string) => {
   filename += '';
   return diacritics
     .remove(filename)
@@ -51,7 +45,7 @@ let audioFilename = (filename) => {
     .replace(/\s+$/g, '');
 };
 
-let dirname = (path) => {
+export const dirname = (path: string | undefined | null) => {
   //  discuss at: http://phpjs.org/functions/dirname/
   // original by: Ozh
   // improved by: XoraX (http://www.xorax.info)
@@ -65,56 +59,74 @@ let dirname = (path) => {
   if (!path) {
     return path;
   }
-  return path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '');
+  return path.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '');
 };
 
-let ucFirst = (str) => {
+const ucFirst = (str: string) => {
   str += '';
-  let f = str.charAt(0).toUpperCase();
+  const f = str.charAt(0).toUpperCase();
   return f + str.substr(1).toLowerCase();
 };
 
-let pad_func = (value, width, pad) => {
-  pad = pad || '0';
-  value = value + '';
-  return value.length >= width
-    ? value
-    : new Array(width - value.length + 1).join(pad) + value;
-};
+export interface Color {
+  a: number;
+  r: number;
+  g: number;
+  b: number;
+}
 
-let colorToInt = (color) => {
+export const colorToInt = (color: Color) => {
   return (color.a << 24) | (color.r << 16) | (color.g << 8) | (color.b << 0);
 };
 
-let intToRGBA = (colorInt) => {
-  let alpha = ((colorInt >> 24) & 255) / 255;
-  let red = (colorInt >> 16) & 255;
-  let green = (colorInt >> 8) & 255;
-  let blue = (colorInt >> 0) & 255;
+export const intToRGBA = (colorInt: number) => {
+  const alpha = ((colorInt >> 24) & 255) / 255;
+  const red = (colorInt >> 16) & 255;
+  const green = (colorInt >> 8) & 255;
+  const blue = (colorInt >> 0) & 255;
 
   return 'rgba(' + [red, green, blue].join(',') + ', ' + alpha + ')';
 };
 
-let processStyleData = (assetBaseUrl, styleData) => {
-  let style = {};
+export interface StyleData {
+  FONT: string;
+  COLOR: number;
+  SIZE: number;
+}
+
+export enum StyleDataState {
+  READ = 'READ',
+  READING = 'READING',
+  UNREAD = 'UNREAD',
+}
+
+function enumKeys<O extends object, K extends keyof O = keyof O>(obj: O): K[] {
+  return Object.keys(obj).filter((k) => !Number.isNaN(k)) as K[];
+}
+
+export const processStyleData = (
+  assetBaseUrl: string,
+  styleData: Record<StyleDataState, StyleData>
+) => {
+  const style: Record<string, Record<string, string | number>> = {};
   if (!styleData) {
     return {};
   }
 
-  ['read', 'reading', 'unread'].forEach(function (state) {
-    let font = styleData[state.toUpperCase()].FONT;
+  for (const state of enumKeys(StyleDataState)) {
+    const font = styleData[state].FONT;
     style[state] = {
-      color: intToRGBA(styleData[state.toUpperCase()].COLOR),
+      color: intToRGBA(styleData[state].COLOR),
       fontPath: assetBaseUrl + font,
       fontFamily: font,
-      fontSize: styleData[state.toUpperCase()].SIZE,
+      fontSize: styleData[state].SIZE,
     };
-  });
+  }
   return style;
 };
 
-let pageProcessor = (options) => {
-  let {
+const pageProcessor = (options) => {
+  const {
     promises,
     asset_manager,
     parentStyle,
@@ -125,7 +137,7 @@ let pageProcessor = (options) => {
   } = options;
 
   // HOTSPOTS
-  let pageData = {};
+  const pageData = {};
   pageData.id = pageName;
   pageData.asset_manager = asset_manager;
 
@@ -156,7 +168,7 @@ let pageProcessor = (options) => {
   }
   if (page.BUTTONS) {
     Object.keys(page.BUTTONS).forEach((buttonName) => {
-      let image = page.BUTTONS[buttonName];
+      const image = page.BUTTONS[buttonName];
       let nextPageName = rewritePageName(buttonName);
       if (nextPageRewriter) {
         nextPageName = nextPageRewriter(nextPageName);
@@ -180,19 +192,19 @@ let pageProcessor = (options) => {
   }
   if (page.LINES) {
     page.LINES.forEach(function (line) {
-      let lineStyle = Object.assign(
+      const lineStyle = Object.assign(
         {},
         pageData.styles,
         processStyleData(asset_manager.getBaseUrl(), line.STYLES)
       );
-      let lineData = {
+      const lineData = {
         top: line.POS[0] * 100,
         left: line.POS[1] * 100,
         words: [],
       };
       pageData.lines.push(lineData);
       line.WORDS.forEach(function (word) {
-        let wordStyle = Object.assign(
+        const wordStyle = Object.assign(
           {},
           lineStyle,
           processStyleData(asset_manager.getBaseUrl(), word.STYLES)
@@ -207,7 +219,7 @@ let pageProcessor = (options) => {
               '.mp3'
           )
         );
-        let wordData = {
+        const wordData = {
           word: word[0],
           start: word[1],
           end: word[2],
@@ -267,7 +279,7 @@ class AssetManagerAudioType {
     this.events = {};
   }
   set src(val) {
-    let urls = [val.replace(/.mp3$/, '.ogg'), val];
+    const urls = [val.replace(/.mp3$/, '.ogg'), val];
     this.urls = urls;
     setTimeout(() => {
       this.audio = new Howl({
@@ -294,10 +306,10 @@ class AssetManagerAudioType {
   }
 }
 
-let processBookData = (settings, assetBaseUrl, bookData, language) => {
-  let promises = [];
+export const processBookData = (settings, assetBaseUrl, bookData, language) => {
+  const promises = [];
 
-  let book = {
+  const book = {
     asset_manager: new AssetManager(assetBaseUrl),
     language: language,
     pages: {},
@@ -370,7 +382,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     book.asset_manager.getBaseUrl(),
     bookData.STYLES
   );
-  let gameAnimations = {};
+  const gameAnimations = {};
   ['bad', 'good', 'neutral', 'pointing'].forEach((animName) => {
     getAnimFile(book.asset_manager.getBaseUrl(), animName).then((frames) => {
       frames.forEach((frame) => {
@@ -406,7 +418,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     'tomatoes',
     'waffles',
   ].map((piece) => {
-    let data = {
+    const data = {
       key: piece,
       image: `game_board_assets/game_board_image_${piece}.png`,
       text: `game_board_assets/game_board_text_${piece}-${language}.png`,
@@ -417,9 +429,9 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     return data;
   });
 
-  let gameAssets = {};
+  const gameAssets = {};
   ['game_cupbard_door_closed', 'game_cupbard_door_open'].forEach((file) => {
-    let filename = 'game/' + file + '.png';
+    const filename = 'game/' + file + '.png';
     promises.push(book.asset_manager.queueDownload('img', filename));
     gameAssets[file] = filename;
   });
@@ -428,7 +440,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
   book.pages = [];
   book.games = [];
   bookData.PAGES[language].forEach((page, idx) => {
-    let pageData = (book.pages[idx + 1] = pageProcessor({
+    const pageData = (book.pages[idx + 1] = pageProcessor({
       promises: promises,
       asset_manager: book.asset_manager,
       parentStyle: book.bookStyles,
@@ -454,9 +466,9 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
       if (key === 'GAMES') {
         return;
       }
-      let lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
+      const lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
-      let pageData = (book.pages[lckey] = pageProcessor({
+      const pageData = (book.pages[lckey] = pageProcessor({
         promises: promises,
         asset_manager: book.asset_manager,
         parentStyle: book.bookStyles,
@@ -470,8 +482,8 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     });
     if (bookData.UI.GAMES) {
       Object.keys(bookData.UI.GAMES).forEach((gameName) => {
-        let gameDifficultyKey = `gameDifficulty${gameName}`;
-        let gameDifficultyPageData = (book.pages[gameDifficultyKey] =
+        const gameDifficultyKey = `gameDifficulty${gameName}`;
+        const gameDifficultyPageData = (book.pages[gameDifficultyKey] =
           pageProcessor({
             promises: promises,
             asset_manager: book.asset_manager,
@@ -492,7 +504,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
         );
         gameDifficultyPageData.back = 'game';
 
-        let gameTutorialPageData = (book.pages[`game${gameName}Tutorial`] =
+        const gameTutorialPageData = (book.pages[`game${gameName}Tutorial`] =
           pageProcessor({
             promises: promises,
             asset_manager: book.asset_manager,
@@ -511,8 +523,8 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
         );
 
         ['easy', 'medium', 'hard'].forEach((difficulty) => {
-          let gameKey = `game${gameName}${ucFirst(difficulty)}`;
-          let difficultyPageData = (book.games[gameKey] = pageProcessor({
+          const gameKey = `game${gameName}${ucFirst(difficulty)}`;
+          const difficultyPageData = (book.games[gameKey] = pageProcessor({
             promises: promises,
             asset_manager: book.asset_manager,
             parentStyle: book.bookStyles,
@@ -541,7 +553,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
             if (!bookData.UI.GAMES[gameName][difficulty][boxName]) {
               return;
             }
-            let boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
+            const boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
             /* FIXME */
             difficultyPageData.boxes[boxName] = {
               top: boxData[0] * Constants.Dimensions.HEIGHT,
@@ -554,7 +566,7 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
             if (!bookData.UI.GAMES[gameName][difficulty][boxName]) {
               return;
             }
-            let boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
+            const boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
             /* FIXME */
             difficultyPageData.boxes[boxName] = boxData.map((data) => {
               return {
@@ -579,12 +591,4 @@ let processBookData = (settings, assetBaseUrl, bookData, language) => {
     );
   };
   return Promise.all(promises);
-};
-
-export default {
-  dirname: dirname,
-  pad: pad_func,
-  colorToInt: colorToInt,
-  intToRGBA: intToRGBA,
-  processBookData: processBookData,
 };
