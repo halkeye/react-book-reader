@@ -1,4 +1,3 @@
-import ImmutablePropTypes from 'react-immutable-proptypes';
 import React from 'react';
 import PropTypes from 'prop-types';
 import RaisedButton from '@material-ui/core/RaisedButton';
@@ -16,7 +15,7 @@ class BookList extends React.Component {
       return <div>Auto selecting book</div>;
     }
 
-    let booksStr = this.props.books.map((book) => {
+    const booksStr = this.props.books.map((book) => {
       return (
         <div key={book.id} id={book.id}>
           <RaisedButton

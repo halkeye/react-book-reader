@@ -6,8 +6,8 @@ import { useGetBooksQuery } from '../slices/books.ts';
 
 // import '../../styles/main.scss';
 
-// /* Components */
-// import BookList from './BookList.jsx';
+/* Components */
+import BookList from './BookList.jsx';
 //
 // import LanguageList from './LanguageList.tsx';
 // import Book from './Book.jsx';
@@ -43,19 +43,33 @@ interface State {
   fonts: Fonts;
 }
 
-export const App: React.FC<React.PropsWithChildren<Props>> = ({}) => {
-  const {
-    data: booksData,
-    error: booksError,
-    isLoading: booksIsLoading,
-  } = useGetBooksQuery();
+export const PageBookSelector = () => {
+  const { data: books, error, isLoading } = useGetBooksQuery();
+
+  if (isLoading) {
+    return <div>Loading Books...</div>;
+  }
+
+  if (error) {
+    // FIXME - do something else
+    throw error;
+  }
+
   return (
-    <div>
-      <div>Loading: {booksIsLoading}</div>
-      <div>Error: {JSON.stringify(booksError)}</div>
-      <div>Data: {JSON.stringify(booksData)}</div>
-    </div>
+    <>
+      <Helmet>
+        <title>Select a book</title>
+      </Helmet>
+      <div>
+        <h1>Select a book</h1>
+        <BookList books={books} />
+      </div>
+    </>
   );
+};
+
+export const App: React.FC<React.PropsWithChildren<Props>> = ({}) => {
+  return <PageBookSelector />;
   /*
 
   const [state, setState] = React.useState<State>({
