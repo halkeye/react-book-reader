@@ -1,8 +1,7 @@
-@import '~material-ui-sass/material-ui.scss';
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,500);
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700);
+:root {
+  --book-icon-cir: 272px;
+}
 
-//Your custom app styles
 .language-selector-button {
   margin-bottom: 16px;
 }
@@ -12,7 +11,7 @@ body {
   width: 100%;
   min-height: 100%;
   user-select: none;
-  //background-image: url('../img/tile-bg.png');
+  /* background-image: url('../img/tile-bg.png'); */
 
   background-color: #fff;
   background-image: linear-gradient(90deg,
@@ -25,16 +24,13 @@ body {
 }
 
 .LanguageList {
-  $bookIconCir: 272px;
-
   .bookIcon {
-    width: $bookIconCir;
-    height: $bookIconCir;
+    width: var(--book-icon-cir);
+    height: var(--book-icon-cir);
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-    border-radius: $bookIconCir / 2;
+    border-radius: var(--book-icon-cir) / 2;
     background-position: 'center';
     background-size: 100% 100%;
-    background-contain: 100% 100%;
     background-repeat: 'no-repeat';
   }
 

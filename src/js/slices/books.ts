@@ -1,20 +1,22 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { dirname, processBookData } from '../constants/BookUtilities';
-import { BookListRecord } from '../reducers';
 
 export enum LanguageCode {
   EN = 'en',
   FR = 'fr',
 }
 
-export interface LanguageState {
-  languageCode: LanguageCode | null;
+export interface BooksState {
+  bookCode: LanguageCode | null;
+  book: Book | null;
+  books: Array<Book>;
 }
 
-const initialState: LanguageState = {
-  languageCode: null,
+const initialState: BooksState = {
+  bookCode: null,
+  books: [],
+  book: null,
 };
 
 export interface BookListEntry {
@@ -24,20 +26,38 @@ export interface BookListEntry {
   icon: string;
   iconBig: string;
   version: number;
-  languages: Array<string>;
+  books: Array<string>;
 }
 
-export interface Book {}
+export interface BookPage {}
 
+export interface Book {
+  readonly id: number;
+  readonly title: string;
+  readonly icon: string;
+  readonly pages?: Array<BookPage>;
+}
+
+const BASE_URL = 'https://books.saltystories.ca/books/';
 // Define a service using a base URL and expected endpoints
 export const booksApi = createApi({
   reducerPath: 'booksApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://books.saltystories.ca/books/',
+    baseUrl: BASE_URL,
   }),
   endpoints: (builder) => ({
-    getBooks: builder.query<BookListRecord, void>({
+    getBooks: builder.query<Array<BookListEntry>, void>({
       query: () => `index.json`,
+      transformResponse(response: Array<BookListEntry>) {
+        return response.map((bookListEntry) => {
+          return {
+            ...bookListEntry,
+            icon: new URL(bookListEntry.icon, BASE_URL).toString(),
+            iconBig: new URL(bookListEntry.iconBig, BASE_URL).toString(),
+            url: new URL(bookListEntry.url, BASE_URL).toString(),
+          };
+        });
+      },
     }),
     getBookByURL: builder.query<Book, string>({
       query: (url) => url,
@@ -48,54 +68,39 @@ export const booksApi = createApi({
 // auto-generated based on the defined endpoints
 export const { useGetBooksQuery } = booksApi;
 
-// First, create the thunk
-const fetchBookByURL = createAsyncThunk(
-  'book/fetchByURLStatus',
-  async (language: string, url: string, thunkAPI) => {
-    const bookJSON = await fetch(url).then((response) => response.json());
-    const assetBaseUrl = dirname(url);
-    // existing book
-    const existingBookData = {};
-    // state.books.find((b) => b.id === state.bookName) || {};
-    const loadedBookData = await processBookData(
-      {},
-      assetBaseUrl,
-      bookJSON,
-      language
-    );
-
-    return {
-      ...existingBookData,
-      ...loadedBookData,
-    };
-  }
-);
-
-export const languageSlice = createSlice({
-  name: 'language',
+export const bookSlice = createSlice({
+  name: 'book',
   initialState,
   reducers: {
-    chooseLanguage: (state) => {
-      // FIXME - dispatch(push(`/book/${state.bookName}/lang/${language}`));
-      const book = state.books.find((b) => b.id === state.bookName);
+    chooseBook: (state, action: PayloadAction<number>) => {
+      const id = action.payload;
+      // TODO
+      // 1) find book
+      // 2) state.Book = {}
+      // 3) trigger fetch
+      state.book = state.books?.find((book) => book.id === id) ?? null;
     },
-    increment: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.value += 1;
+    chooseLanguage: (state, action: PayloadAction<LanguageCode>) => {
+      if (!state.book) {
+        throw new Error('Book is not loaded');
+      }
+      console.log('chooseLanguage', action.payload);
+      state.book.pages = [];
+      // FIXME - dispatch(push(`/book/${state.bookName}/lang/${book}`));
+      // const something = state.book?.find((b) => b.id === action.payload);
     },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action: PayloadAction<number>) => {
-      state.value += action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      booksApi.endpoints.getBooks.matchFulfilled,
+      (state, action) => {
+        console.log('getBooksFulfilled', { state, action });
+      }
+    );
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { chooseLanguage } = languageSlice.actions;
+export const { chooseLanguage, chooseBook } = bookSlice.actions;
 
-export default languageSlice.reducer;
+export default bookSlice.reducer;

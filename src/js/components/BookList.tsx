@@ -1,40 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import RaisedButton from '@material-ui/core/RaisedButton';
-import { chooseBook } from '../actions';
+import { useDispatch } from 'react-redux';
+import { Book, chooseBook } from '../slices/books';
+import BookButton from './BookButton.tsx';
 
-class BookList extends React.Component {
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    books: ImmutablePropTypes.list.isRequired,
-  };
-
-  render() {
-    if (this.props.books.size === 1) {
-      this.handleSelectBookClick(this.props.books.get(0).id);
-      return <div>Auto selecting book</div>;
-    }
-
-    const booksStr = this.props.books.map((book) => {
-      return (
-        <div key={book.id} id={book.id}>
-          <RaisedButton
-            onClick={this.handleSelectBookClick.bind(this, book.id)}
-          >
-            <img src={book.icon} />
-            <span className="mui-raised-button-label">{book.title}</span>
-          </RaisedButton>
-        </div>
-      );
-    });
-    return <div>{booksStr}</div>;
-  }
-
-  handleSelectBookClick(bookId) {
-    this.props.dispatch(
-      chooseBook(this.props.books.find((b) => b.id === bookId))
-    );
-  }
+interface Props {
+  books: Array<Book>;
 }
+
+export const BookList = ({ books }: Props) => {
+  const dispatch = useDispatch();
+
+  // if (books.length === 1) {
+  //   dispatch(chooseBook(books[0].id));
+  //   return <div>Auto selecting book</div>;
+  // }
+
+  return (
+    <>
+      {books.map((book) => (
+        <BookButton key={book.id} id={book.id} title={book.title} icon={book.icon} />
+      ))}
+    </>
+  );
+};
 
 export default BookList;

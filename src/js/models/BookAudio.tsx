@@ -1,10 +1,17 @@
-'use strict';
-
 // require the core node events module
 import { EventEmitter } from 'events';
+import AssetManager from '../AssetManager';
 
 class BookAudio extends EventEmitter {
-  constructor(asset_manager) {
+  private asset_manager: AssetManager;
+  private currentFilename: string | null;
+  private playMode: string | null;
+  private state: string;
+  private asset: any;
+  private interval: any;
+  private seekInterval: any;
+
+  constructor(asset_manager: AssetManager) {
     super();
     this.asset_manager = asset_manager;
     this.currentFilename = null;
@@ -36,7 +43,7 @@ class BookAudio extends EventEmitter {
     return this;
   }
 
-  play(type, path) {
+  play(type: string, path: string): this {
     // don't double play
     if (
       this.asset !== null &&
