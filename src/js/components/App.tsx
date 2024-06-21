@@ -2,7 +2,8 @@
 import { Helmet } from 'react-helmet-async';
 
 import React, { useEffect } from 'react';
-import { usePrefetch } from '../slices/booksApi.ts';
+import { useGetBookByURLQuery, usePrefetch } from '../slices/booksApi.ts';
+import { RootState, useAppDispatch, useAppSelector } from '../store';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -15,15 +16,14 @@ import '../../styles/main.css';
 import BookList from './BookList.jsx';
 import { Fonts } from '../hooks/useFonts.ts';
 import { getQueryString } from '../hooks/useQueryString.ts';
-import { useDispatch, useSelector } from 'react-redux';
 //
 // import LanguageList from './LanguageList.tsx';
 // import Book from './Book.jsx';
 //
 // /* Stores */
 // import BookStore from '../stores/BookStore';
-import { RootState } from '../store';
-import { chooseBook } from '../slices/books.ts';
+import { BookListEntry, chooseBook } from '../slices/books.ts';
+import { withEmotionCache } from '@emotion/react';
 //
 // /* Dispatchers */
 //
@@ -53,24 +53,11 @@ interface State {
   fonts: Fonts;
 }
 
-export const PageBookSelector = () => {
-  const [query, setQuery] = getQueryString();
-  const dispatch = useDispatch();
-  const prefetchBooks = usePrefetch('getBooks');
-
-  useEffect(() => prefetchBooks(), [prefetchBooks]);
-
-  const bookList = useSelector((state: RootState) => state.book.bookList);
-
-  if (!bookList) {
-    return <div>Loading Books...</div>;
-  }
-
-  if (bookList.length == 1) {
-    dispatch(chooseBook(bookList[0].id));
-    return <div>Auto selecting book</div>;
-  }
-
+export const PageBookSelector = ({
+  bookList,
+}: {
+  bookList: Array<BookListEntry>;
+}) => {
   return (
     <>
       <Helmet>
@@ -84,8 +71,36 @@ export const PageBookSelector = () => {
   );
 };
 
-export const App: React.FC<React.PropsWithChildren<Props>> = ({}) => {
-  return <PageBookSelector />;
+export const PageBook = ({ url }: { url: string }) => {
+  const { bookPage } = useGetBookByURLQuery(url, {
+    selectFromResult: ({ data }) => ({
+      bookPage: data?.PAGES.en[0],
+    }),
+  });
+  return <div>{JSON.stringify(bookPage)}</div>;
+};
+
+export const App = () => {
+  const [query, setQuery] = getQueryString();
+  const prefetchBooks = usePrefetch('getBooks');
+
+  useEffect(() => prefetchBooks(), [prefetchBooks]);
+
+  const bookList = useAppSelector((state: RootState) => state.book.bookList);
+  const chosenBookUrl = useAppSelector(
+    (state: RootState) => state.book.chosenBookUrl
+  );
+
+  if (!chosenBookUrl) {
+    if (!bookList) {
+      return <div>Loading Books...</div>;
+    }
+
+    console.log('bookList', bookList);
+    return <PageBookSelector bookList={bookList} />;
+  }
+
+  return <PageBook url={chosenBookUrl} />;
   /*
 
   const [state, setState] = React.useState<State>({

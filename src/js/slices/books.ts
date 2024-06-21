@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { Dispatch, PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../store';
 import { getQueryString } from '../hooks/useQueryString';
 import { booksApi } from './booksApi';
@@ -10,8 +10,9 @@ export enum LanguageCode {
 }
 
 export interface BooksState {
-  bookCode: LanguageCode | null;
-  book: Book | null;
+  bookCode: LanguageCode | undefined;
+  chosenBookUrl: string | undefined;
+  book: Book | undefined;
   books: Array<Book>;
   bookList: Array<BookListEntry>;
 }
@@ -19,12 +20,13 @@ export interface BooksState {
 const getInitialState = (): BooksState => {
   const [query] = getQueryString();
   return {
-    bookCode:
-      Object.values(LanguageCode).find((code) => code === query.language) ??
-      null,
+    book: undefined,
+    chosenBookUrl: undefined,
+    bookCode: Object.values(LanguageCode).find(
+      (code) => code === query.language
+    ),
     books: [],
     bookList: [],
-    book: null,
   };
 };
 
@@ -51,7 +53,7 @@ export const bookSlice = createSlice({
   name: 'book',
   initialState: getInitialState(),
   reducers: {
-    chooseBook: (state, action: PayloadAction<BookListEntry['id']>) => {
+    chosenBook: (state, action: PayloadAction<BookListEntry['id']>) => {
       const id = action.payload;
       const [query, setQuery] = getQueryString();
 
@@ -61,7 +63,7 @@ export const bookSlice = createSlice({
       // 1) find book
       // 2) state.Book = {}
       // 3) trigger fetch
-      state.book = state.books?.find((book) => book.id === id) ?? null;
+      state.chosenBookUrl = state.bookList?.find((book) => book.id === id)?.url;
     },
     chooseLanguage: (state, action: PayloadAction<LanguageCode>) => {
       if (!state.book) {
@@ -84,30 +86,35 @@ export const bookSlice = createSlice({
         console.log('getBooksFulfilled', { state, action });
       }
     );
+    // builder.addMatcher(
+    //   booksApi.endpoints.getBookByURL.matchFulfilled,
+    //   (state, action) => {
+    //     const [query, setQuery] = getQueryString();
+    //     console.log('action', action);
+    //     state.book = action.payload;
+    //     console.log('getBooksFulfilled', { state, action });
+    //   }
+    // );
   },
 });
 
 export const chooseBook = (id: Book['id']) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
+    console.log('action.chooseBook', id);
+
     const bookListBook = getState().book.bookList.find(
       (book) => book.id === id
     );
     if (!bookListBook) {
       throw new Error(`No such book ${id})`);
     }
+    dispatch(bookSlice.actions.chosenBook(bookListBook.id));
 
-    const promise = dispatch(
-      booksApi.endpoints.getBookByURL.initiate(bookListBook.url)
-    );
-    const resp = await promise;
-    console.log('chooseBook.resp', resp);
-    // const { data, isLoading, isSuccess /*...*/ } =  await promise;
-    // promise.unsubscribe()
-    // dispatch(bookSlice.actions.chooseBook(id));
+    dispatch(booksApi.endpoints.getBookByURL.initiate(bookListBook.url));
   };
 };
 
 // Action creators are generated for each case reducer function
-export const { chooseLanguage } = bookSlice.actions;
+// export const { chooseLanguage } = bookSlice.actions;
 
 export default bookSlice.reducer;
