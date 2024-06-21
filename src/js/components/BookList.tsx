@@ -1,9 +1,9 @@
 import { useDispatch } from 'react-redux';
-import { Book, chooseBook } from '../slices/books';
+import { BookListEntry, chooseBook } from '../slices/books';
 import BookButton from './BookButton.tsx';
 
 interface Props {
-  books: Array<Book>;
+  books: Array<BookListEntry>;
 }
 
 export const BookList = ({ books }: Props) => {
@@ -17,7 +17,12 @@ export const BookList = ({ books }: Props) => {
   return (
     <>
       {books.map((book) => (
-        <BookButton key={book.id} id={book.id} title={book.title} icon={book.icon} />
+        <BookButton
+          key={book.id}
+          id={book.id}
+          title={book.title}
+          icon={book.icon}
+        />
       ))}
     </>
   );

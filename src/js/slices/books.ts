@@ -1,6 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import type { Dispatch, PayloadAction } from '@reduxjs/toolkit';
+import { AppDispatch, RootState } from '../store';
+import { getQueryString } from '../hooks/useQueryString';
+import { booksApi } from './booksApi';
 
 export enum LanguageCode {
   EN = 'en',
@@ -11,12 +13,19 @@ export interface BooksState {
   bookCode: LanguageCode | null;
   book: Book | null;
   books: Array<Book>;
+  bookList: Array<BookListEntry>;
 }
 
-const initialState: BooksState = {
-  bookCode: null,
-  books: [],
-  book: null,
+const getInitialState = (): BooksState => {
+  const [query] = getQueryString();
+  return {
+    bookCode:
+      Object.values(LanguageCode).find((code) => code === query.language) ??
+      null,
+    books: [],
+    bookList: [],
+    book: null,
+  };
 };
 
 export interface BookListEntry {
@@ -32,48 +41,22 @@ export interface BookListEntry {
 export interface BookPage {}
 
 export interface Book {
-  readonly id: number;
+  readonly id: string;
   readonly title: string;
   readonly icon: string;
   readonly pages?: Array<BookPage>;
 }
 
-const BASE_URL = 'https://books.saltystories.ca/books/';
-// Define a service using a base URL and expected endpoints
-export const booksApi = createApi({
-  reducerPath: 'booksApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-  }),
-  endpoints: (builder) => ({
-    getBooks: builder.query<Array<BookListEntry>, void>({
-      query: () => `index.json`,
-      transformResponse(response: Array<BookListEntry>) {
-        return response.map((bookListEntry) => {
-          return {
-            ...bookListEntry,
-            icon: new URL(bookListEntry.icon, BASE_URL).toString(),
-            iconBig: new URL(bookListEntry.iconBig, BASE_URL).toString(),
-            url: new URL(bookListEntry.url, BASE_URL).toString(),
-          };
-        });
-      },
-    }),
-    getBookByURL: builder.query<Book, string>({
-      query: (url) => url,
-    }),
-  }),
-});
-
-// auto-generated based on the defined endpoints
-export const { useGetBooksQuery } = booksApi;
-
 export const bookSlice = createSlice({
   name: 'book',
-  initialState,
+  initialState: getInitialState(),
   reducers: {
-    chooseBook: (state, action: PayloadAction<number>) => {
+    chooseBook: (state, action: PayloadAction<BookListEntry['id']>) => {
       const id = action.payload;
+      const [query, setQuery] = getQueryString();
+
+      console.log('chooseBook', id, { query, setQuery });
+      setQuery('book', `${id}`);
       // TODO
       // 1) find book
       // 2) state.Book = {}
@@ -90,17 +73,41 @@ export const bookSlice = createSlice({
       // const something = state.book?.find((b) => b.id === action.payload);
     },
   },
+  selectors: {
+    bookList: (state) => state.bookList,
+  },
   extraReducers: (builder) => {
     builder.addMatcher(
       booksApi.endpoints.getBooks.matchFulfilled,
       (state, action) => {
+        state.bookList = action.payload;
         console.log('getBooksFulfilled', { state, action });
       }
     );
   },
 });
 
+export const chooseBook = (id: Book['id']) => {
+  return async (dispatch: AppDispatch, getState: () => RootState) => {
+    const bookListBook = getState().book.bookList.find(
+      (book) => book.id === id
+    );
+    if (!bookListBook) {
+      throw new Error(`No such book ${id})`);
+    }
+
+    const promise = dispatch(
+      booksApi.endpoints.getBookByURL.initiate(bookListBook.url)
+    );
+    const resp = await promise;
+    console.log('chooseBook.resp', resp);
+    // const { data, isLoading, isSuccess /*...*/ } =  await promise;
+    // promise.unsubscribe()
+    // dispatch(bookSlice.actions.chooseBook(id));
+  };
+};
+
 // Action creators are generated for each case reducer function
-export const { chooseLanguage, chooseBook } = bookSlice.actions;
+export const { chooseLanguage } = bookSlice.actions;
 
 export default bookSlice.reducer;

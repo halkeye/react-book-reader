@@ -1,8 +1,8 @@
 'use strict';
 import { Helmet } from 'react-helmet-async';
 
-import React from 'react';
-import { useGetBooksQuery } from '../slices/books.ts';
+import React, { useEffect } from 'react';
+import { usePrefetch } from '../slices/booksApi.ts';
 
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -13,12 +13,17 @@ import '../../styles/main.css';
 
 /* Components */
 import BookList from './BookList.jsx';
+import { Fonts } from '../hooks/useFonts.ts';
+import { getQueryString } from '../hooks/useQueryString.ts';
+import { useDispatch, useSelector } from 'react-redux';
 //
 // import LanguageList from './LanguageList.tsx';
 // import Book from './Book.jsx';
 //
 // /* Stores */
 // import BookStore from '../stores/BookStore';
+import { RootState } from '../store';
+import { chooseBook } from '../slices/books.ts';
 //
 // /* Dispatchers */
 //
@@ -49,15 +54,21 @@ interface State {
 }
 
 export const PageBookSelector = () => {
-  const { data: books, error, isLoading } = useGetBooksQuery();
+  const [query, setQuery] = getQueryString();
+  const dispatch = useDispatch();
+  const prefetchBooks = usePrefetch('getBooks');
 
-  if (isLoading) {
+  useEffect(() => prefetchBooks(), [prefetchBooks]);
+
+  const bookList = useSelector((state: RootState) => state.book.bookList);
+
+  if (!bookList) {
     return <div>Loading Books...</div>;
   }
 
-  if (error) {
-    // FIXME - do something else
-    throw error;
+  if (bookList.length == 1) {
+    dispatch(chooseBook(bookList[0].id));
+    return <div>Auto selecting book</div>;
   }
 
   return (
@@ -67,7 +78,7 @@ export const PageBookSelector = () => {
       </Helmet>
       <div>
         <h1>Select a book</h1>
-        <BookList books={books} />
+        <BookList books={bookList} />
       </div>
     </>
   );
