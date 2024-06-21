@@ -103,6 +103,14 @@ export const booksApi = createApi({
         console.log('getBookByURL.response', response);
         return response;
       },
+      async onQueryStarted(_, { getState, queryFulfilled, getCacheEntry }) {
+        const data = await queryFulfilled;
+        console.log('getBookByURL', {
+          data: data.data,
+          getCacheEntry: getCacheEntry(),
+          state: getState(),
+        });
+      },
     }),
   }),
 });

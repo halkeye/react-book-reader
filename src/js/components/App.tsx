@@ -2,7 +2,11 @@
 import { Helmet } from 'react-helmet-async';
 
 import React, { useEffect } from 'react';
-import { useGetBookByURLQuery, usePrefetch } from '../slices/booksApi.ts';
+import {
+  useGetBookByURLQuery,
+  useGetBooksQuery,
+  usePrefetch,
+} from '../slices/booksApi.ts';
 import { RootState, useAppDispatch, useAppSelector } from '../store';
 
 import '@fontsource/roboto/300.css';
@@ -16,8 +20,8 @@ import '../../styles/main.css';
 import BookList from './BookList.jsx';
 import { Fonts } from '../hooks/useFonts.ts';
 import { getQueryString } from '../hooks/useQueryString.ts';
+import LanguageList from './LanguageList.tsx';
 //
-// import LanguageList from './LanguageList.tsx';
 // import Book from './Book.jsx';
 //
 // /* Stores */
@@ -80,6 +84,20 @@ export const PageBook = ({ url }: { url: string }) => {
   return <div>{JSON.stringify(bookPage)}</div>;
 };
 
+export const PageLanguage = ({ url }: { url: string }) => {
+  const { iconBig } = useGetBooksQuery(undefined, {
+    selectFromResult: ({ data }) => ({
+      iconBig: data?.find((book) => book.url === url)?.iconBig ?? '',
+    }),
+  });
+  const { languages } = useGetBookByURLQuery(url, {
+    selectFromResult: ({ data }) => ({
+      languages: Object.keys(data?.PAGES ?? []),
+    }),
+  });
+  return <LanguageList iconBig={iconBig} languages={languages} />;
+};
+
 export const App = () => {
   const [query, setQuery] = getQueryString();
   const prefetchBooks = usePrefetch('getBooks');
@@ -96,11 +114,11 @@ export const App = () => {
       return <div>Loading Books...</div>;
     }
 
-    console.log('bookList', bookList);
     return <PageBookSelector bookList={bookList} />;
   }
 
-  return <PageBook url={chosenBookUrl} />;
+  return <PageLanguage url={chosenBookUrl} />;
+  // return <PageBook url={chosenBookUrl} />;
   /*
 
   const [state, setState] = React.useState<State>({

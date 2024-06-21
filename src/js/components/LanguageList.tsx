@@ -1,8 +1,7 @@
 import React from 'react';
-import { chooseLanguage } from '../actions.js';
 import LanguageIcon from './LanguageIcon.jsx';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../store';
 
 interface Props {
   languages: Array<string>;
@@ -10,7 +9,7 @@ interface Props {
 }
 
 const LanguageButton = ({ languageCode }: { languageCode: string }) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const handleSelectLanguageClick = React.useCallback(
     (languageCode: string) => {
       dispatch(chooseLanguage(languageCode));
@@ -30,12 +29,6 @@ const LanguageButton = ({ languageCode }: { languageCode: string }) => {
 };
 
 const LanguageList = ({ iconBig, languages }: Props) => {
-  const dispatch = useDispatch();
-  if (languages.length === 1) {
-    dispatch(chooseLanguage(languages[0]));
-    return null;
-  }
-
   const circularIcon = { backgroundImage: `url('${iconBig}')` };
   return (
     <>
@@ -46,7 +39,7 @@ const LanguageList = ({ iconBig, languages }: Props) => {
         <img className="bookIcon" style={circularIcon} />
         <h1>Select a language</h1>
         {languages.map((languageCode) => (
-          <LanguageButton languageCode={languageCode} />
+          <LanguageButton key={languageCode} languageCode={languageCode} />
         ))}
       </div>
     </>

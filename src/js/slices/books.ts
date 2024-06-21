@@ -56,8 +56,6 @@ export const bookSlice = createSlice({
     chosenBook: (state, action: PayloadAction<BookListEntry['id']>) => {
       const id = action.payload;
       const [query, setQuery] = getQueryString();
-
-      console.log('chooseBook', id, { query, setQuery });
       setQuery('book', `${id}`);
       // TODO
       // 1) find book
@@ -98,10 +96,14 @@ export const bookSlice = createSlice({
   },
 });
 
+export const init = () => {
+  return async (dispatch: AppDispatch) => {
+    dispatch(booksApi.endpoints.getBooks.initiate());
+  };
+};
+
 export const chooseBook = (id: Book['id']) => {
   return async (dispatch: AppDispatch, getState: () => RootState) => {
-    console.log('action.chooseBook', id);
-
     const bookListBook = getState().book.bookList.find(
       (book) => book.id === id
     );
