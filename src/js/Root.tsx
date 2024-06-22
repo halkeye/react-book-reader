@@ -1,20 +1,17 @@
-import { Provider } from 'react-redux';
+import { Suspense } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
-import { store } from './store';
 import App from './components/App';
-
-// FIMXE - redux router
-// return (<ConnectedRouter history={history}>{ret}</ConnectedRouter>)
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Root = () => (
   <HelmetProvider>
-    <Provider store={store}>
-      <Helmet>
-        <title>Storybook Reader</title>
-      </Helmet>
+    <Helmet>
+      <title>Storybook Reader</title>
+    </Helmet>
+    <Suspense fallback={<CircularProgress color="inherit" size={16} />}>
       <App />
-    </Provider>
+    </Suspense>
   </HelmetProvider>
 );
 

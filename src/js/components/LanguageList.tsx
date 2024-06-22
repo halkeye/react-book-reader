@@ -1,35 +1,36 @@
 import React from 'react';
 import LanguageIcon from './LanguageIcon.jsx';
 import { Helmet } from 'react-helmet-async';
-import { useAppDispatch } from '../store';
-
-interface Props {
-  languages: Array<string>;
-  iconBig: string;
-}
+import {
+  LanguageCode,
+  bookAtom,
+  bookLanguageAtom,
+  bookLanguagesAtom,
+} from '../atoms.js';
+import { useAtom } from 'jotai';
 
 const LanguageButton = ({ languageCode }: { languageCode: string }) => {
-  const dispatch = useAppDispatch();
+  const [, setLanguage] = useAtom(bookLanguageAtom);
   const handleSelectLanguageClick = React.useCallback(
-    (languageCode: string) => {
-      dispatch(chooseLanguage(languageCode));
-    },
-    [dispatch, languageCode]
+    () => setLanguage(languageCode as LanguageCode),
+    [setLanguage, languageCode]
   );
 
   return (
     <button
       className="button"
       key={languageCode}
-      onClick={() => handleSelectLanguageClick(languageCode)}
+      onClick={handleSelectLanguageClick}
     >
       <LanguageIcon languageCode={languageCode} />
     </button>
   );
 };
 
-const LanguageList = ({ iconBig, languages }: Props) => {
-  const circularIcon = { backgroundImage: `url('${iconBig}')` };
+const LanguageList = () => {
+  const [book] = useAtom(bookAtom);
+  const [languages] = useAtom(bookLanguagesAtom);
+  const circularIcon = { backgroundImage: `url('${book?.iconBig}')` };
   return (
     <>
       <Helmet>

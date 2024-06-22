@@ -1,33 +1,23 @@
-'use strict';
-import { Helmet } from 'react-helmet-async';
-
-import React, { useEffect } from 'react';
-import {
-  useGetBookByURLQuery,
-  useGetBooksQuery,
-  usePrefetch,
-} from '../slices/booksApi.ts';
-import { RootState, useAppDispatch, useAppSelector } from '../store';
-
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-
 import '../../styles/main.css';
+
+import { useAtom } from 'jotai';
+import { Helmet } from 'react-helmet-async';
 
 /* Components */
 import BookList from './BookList.jsx';
-import { Fonts } from '../hooks/useFonts.ts';
-import { getQueryString } from '../hooks/useQueryString.ts';
+// import { Fonts } from '../hooks/useFonts.ts';
+// import { getQueryString } from '../hooks/useQueryString.ts';
 import LanguageList from './LanguageList.tsx';
 //
 // import Book from './Book.jsx';
 //
 // /* Stores */
-// import BookStore from '../stores/BookStore';
-import { BookListEntry, chooseBook } from '../slices/books.ts';
-import { withEmotionCache } from '@emotion/react';
+import { PropsWithChildren } from 'react';
+import { bookAtom, bookLanguageAtom } from '../atoms.ts';
 //
 // /* Dispatchers */
 //
@@ -37,88 +27,60 @@ import { withEmotionCache } from '@emotion/react';
 // import AssetManager from '../AssetManager';
 // import { BookListRecord } from '../reducers';
 // import { Fonts } from '../hooks/useFonts';
-// import { AppDispatch } from '../store.ts';
 
-interface Props {
-  // language: string;
-  // bookName: string;
-  // bookIconBig: string;
-  // bookLanguages: Record<string, BookListRecord>;
-  // books: Array<BookListRecord>;
-  // book: BookListRecord | undefined;
-  // page: string;
-  // autoplay: string;
-  // dispatch: AppDispatch;
+// interface Props {
+// language: string;
+// bookName: string;
+// bookIconBig: string;
+// bookLanguages: Record<string, BookListRecord>;
+// books: Array<BookListRecord>;
+// book: BookListRecord | undefined;
+// page: string;
+// autoplay: string;
+// dispatch: AppDispatch;
+// }
+
+// interface State {
+//   assetsStarted: 0;
+//   assetsEnded: 0;
+//   fonts: Fonts;
+// }
+//
+
+interface PageProps {
+  title: string;
 }
 
-interface State {
-  assetsStarted: 0;
-  assetsEnded: 0;
-  fonts: Fonts;
-}
-
-export const PageBookSelector = ({
-  bookList,
-}: {
-  bookList: Array<BookListEntry>;
-}) => {
+export const Page = ({ children, title }: PropsWithChildren<PageProps>) => {
   return (
     <>
       <Helmet>
-        <title>Select a book</title>
+        <title>{title}</title>
       </Helmet>
       <div>
-        <h1>Select a book</h1>
-        <BookList books={bookList} />
+        <h1>{title}</h1>
+        {children}
       </div>
     </>
   );
 };
 
-export const PageBook = ({ url }: { url: string }) => {
-  const { bookPage } = useGetBookByURLQuery(url, {
-    selectFromResult: ({ data }) => ({
-      bookPage: data?.PAGES.en[0],
-    }),
-  });
-  return <div>{JSON.stringify(bookPage)}</div>;
-};
-
-export const PageLanguage = ({ url }: { url: string }) => {
-  const { iconBig } = useGetBooksQuery(undefined, {
-    selectFromResult: ({ data }) => ({
-      iconBig: data?.find((book) => book.url === url)?.iconBig ?? '',
-    }),
-  });
-  const { languages } = useGetBookByURLQuery(url, {
-    selectFromResult: ({ data }) => ({
-      languages: Object.keys(data?.PAGES ?? []),
-    }),
-  });
-  return <LanguageList iconBig={iconBig} languages={languages} />;
-};
-
 export const App = () => {
-  const [query, setQuery] = getQueryString();
-  const prefetchBooks = usePrefetch('getBooks');
-
-  useEffect(() => prefetchBooks(), [prefetchBooks]);
-
-  const bookList = useAppSelector((state: RootState) => state.book.bookList);
-  const chosenBookUrl = useAppSelector(
-    (state: RootState) => state.book.chosenBookUrl
-  );
-
-  if (!chosenBookUrl) {
-    if (!bookList) {
-      return <div>Loading Books...</div>;
+  const [book] = useAtom(bookAtom);
+  const [bookLanguage] = useAtom(bookLanguageAtom);
+  if (book) {
+    if (!bookLanguage) {
+      return <LanguageList />;
     }
-
-    return <PageBookSelector bookList={bookList} />;
+    return <Page title="Page">{JSON.stringify(book)}</Page>;
   }
 
-  return <PageLanguage url={chosenBookUrl} />;
-  // return <PageBook url={chosenBookUrl} />;
+  return (
+    <Page title="Select a book">
+      <BookList />
+    </Page>
+  );
+
   /*
 
   const [state, setState] = React.useState<State>({

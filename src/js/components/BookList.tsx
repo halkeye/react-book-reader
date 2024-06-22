@@ -1,19 +1,18 @@
-import { useDispatch } from 'react-redux';
-import { BookListEntry, chooseBook } from '../slices/books';
+import { useAtom } from 'jotai';
+import { bookListAtom } from '../atoms.ts';
 import BookButton from './BookButton.tsx';
+import CircularProgress from '@mui/material/CircularProgress';
 
-interface Props {
-  books: Array<BookListEntry>;
-}
-
-export const BookList = ({ books }: Props) => {
-  const dispatch = useDispatch();
-
-  // if (books.length === 1) {
-  //   dispatch(chooseBook(books[0].id));
-  //   return <div>Auto selecting book</div>;
-  // }
-
+export const BookList = () => {
+  const [books] = useAtom(bookListAtom);
+  if (!books || books.length == 0) {
+    return (
+      <div>
+        Loading
+        <CircularProgress color="inherit" size={16} />
+      </div>
+    );
+  }
   return (
     <>
       {books.map((book) => (

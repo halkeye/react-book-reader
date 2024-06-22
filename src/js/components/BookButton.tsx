@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import Button from '@mui/material/Button';
-import { Book, chooseBook } from '../slices/books';
-import { useDispatch } from 'react-redux';
+import { useAtom } from 'jotai';
+import { Book, bookIdAtom } from '../atoms';
 
 export const BookButton = ({
   id,
@@ -12,10 +12,10 @@ export const BookButton = ({
   title: Book['title'];
   icon: Book['icon'];
 }) => {
-  const dispatch = useDispatch();
+  const [, setBookId] = useAtom(bookIdAtom);
   const handleSelectBookClick = useCallback(
-    () => dispatch(chooseBook(id)),
-    [id, dispatch]
+    () => setBookId(id),
+    [id, setBookId]
   );
 
   return (
