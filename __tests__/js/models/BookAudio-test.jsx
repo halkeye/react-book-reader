@@ -1,12 +1,12 @@
 'use strict';
 const AUDIO_FILE = require('path').join(__dirname, '/1sec.mp3');
 
-const BookAudio = require('../../../src/js/models/BookAudio.jsx');
+const BookAudio = require('../../../src/models/BookAudio.tsx');
 const Promise = require('es6-promise').Promise;
 
 const EventEmitter = require('events').EventEmitter;
 
-function MockAudio (file) {
+function MockAudio(file) {
   const obj = {};
   const emitter = new EventEmitter();
 
@@ -57,9 +57,9 @@ function MockAudio (file) {
     }, 100);
   };
   return obj;
-};
+}
 
-function MockAssetManager () {
+function MockAssetManager() {
   const obj = {};
   obj.getAsset = (path) => {
     const audioObj = {};
@@ -67,7 +67,7 @@ function MockAssetManager () {
     return Promise.resolve(audioObj);
   };
   return obj;
-};
+}
 
 describe('BookAudio', function () {
   beforeEach(() => {

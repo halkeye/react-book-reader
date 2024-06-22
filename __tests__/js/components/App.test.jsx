@@ -1,7 +1,7 @@
 'use strict';
 import React from 'react';
 import { shallow } from 'enzyme';
-import { App } from '../../../src/js/components/App.jsx';
+import { App } from '../../../src/components/App.tsx';
 
 describe('App', function () {
   beforeEach(() => {
