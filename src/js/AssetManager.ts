@@ -1,10 +1,27 @@
 type EventName = string;
 
-export interface HTMLElementConstructor {
-  new (): HTMLElement;
+export interface AssetManagerEventMap {
+  load: Event;
+  error: ErrorEvent;
 }
 
-export interface AssetType extends HTMLElement {}
+export interface AssetManagerType {
+  addEventListener(
+    type: keyof AssetManagerEventMap,
+    listener: (ev: Event) => void,
+    options?: boolean
+  ): void;
+  removeEventListener<K extends keyof AssetManagerEventMap>(
+    type: K,
+    listener: (ev: AssetManagerEventMap[K]) => void
+  ): void;
+}
+
+export interface AssetManagerTypeConstructor {
+  new (): AssetType;
+}
+
+export interface AssetType extends AssetManagerType {}
 
 export interface Asset {
   src: string;
@@ -21,7 +38,7 @@ const events: Record<EventName, Array<EventFunc>> = {};
 class AssetManager {
   private baseUrl: string;
   private cache: Record<string, unknown> | null;
-  private types: Record<string, HTMLElementConstructor>;
+  private types: Record<string, AssetManagerTypeConstructor>;
   private assets: Record<string, Asset> = {};
   private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
 
@@ -53,7 +70,11 @@ class AssetManager {
 
   constructor(baseUrl: string, keepCached = false) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
-    this.types = { img: Image };
+    this.types = {
+      img: Image,
+      audio: AssetManagerAudioType,
+    };
+
     this.cache = keepCached ? {} : null;
     this.assets = {};
     this.downloadQueue = {};
@@ -63,7 +84,7 @@ class AssetManager {
     return this.baseUrl;
   }
 
-  addType(type: string, cls: HTMLElementConstructor) {
+  addType(type: string, cls: AssetManagerTypeConstructor) {
     this.types[type] = cls;
   }
 
@@ -131,3 +152,45 @@ class AssetManager {
 }
 
 export default AssetManager;
+
+class AssetManagerAudioType implements AssetManagerType {
+  public audio: Howl | undefined;
+
+  private events: Record<keyof AssetManagerEventMap, (ev: Event) => void> = {
+    load: () => {},
+    error: () => {},
+  };
+
+  private urls: Array<string> = [];
+
+  removeEventListener() {
+    throw new Error('Method not implemented.');
+  }
+
+  addEventListener(
+    type: keyof AssetManagerEventMap,
+    listener: (ev: Event) => void
+  ): void {
+    this.events[type] = listener;
+  }
+
+  set src(val: string) {
+    const urls = [val.replace(/.mp3$/, '.ogg'), val];
+    this.urls = urls;
+    this.audio = new Howl({
+      src: this.urls,
+      onload: () => {
+        this.events.load(new Event('load'));
+        this.events.load = () => {};
+      },
+      onloaderror: (_soundId, err) => {
+        if (err instanceof Error) {
+          this.events.error(new ErrorEvent(err.message));
+        } else {
+          this.events.error(new ErrorEvent(`Unknown: ${JSON.stringify(err)}`));
+        }
+        this.events.error = () => {};
+      },
+    });
+  }
+}

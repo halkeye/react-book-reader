@@ -10,27 +10,21 @@ export enum LanguageCode {
 }
 
 export interface BookListEntry {
-  id: string;
-  title: string;
-  url: string;
-  icon: string;
-  iconBig: string;
-  version: number;
-  books: Array<string>;
+  readonly id: string;
+  readonly title: string;
+  readonly url: string;
+  readonly icon: string;
+  readonly iconBig: string;
+  readonly version: number;
 }
 
 export interface BookPage {}
 
-export interface Book {
-  readonly id: string;
-  readonly title: string;
-  readonly icon: string;
-  readonly iconBig: string;
+export interface Book extends BookListEntry {
   readonly pages?: Array<BookPage>;
 }
 
-export interface RawBook {
-  readonly iconBig: string;
+export interface RawBook extends BookListEntry {
   PAGES: RawBookPages;
   UI: Ui;
   STYLES: RawBookStyles;
@@ -114,7 +108,7 @@ export const bookListAtom = atom(async (/*get*/) => {
 
 const locationAtom = atomWithLocation();
 
-function atomFromQueryString<T extends string>(name: string) {
+function atomFromQueryString<T>(name: string) {
   return atom(
     (get) => get(locationAtom).searchParams?.get(name),
     (get, set, value: T) => {
@@ -149,9 +143,10 @@ export const bookAtom = atom<Promise<RawBook | null>>(async (get) => {
     return null;
   }
 
-  const book = await fetch(bookData.url).then((res) => res.json());
-  book.iconBig = bookData.iconBig;
-  book.icon = bookData.icon;
+  const book = {
+    ...bookData,
+    ...(await fetch(bookData.url).then((res) => res.json())),
+  };
 
   return book as unknown as RawBook;
 });
@@ -172,3 +167,7 @@ export const bookLanguagesAtom = atom<Promise<Array<LanguageCode>>>(
     return Object.keys(bookData?.PAGES ?? []) as LanguageCode[];
   }
 );
+
+export const bookAutoplayAtom = atomFromQueryString<boolean>('bookAutoplay');
+
+export const bookPageAtom = atomFromQueryString<number>('bookPage');

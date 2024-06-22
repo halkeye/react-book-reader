@@ -18,6 +18,7 @@ import LanguageList from './LanguageList.tsx';
 // /* Stores */
 import { PropsWithChildren } from 'react';
 import { bookAtom, bookLanguageAtom } from '../atoms.ts';
+import Book from './Book.tsx';
 //
 // /* Dispatchers */
 //
@@ -72,7 +73,8 @@ export const App = () => {
     if (!bookLanguage) {
       return <LanguageList />;
     }
-    return <Page title="Page">{JSON.stringify(book)}</Page>;
+    // return <Page title="Page">{JSON.stringify(book)}</Page>;
+    return <Book />;
   }
 
   return (
@@ -88,36 +90,6 @@ export const App = () => {
     assetsEnded: 0,
     fonts: {},
   });
-
-  const selectLanguage = ({ bookLanguages }) => {
-    if (bookLanguages == null) {
-      return <div>Loading Language Choices...</div>;
-    }
-    return (
-      <LanguageList
-        iconBig={bookIconBig}
-        languages={bookLanguages}
-        dispatch={dispatch}
-      />
-    );
-  };
-
-  const selectBook = () => {
-    if (!books) {
-      return <div>Loading Books...</div>;
-    }
-    return (
-      <>
-        <Helmet>
-          <title>Select a book</title>
-        </Helmet>
-        <div>
-          <h1>Select a book</h1>
-          <BookList books={books} dispatch={dispatch} />
-        </div>
-      </>
-    );
-  };
 
   const loadBook = (bookName, language) => {
     let key = ['book', bookName, 'lang', language].join('_');

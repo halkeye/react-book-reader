@@ -1,8 +1,12 @@
 import diacritics from 'diacritics';
-import AssetManager from '../AssetManager.js';
-import 'whatwg-fetch'; // polyfill
+import AssetManager, {
+  AssetManagerEventMap,
+  AssetManagerType,
+  DownloadQueueItem,
+} from '../AssetManager.js';
 import { Howl } from 'howler';
 import Constants from '../constants/AppConstants.js';
+import { LanguageCode, RawBook } from '../atoms.js';
 
 const getAnimFile = async (assetBaseUrl: string, animName: string) => {
   const text = await fetch(
@@ -274,40 +278,13 @@ const pageProcessor = (options) => {
   return pageData;
 };
 
-class AssetManagerAudioType {
-  constructor() {
-    this.events = {};
-  }
-  set src(val) {
-    const urls = [val.replace(/.mp3$/, '.ogg'), val];
-    this.urls = urls;
-    setTimeout(() => {
-      this.audio = new Howl({
-        src: urls,
-        onload: () => {
-          if (this.events.load) {
-            this.events.load();
-          }
-          // FIXME - this fails on multiple loads (is that a thing)
-          delete this.events;
-        },
-        onloaderror: (args) => {
-          if (this.events.error) {
-            this.events.error();
-          }
-          // FIXME - this fails on multiple errors
-          delete this.events;
-        },
-      });
-    }, 1);
-  }
-  addEventListener(evname, func) {
-    this.events[evname] = func;
-  }
-}
-
-export const processBookData = (settings, assetBaseUrl, bookData, language) => {
-  const promises = [];
+export const processBookData = (
+  settings,
+  assetBaseUrl: string,
+  bookData: RawBook,
+  language: LanguageCode
+) => {
+  const promises: Array<Promise<DownloadQueueItem>> = [];
 
   const book = {
     asset_manager: new AssetManager(assetBaseUrl),
@@ -315,8 +292,6 @@ export const processBookData = (settings, assetBaseUrl, bookData, language) => {
     pages: {},
     games: {},
   };
-  book.asset_manager.addType('audio', AssetManagerAudioType);
-  promises.push(book);
 
   promises.push(book.asset_manager.queueDownload('img', 'pages/gameEnd.png'));
 
