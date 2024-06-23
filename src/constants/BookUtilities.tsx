@@ -28,7 +28,7 @@ const getAnimFile = async (
   animName: string
 ): Promise<Array<BookFrame>> => {
   const text = await fetch(
-    `${assetBaseUrl  }animations/${  animName  }/anim.txt`
+    `${assetBaseUrl}animations/${animName}/anim.txt`
   ).then((response) => response.text());
   const arr = [];
   for (const line of text
@@ -41,7 +41,7 @@ const getAnimFile = async (
     const [frameNo, timing] = line.split(',');
     arr.push(
       new BookFrame(
-        `animations/${  animName  }/${  animName  }${frameNo  }.png`,
+        `animations/${animName}/${animName}${frameNo}.png`,
         parseInt(timing, 10)
       )
     );
@@ -109,7 +109,7 @@ export const intToRGBA = (colorInt: number) => {
   const green = (colorInt >> 8) & 255;
   const blue = (colorInt >> 0) & 255;
 
-  return `rgba(${  [red, green, blue].join(',')  }, ${  alpha  })`;
+  return `rgba(${[red, green, blue].join(',')}, ${alpha})`;
 };
 
 function processStyleData(
@@ -165,6 +165,16 @@ export interface BookLine {
   words: Array<BookWord>;
 }
 
+export interface BookHotspot {
+  text: string;
+  audio: string;
+}
+
+export interface BookImageHotspot {
+  mask: string;
+  hotspots: Record<string, Array<BookHotspot>>;
+}
+
 export interface BookPage {
   id: string;
   assetManager: AssetManager;
@@ -173,6 +183,7 @@ export interface BookPage {
   styles: BookStyles;
   images: Array<BookImage>;
   lines: Array<BookLine>;
+  hotspot: BookImageHotspot;
 }
 
 const pageProcessor = ({
@@ -200,6 +211,10 @@ const pageProcessor = ({
     audio: '',
     lines: [],
     images: [],
+    hotspot: {
+      mask: '',
+      hotspots: {},
+    },
     styles: Object.assign(
       {},
       parentStyle,
@@ -212,11 +227,11 @@ const pageProcessor = ({
       promises.push(
         assetManager.queueDownload(
           'img',
-          `images/${  image.FILENAME.replace('[lang]', language)  }.png`
+          `images/${image.FILENAME.replace('[lang]', language)}.png`
         )
       );
       pageData.images.push({
-        image: `images/${  image.FILENAME.replace('[lang]', language)  }.png`,
+        image: `images/${image.FILENAME.replace('[lang]', language)}.png`,
         top: image.POS[0] * 100,
         left: image.POS[1] * 100,
         height: image.POS[2] * 100,
@@ -235,12 +250,12 @@ const pageProcessor = ({
       promises.push(
         assetManager.queueDownload(
           'img',
-          `buttons/pg${  pageName  }_${  buttonName  }.png`
+          `buttons/pg${pageName}_${buttonName}.png`
         )
       );
       pageData.images.push({
         nextPage: nextPageName,
-        image: `buttons/pg${  pageName  }_${  buttonName  }.png`,
+        image: `buttons/pg${pageName}_${buttonName}.png`,
         top: image.POS[0] * 100,
         left: image.POS[1] * 100,
         height: image.POS[2] * 100,
@@ -266,11 +281,9 @@ const pageProcessor = ({
         promises.push(
           assetManager.queueDownload(
             'audio',
-            `voice/${ 
-              language.toUpperCase() 
-              }/spliced/${ 
-              audioFilename(word[0]) 
-              }.mp3`
+            `voice/${language.toUpperCase()}/spliced/${audioFilename(
+              word[0]
+            )}.mp3`
           )
         );
         const wordData = {
@@ -278,52 +291,41 @@ const pageProcessor = ({
           start: parseFloat(word[1]),
           end: parseFloat(word[2]),
           styles: wordStyle,
-          audio:
-            `voice/${ 
-            language.toUpperCase() 
-            }/spliced/${ 
-            audioFilename(word[0]) 
-            }.mp3`,
+          audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
+            word[0]
+          )}.mp3`,
         };
         lineData.words.push(wordData);
       }
     }
   }
   if (page.HOTSPOTS) {
-    const pageNumStr = (`${pageName  }`).padStart(2, '0');
+    const pageNumStr = `${pageName}`.padStart(2, '0');
     promises.push(
-      assetManager.queueDownload(
-        'img',
-        `pages/pg${  pageNumStr  }.hotspots.gif`
-      )
+      assetManager.queueDownload('img', `pages/pg${pageNumStr}.hotspots.gif`)
     );
     pageData.hotspot = {
-      image: `pages/pg${  pageNumStr  }.hotspots.gif`,
+      mask: `pages/pg${pageNumStr}.hotspots.gif`,
       hotspots: {},
     };
-    for (const [color, hotspot] of Object.entries(page.HOTSPOTS)) {
+    for (const [color, hotspots] of Object.entries(page.HOTSPOTS)) {
       pageData.hotspot.hotspots[color] = [];
-      page.HOTSPOTS[color].forEach(function (hotspot) {
+      for (const hotspot of hotspots) {
         promises.push(
           assetManager.queueDownload(
             'audio',
-            `voice/${ 
-              language.toUpperCase() 
-              }/spliced/${ 
-              audioFilename(hotspot[1]) 
-              }.mp3`
+            `voice/${language.toUpperCase()}/spliced/${audioFilename(
+              hotspot[1]
+            )}.mp3`
           )
         );
         pageData.hotspot.hotspots[color].push({
           text: hotspot[0],
-          audio:
-            `voice/${ 
-            language.toUpperCase() 
-            }/spliced/${ 
-            audioFilename(hotspot[1]) 
-            }.mp3`,
+          audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
+            hotspot[1]
+          )}.mp3`,
         });
-      });
+      }
     }
   }
   return pageData;
@@ -498,7 +500,7 @@ export class Book {
 
     const gameAssets: Record<string, string> = {};
     ['game_cupbard_door_closed', 'game_cupbard_door_open'].forEach((file) => {
-      const filename = `game/${  file  }.png`;
+      const filename = `game/${file}.png`;
       promises.push(this.assetManager.queueDownload('img', filename));
       gameAssets[file] = filename;
     });
@@ -507,7 +509,7 @@ export class Book {
     this.pages[0] = null;
     for (const page of bookData.PAGES[this.language]) {
       const pageNum = this.pages.length + 1;
-      const pageNumStr = (`${pageNum  }`).padStart(2, '0');
+      const pageNumStr = `${pageNum}`.padStart(2, '0');
 
       this.pages[pageNum] = pageProcessor({
         promises: promises,
@@ -544,7 +546,7 @@ export class Book {
         });
         const pageData = this.pages[lckey];
         pageData.id = lckey;
-        pageData.image = `pages/pg${  ucFirst(lckey)  }.png`;
+        pageData.image = `pages/pg${ucFirst(lckey)}.png`;
         this.assetManager.queueDownload('img', pageData.image);
       }
       if (bookData.UI.GAMES) {
