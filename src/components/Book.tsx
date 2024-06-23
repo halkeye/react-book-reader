@@ -5,14 +5,38 @@
 // import GameFullMonty from './GameFullMonty.jsx';
 
 import { useAtom } from 'jotai';
-import { bookAtom, bookAutoplayAtom, bookPageAtom } from '../atoms.js';
+import {
+  LanguageCode,
+  bookAtom,
+  bookAutoplayAtom,
+  bookLanguageAtom,
+  bookPageAtom,
+} from '../atoms.js';
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Book as BookClass } from '../models/Book';
+import { dirname } from '../constants/BookUtilities.js';
 
 const Book = () => {
-  const [book] = useAtom(bookAtom);
+  const [bookData] = useAtom(bookAtom);
   const [page] = useAtom(bookPageAtom);
+  const [language] = useAtom(bookLanguageAtom);
   const [autoplay] = useAtom(bookAutoplayAtom);
+
+  const book = useMemo(() => {
+    if (!bookData || !language) {
+      return null;
+    }
+
+    return new BookClass(
+      bookData.id,
+      bookData.title,
+      bookData.icon,
+      dirname(bookData.url),
+      bookData,
+      language as LanguageCode
+    );
+  }, [bookData, language]);
 
   const getPageTitle = useMemo(() => {
     if (!book) {
@@ -26,7 +50,7 @@ const Book = () => {
     return book.title;
   }, [book, page]);
 
-  if (!book) {
+  if (!book || !page) {
     // it has to be something by here
     return null;
   }
@@ -47,17 +71,17 @@ const Book = () => {
   } */
   let body = null;
   if (book.hasGame(page)) {
-    let page = book.games[page];
+    const page = book.games[page];
     if (!page.gameName) {
       body = <h1>NO IDEA WHAT TO DO {page}</h1>;
     } else if (page.gameName === 'PP' || page.gameName === 'WP') {
-      body = <GamePP key={'screen_' + page} page={page} mode={page.gameName} />;
+      body = <GamePP key={`screen_${page}`} page={page} mode={page.gameName} />;
     } else if (page.gameName === 'fullMonty') {
-      body = <GameFullMonty key={'screen_' + page} page={page} />;
+      body = <GameFullMonty key={`screen_${page}`} page={page} />;
     }
   } else {
-    let page = book.pages[page];
-    body = <Screen key={'screen_' + page} page={page} autoplay={autoplay} />;
+    const page = book.pages[page];
+    body = <Screen key={`screen_${page}`} page={page} autoplay={autoplay} />;
   }
   return (
     <>

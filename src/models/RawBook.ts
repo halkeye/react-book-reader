@@ -29,6 +29,22 @@ export interface RawBookHotspots {
   [color: string]: [string, string][];
 }
 
+export interface RawBookGameDetails {
+  tries: number[];
+  match: number[];
+  reactionBox: number[];
+  matches: Array<number[]>;
+  IMAGE: RawBookImage[];
+}
+
+export interface RawBookGame {
+  easy: RawBookGameDetails;
+  medium: RawBookGameDetails;
+  hard: RawBookGameDetails;
+  BUTTONS: RawBookButtons;
+  IMAGE: RawBookImage;
+}
+
 export interface RawBookUI {
   PAGE_HOME: {
     BUTTONS: RawBookButtons;
@@ -38,7 +54,11 @@ export interface RawBookUI {
     BUTTONS: RawBookButtons;
     IMAGE: RawBookImage;
   };
-  GAMES: unknown;
+  GAMES: {
+    WP: RawBookGame;
+    fullMonty: RawBookGame;
+    PP: RawBookGame;
+  };
   PAGE_END: {
     BUTTONS: RawBookButtons;
     IMAGE: RawBookImage;
