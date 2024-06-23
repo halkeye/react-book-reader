@@ -4,10 +4,6 @@ import BookHotspotMap from './BookHotspotMap.tsx';
 import BookHotspotPhrase from './BookHotspotPhrase.tsx';
 import IconButton from '@material-ui/core/IconButton';
 
-import PropTypes from 'prop-types';
-import HammerJS from 'hammerjs';
-import Hammer from 'react-hammerjs';
-
 // FIXME - const MousetrapMixins = require('../mixins/MousetrapMixins.js');
 
 import Constants from '../constants/AppConstants.js';
@@ -16,22 +12,25 @@ import BookAudio from '../models/BookAudio.jsx';
 import BookWord from './BookWord.tsx';
 import ImageButton from './ImageButton.tsx';
 import { choosePage, chooseAutoplay } from '../actions.js';
+import { LanguageCode } from '../atoms.ts';
+import { Book, BookPage } from '../models/Book.ts';
 
-let clickThreshold = 5;
+const clickThreshold = 5;
 
-class Screen extends React.Component {
-  // FIXME - move later
-  // mixins: [MousetrapMixins],
+interface Props {
+  page: BookPage;
+  book: Book;
+  language: LanguageCode;
+  children: React.ReactNode;
+}
 
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    page: PropTypes.object.isRequired,
-    book: PropTypes.string.isRequired,
-    language: PropTypes.string.isRequired,
-    children: PropTypes.node.isRequired,
-    // audio: React.PropTypes.string,
-  };
+interface State {
+  audio: BookAudio;
+  audioTime: number;
+  playButton: string;
+}
 
+class Screen extends React.Component<Props, State> {
   static initialProps = {
     styles: {},
   };
@@ -43,30 +42,30 @@ class Screen extends React.Component {
     };
   }
 
-  constructor() {
-    super();
-    this.state = this.restartState();
+  constructor(props: Props) {
+    super(props);
+    this.setState(this.restartState());
   }
 
   componentDidMount() {
-    let audio = new BookAudio(this.props.page.asset_manager);
+    const audio = new BookAudio(this.props.page.assetManager);
     audio.bind('page', 'play', this.onPagePlay);
     audio.bind('page', 'pause', this.onPagePause);
     audio.bind('page', 'ended', this.onPageEnded);
     audio.bind('page', 'timeupdate', this.onPageTime);
-    this.audio = audio;
+    this.setState({ audio });
 
     /* FIXME */
-    this.bindShortcut('left', this.pagePrev);
-    this.bindShortcut('right', this.pageNext);
+    // this.bindShortcut('left', this.pagePrev);
+    // this.bindShortcut('right', this.pageNext);
 
     this.onNewPage(this.props);
   }
 
   componentWillUnmount() {
-    this.audio.removeAll();
-    this.unbindShortcut('left');
-    this.unbindShortcut('right');
+    this.state.audio.removeAll();
+    // this.unbindShortcut('left');
+    // this.unbindShortcut('right');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -76,34 +75,33 @@ class Screen extends React.Component {
   }
 
   onNewPage(props) {
-    this.audio.stop();
-    this.replaceState(this.restartState(), function () {
+    this.state.audio.stop();
+    this.setState(this.restartState(), () => {
       if (props.autoplay && props.page.pageAudio) {
-        this.audio.play('page', props.page.pageAudio);
+        this.state.audio.play('page', props.page.pageAudio);
       }
     });
   }
 
   getPageStyle() {
-    let ret = {
+    const ret = {
       position: 'relative',
-      width: this.getPageWidth() + 'px',
-      height: this.getPageHeight() + 'px',
+      width: `${this.getPageWidth()}px`,
+      height: `${this.getPageHeight()}px`,
     };
     if (this.props.page.pageImage) {
       ret.backgroundSize = 'contain';
-      ret.backgroundImage =
-        'url(' +
-        this.props.page.asset_manager.getAssetSrc(this.props.page.pageImage) +
-        ')';
+      ret.backgroundImage = `url(${this.props.page.assetManager.getAssetSrc(
+        this.props.page.pageImage
+      )})`;
     }
     return ret;
   }
 
   onClickPage(ev) {
     if (this.hotspotMap) {
-      let x = ev.pageX - ev.currentTarget.offsetLeft;
-      let y = ev.pageY - ev.currentTarget.offsetTop;
+      const x = ev.pageX - ev.currentTarget.offsetLeft;
+      const y = ev.pageY - ev.currentTarget.offsetTop;
       if (this.hotspotMap.onClickImage(x, y)) {
         ev.preventDefault();
         ev.stopPropagation();
@@ -112,7 +110,7 @@ class Screen extends React.Component {
   }
 
   render() {
-    let key = [
+    const key = [
       'book',
       this.props.book,
       'language',
@@ -121,25 +119,24 @@ class Screen extends React.Component {
       this.props.page,
     ].join('_');
 
-    let pageStyle = this.getPageStyle();
+    const pageStyle = this.getPageStyle();
 
-    let extraImages = this.props.page.images.map((image) => {
-      let style = {
+    const extraImages = this.props.page.images.map((image) => {
+      const style = {
         position: 'absolute',
-        top: image.top + '%',
-        left: image.left + '%',
-        width: image.width + '%',
-        height: image.height + '%',
+        top: `${image.top}%`,
+        left: `${image.left}%`,
+        width: `${image.width}%`,
+        height: `${image.height}%`,
       };
       if (image.nextPage) {
         style.border = 'none';
         style.backgroundSize = 'contain';
         style.backgroundColor = 'rgba(0,0,0,0.0)';
-        style.backgroundImage =
-          'url(' + this.props.page.asset_manager.getAssetSrc(image.image) + ')';
+        style.backgroundImage = `url(${this.props.page.assetManager.getAssetSrc(image.image)})`;
         return (
           <IconButton
-            key={'button_' + image.nextPage}
+            key={`button_${image.nextPage}`}
             style={style}
             onClick={this.onButtonClick.bind(this, image.nextPage)}
           />
@@ -147,43 +144,43 @@ class Screen extends React.Component {
       }
       return (
         <img
-          key={'button_' + image.image}
+          key={`button_${image.image}`}
           style={style}
-          src={this.props.page.asset_manager.getAssetSrc(image.image)}
+          src={this.props.page.assetManager.getAssetSrc(image.image)}
         />
       );
     });
 
-    let extraLines = this.props.page.lines.map((line, lineIdx) => {
-      let words = line.words.map((word, wordIdx) => {
+    const extraLines = this.props.page.lines.map((line, lineIdx) => {
+      const words = line.words.map((word, wordIdx) => {
         return (
           <BookWord
-            key={'word' + wordIdx}
+            key={`word${wordIdx}`}
             audioTime={this.state.audioTime}
             {...word}
             onClick={this.onWordClick.bind(this, word)}
           />
         );
       });
-      let style = {
+      const style = {
         position: 'absolute',
-        top: line.top + '%',
-        left: line.left + '%',
+        top: `${line.top}%`,
+        left: `${line.left}%`,
       };
       return (
-        <div key={'line' + lineIdx} style={style}>
+        <div key={`line${lineIdx}`} style={style}>
           {words}
         </div>
       );
     });
-    let homeBackButton = '';
+    let homeBackButton;
     if (this.hasBackButton()) {
       homeBackButton = (
         <ImageButton
-          id="homeButton"
+          key="homeButton"
           top="0"
           left="0"
-          asset_manager={this.props.page.asset_manager}
+          assetManager={this.props.page.assetManager}
           image={'buttons/control_back.png'}
           onClick={this.onBackButtonClick}
         />
@@ -191,10 +188,10 @@ class Screen extends React.Component {
     } else {
       homeBackButton = (
         <ImageButton
-          id="backButton"
+          key="backButton"
           top="0"
           left="0"
-          asset_manager={this.props.page.asset_manager}
+          assetManager={this.props.page.assetManager}
           image={'buttons/control_home.png'}
           enabled={this.hasHomeButton()}
           onClick={this.onHomeButtonClick}
@@ -214,7 +211,7 @@ class Screen extends React.Component {
               this.hotspotMap = hotspotMap;
             }}
             {...this.props.page.hotspot}
-            asset_manager={this.props.page.asset_manager}
+            assetManager={this.props.page.assetManager}
             height={this.getPageHeight()}
             width={this.getPageWidth()}
             onHotspot={this.onHotspot}
@@ -231,7 +228,7 @@ class Screen extends React.Component {
               left: 0,
               position: 'absolute',
               height: '100%',
-              width: clickThreshold + '%',
+              width: `${clickThreshold}%`,
             }}
             onClick={this.pagePrev}
           />
@@ -241,7 +238,7 @@ class Screen extends React.Component {
               right: 0,
               position: 'absolute',
               height: '100%',
-              width: clickThreshold + '%',
+              width: `${clickThreshold}%`,
             }}
             onClick={this.pageNext}
           />
@@ -250,8 +247,8 @@ class Screen extends React.Component {
             id="playPauseButton"
             top="0"
             right="0"
-            asset_manager={this.props.page.asset_manager}
-            image={'buttons/control_' + this.state.playButton + '.png'}
+            assetManager={this.props.page.assetManager}
+            image={`buttons/control_${this.state.playButton}.png`}
             enabled={this.hasPlayButton()}
             onClick={this.onPlayPauseButtonClick}
           />
@@ -265,9 +262,9 @@ class Screen extends React.Component {
 
   onHotspot(hotspot, x, y) {
     this.setState({ audioTime: 0 });
-    this.audio.stop();
+    this.state.audio.stop();
     this.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
-    this.audio.play('hotspot', hotspot.audio);
+    this.state.audio.play('hotspot', hotspot.audio);
   }
 
   getPageHeight() {
@@ -350,16 +347,16 @@ class Screen extends React.Component {
 
   onPlayPauseButtonClick() {
     if (this.state.playButton === 'play') {
-      this.audio.play('page', this.props.page.pageAudio);
+      this.state.audio.play('page', this.props.page.pageAudio);
     } else {
-      this.audio.pause();
+      this.state.audio.pause();
     }
   }
 
   onWordClick(word) {
     this.setState({ audioTime: 0 });
-    this.audio.stop();
-    this.audio.play('word', word.audio);
+    this.state.audio.stop();
+    this.state.audio.play('word', word.audio);
   }
 
   /* FIXME */
@@ -368,7 +365,7 @@ class Screen extends React.Component {
       return;
     }
 
-    let newPage = this.props.page.id - 1;
+    const newPage = this.props.page.id - 1;
     this.props.dispatch(choosePage(newPage));
   }
 
@@ -377,7 +374,7 @@ class Screen extends React.Component {
       return;
     }
 
-    let newPage = this.props.page.id + 1;
+    const newPage = this.props.page.id + 1;
     this.props.dispatch(choosePage(newPage));
   }
 }

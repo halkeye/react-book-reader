@@ -1,6 +1,5 @@
 // import DocumentMeta from 'react-document-meta';
 // import DocumentTitle from 'react-document-title';
-// import Screen from './Screen.jsx';
 // import GamePP from './GamePP.jsx';
 // import GameFullMonty from './GameFullMonty.jsx';
 
@@ -16,6 +15,7 @@ import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Book as BookClass } from '../models/Book';
 import { dirname } from '../constants/BookUtilities.js';
+import { Screen } from './Screen.tsx';
 
 const Book = () => {
   const [bookData] = useAtom(bookAtom);
@@ -71,17 +71,25 @@ const Book = () => {
   } */
   let body = null;
   if (book.hasGame(page)) {
-    const page = book.games[page];
-    if (!page.gameName) {
-      body = <h1>NO IDEA WHAT TO DO {page}</h1>;
-    } else if (page.gameName === 'PP' || page.gameName === 'WP') {
-      body = <GamePP key={`screen_${page}`} page={page} mode={page.gameName} />;
-    } else if (page.gameName === 'fullMonty') {
-      body = <GameFullMonty key={`screen_${page}`} page={page} />;
+    const pageData = book.games[page];
+    if (!pageData.gameName) {
+      body = <h1>NO IDEA WHAT TO DO {JSON.stringify(page)}</h1>;
+    } else if (pageData.gameName === 'PP' || pageData.gameName === 'WP') {
+      body = (
+        <GamePP
+          key={`screen_${page}`}
+          page={pageData}
+          mode={pageData.gameName}
+        />
+      );
+    } else if (pageData.gameName === 'fullMonty') {
+      body = <GameFullMonty key={`screen_${page}`} page={pageData} />;
     }
   } else {
-    const page = book.pages[page];
-    body = <Screen key={`screen_${page}`} page={page} autoplay={autoplay} />;
+    const pageData = book.pages[page];
+    body = (
+      <Screen key={`screen_${page}`} page={pageData} autoplay={autoplay} />
+    );
   }
   return (
     <>

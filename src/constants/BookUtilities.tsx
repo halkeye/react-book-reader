@@ -107,3 +107,10 @@ export const intToRGBA = (colorInt: number) => {
 
   return `rgba(${[red, green, blue].join(',')}, ${alpha})`;
 };
+
+export function isKeyInObject<T extends object>(
+  obj: T,
+  key: string | number | symbol
+): key is keyof T {
+  return obj[key as keyof typeof obj] !== undefined;
+}

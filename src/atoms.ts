@@ -18,12 +18,6 @@ export interface BookListEntry {
   readonly version: number;
 }
 
-export interface BookPage {}
-
-export interface Book extends BookListEntry {
-  readonly pages?: Array<BookPage>;
-}
-
 export const bookListAtom = atom(async (/*get*/) => {
   const res = await fetch('https://books.saltystories.ca/books/index.json');
   const data = (await res.json()) as Array<BookListEntry>;
@@ -40,9 +34,9 @@ export const bookListAtom = atom(async (/*get*/) => {
 
 const locationAtom = atomWithLocation();
 
-function atomFromQueryString<T>(name: string) {
+function atomFromQueryString<T>(name: string, defaultValue?: T) {
   return atom(
-    (get) => get(locationAtom).searchParams?.get(name),
+    (get) => get(locationAtom).searchParams?.get(name) ?? defaultValue,
     (get, set, value: T) => {
       const newSearchParams = new URLSearchParams(
         get(locationAtom).searchParams
@@ -102,4 +96,4 @@ export const bookLanguagesAtom = atom<Promise<Array<LanguageCode>>>(
 
 export const bookAutoplayAtom = atomFromQueryString<boolean>('bookAutoplay');
 
-export const bookPageAtom = atomFromQueryString<number>('bookPage');
+export const bookPageAtom = atomFromQueryString<string>('bookPage', '1');

@@ -1,4 +1,5 @@
 import AssetManager, { Asset, DownloadQueueItem } from '../AssetManager';
+import { LanguageCode } from '../atoms';
 import {
   AnimFrame,
   GameAnimations,
@@ -9,7 +10,6 @@ import {
   ucFirst,
 } from '../constants/BookUtilities';
 import { enumKeys } from '../enumKeys';
-import { LanguageCode } from '../slices/books';
 import { RawBook, RawBookPage, RawBookStyles } from './RawBook';
 
 export type BookStyles = Record<string, BookStyle>;
@@ -221,6 +221,10 @@ export interface BookStyle {
   fontSize: number;
 }
 
+export interface BookGame {
+  gameName?: string;
+}
+
 export class Book {
   readonly id: string;
   readonly title: string;
@@ -228,7 +232,7 @@ export class Book {
   readonly pages: Record<string, BookPage>;
   private assetManager: AssetManager;
   language: LanguageCode = LanguageCode.EN;
-  games = {};
+  games: Record<string, BookGame> = {};
   bookStyles: BookStyles = {};
 
   constructor(
