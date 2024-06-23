@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 import { atomWithLocation } from 'jotai-location';
-import { getQueryString } from './hooks/useQueryString';
+import { RawBook } from './models/RawBook';
 
 const BASE_URL = 'https://books.saltystories.ca/books/';
 
@@ -22,74 +22,6 @@ export interface BookPage {}
 
 export interface Book extends BookListEntry {
   readonly pages?: Array<BookPage>;
-}
-
-export interface RawBook extends BookListEntry {
-  PAGES: RawBookPages;
-  UI: Ui;
-  STYLES: RawBookStyles;
-}
-
-export type RawBookPages = {
-  [lang in LanguageCode]: RawBookPage[];
-};
-
-export interface RawBookPage {
-  LINES: RawBookLine[];
-  HOTSPOTS: RawBookHotspots;
-}
-
-export interface RawBookLine {
-  WORDS: [string, number, number][];
-  POS: number[];
-}
-
-export interface RawBookHotspots {
-  [color: string]: [string, string][];
-}
-
-export interface Ui {
-  PAGE_HOME: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
-  PAGE_GAMES: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
-  GAMES: unknown;
-  PAGE_END: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
-}
-
-export interface PageHome {
-  BUTTONS: RawBookButtons;
-  IMAGE: RawBookImage[];
-}
-
-export interface RawBookImage {
-  FILENAME: string;
-  POS: number[];
-}
-
-export interface RawBookButtons {
-  [key: string]: {
-    POS: number[];
-  };
-}
-
-export interface RawBookStyles {
-  UNREAD?: RawBookStyle;
-  READING?: RawBookStyle;
-  READ?: RawBookStyle;
-}
-
-export interface RawBookStyle {
-  COLOR: string;
-  SIZE: number;
-  FONT: string;
 }
 
 export const bookListAtom = atom(async (/*get*/) => {

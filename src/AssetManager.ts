@@ -1,13 +1,16 @@
-type EventName = string;
-
+import { Howl } from 'howler';
 export interface AssetManagerEventMap {
   load: Event;
+  started: Event;
+  finished: Event;
   error: ErrorEvent;
 }
 
+type EventName = keyof AssetManagerEventMap;
+
 export interface AssetManagerType {
   addEventListener(
-    type: keyof AssetManagerEventMap,
+    type: EventName,
     listener: (ev: Event) => void,
     options?: boolean
   ): void;
@@ -33,7 +36,12 @@ export type DownloadQueueItem = Asset;
 
 type EventFunc = (asset: Asset | null) => void;
 
-const events: Record<EventName, Array<EventFunc>> = {};
+const events: Record<EventName, Array<EventFunc>> = {
+  load: [],
+  started: [],
+  finished: [],
+  error: [],
+};
 
 class AssetManager {
   private baseUrl: string;
@@ -43,26 +51,16 @@ class AssetManager {
   private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
 
   static on(eventName: EventName, func: EventFunc) {
-    if (!events[eventName]) {
-      events[eventName] = [];
-    }
     events[eventName].push(func);
   }
 
   static off(eventName: EventName, func: EventFunc) {
-    if (!events[eventName]) {
-      events[eventName] = [];
-    }
     events[eventName] = events[eventName].filter((cb) => {
       return cb !== func;
     });
   }
 
   static trigger(eventName: EventName, asset: Asset | null) {
-    if (!events[eventName]) {
-      return;
-    }
-
     events[eventName].forEach(function (func) {
       func(asset);
     });
@@ -122,10 +120,10 @@ class AssetManager {
       this.downloadQueue[name]
         .then(
           (asset) => {
-            AssetManager.trigger('ended', asset);
+            AssetManager.trigger('finished', asset);
           },
-          (asset) => {
-            AssetManager.trigger('error', asset);
+          (err) => {
+            AssetManager.trigger('error', err);
           }
         )
         .then(() => {
@@ -158,6 +156,8 @@ class AssetManagerAudioType implements AssetManagerType {
 
   private events: Record<keyof AssetManagerEventMap, (ev: Event) => void> = {
     load: () => {},
+    started: () => {},
+    finished: () => {},
     error: () => {},
   };
 
