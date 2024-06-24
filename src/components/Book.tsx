@@ -15,13 +15,12 @@ import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Book as BookClass } from '../models/Book';
 import { dirname } from '../constants/BookUtilities.js';
-import { Screen } from './Screen.tsx';
+import Screen from './Screen.tsx';
 
 const Book = () => {
   const [bookData] = useAtom(bookAtom);
   const [page] = useAtom(bookPageAtom);
   const [language] = useAtom(bookLanguageAtom);
-  const [autoplay] = useAtom(bookAutoplayAtom);
 
   const book = useMemo(() => {
     if (!bookData || !language) {
@@ -38,7 +37,7 @@ const Book = () => {
     );
   }, [bookData, language]);
 
-  const getPageTitle = useMemo(() => {
+  const pageTitle = useMemo(() => {
     if (!book) {
       return '';
     }
@@ -87,15 +86,13 @@ const Book = () => {
     }
   } else {
     const pageData = book.pages[page];
-    body = (
-      <Screen key={`screen_${page}`} page={pageData} autoplay={autoplay} />
-    );
+    body = <Screen key={`screen_${page}`} page={pageData} />;
   }
   return (
     <>
       <Helmet>
-        <title>{getPageTitle()}</title>
-        <link rel="shortcut icon" sizes="196x196" href={book.iconBig} />
+        <title>{pageTitle}</title>
+        <link rel="shortcut icon" sizes="196x196" href={book.icon} />
       </Helmet>
       <div>{body}</div>
     </>

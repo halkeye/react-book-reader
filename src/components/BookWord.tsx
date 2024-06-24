@@ -1,111 +1,91 @@
-'use strict';
-import PropTypes from 'prop-types';
-import React from 'react';
-import _ from 'lodash';
-import AppDispatcher from '../dispatchers/AppDispatcher';
-import Constants from '../constants/AppConstants';
-import Button from '@material-ui/core/Button';
+import {
+  CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import Button from '@mui/material/Button';
+import { BookStyles } from '../models/Book';
 
-const isValidStyle = (obj) => {
-  // if (!isDictionary(obj)) { return false; }
-  if (!_.isPlainObject(obj)) {
-    return false;
-  }
-  const stateNames = ['reading', 'read', 'unread'].sort();
-  // check for extra or missing keys
-  if (!_.isEqual(Object.keys(obj).sort(), stateNames)) {
-    return false;
-  }
-  return _.every(stateNames, (state) => {
-    return _.every(['fontFamily', 'fontSize', 'color'], (styleField) => {
-      return !_.isNull(obj[state][styleField]);
-    });
-  });
-};
+interface Props {
+  audio: string;
+  audioTime?: number;
+  end?: number;
+  onClick: (word: string, audio: string) => void;
+  start?: number;
+  styles: BookStyles;
+  word: string;
+}
 
-const stylePropType = function (props, propName, component) {
-  if (!isValidStyle(props)) {
-    return new Error('Invalid styles!');
-  }
-};
-
-class BookWord extends React.Component {
-  static propTypes = {
-    // http://rjzaworski.com/2015/01/putting-react-custom-proptypes-to-work
-    audio: PropTypes.string,
-    audioTime: PropTypes.number,
-    end: PropTypes.number,
-    onClick: PropTypes.func,
-    start: PropTypes.number,
-    styles: PropTypes.objectOf(stylePropType).isRequired,
-    word: PropTypes.string.isRequired,
-  };
-
-  state = {
-    state: 'unread',
-  };
-
-  getInitialProps = () => {
-    return {
-      styles: {},
-    };
-  };
-
-  componentWillMount() {
-    Object.keys(this.props.styles).forEach((style) => {
+function BookWord(props: Props) {
+  const [state, setState] = useState('unread');
+  useEffect(() => {
+    Object.keys(props.styles).forEach((style) => {
       /* Skip styles without fonts */
-      if (!this.props.styles[style].fontPath) {
+      if (!props.styles[style].fontPath) {
         return;
       }
 
-      AppDispatcher.handleViewAction({
-        type: Constants.ActionTypes.ADD_FONT,
-        fontFamily: this.props.styles[style].fontFamily,
-        fontPath: this.props.styles[style].fontPath,
-      });
+      // FIXME
+      // AppDispatcher.handleViewAction({
+      //   type: Constants.ActionTypes.ADD_FONT,
+      //   fontFamily: props.styles[style].fontFamily,
+      //   fontPath: props.styles[style].fontPath,
+      // });
     });
-  }
+  }, [props.styles]);
 
-  componentWillReceiveProps(nextProps) {
-    //    console.log('componentWillReceiveProps', nextProps);
-    if (!_.isNull(this.props.start) && !_.isNull(this.props.end)) {
-      if (nextProps.audioTime > this.props.end) {
-        this.setState({ state: 'read' });
-      } else if (nextProps.audioTime > this.props.start) {
-        this.setState({ state: 'reading' });
+  useEffect(() => {
+    if (
+      props.start !== undefined &&
+      props.end !== undefined &&
+      props.audioTime !== undefined
+    ) {
+      if (props.audioTime > props.end) {
+        setState('read');
+      } else if (props.audioTime > props.start) {
+        setState('reading');
       } else {
-        this.setState({ state: 'unread' });
+        setState('unread');
+      }
+    } else {
+      setState('unread');
+    }
+  }, [props.audioTime, props.end, props.start, props]);
+
+  const style = useMemo(() => {
+    const style: CSSProperties = {
+      cursor: 'pointer',
+      backgroundColor: 'transparent',
+      textTransform: 'none',
+      padding: '4px',
+      minWidth: 'initial',
+      height: 'initial',
+    };
+    if (props.styles[state]) {
+      if (props.styles[state].color) {
+        style.color = props.styles[state].color;
+      }
+      if (props.styles[state].fontFamily) {
+        style.fontFamily = props.styles[state].fontFamily;
+      }
+      if (props.styles[state].fontSize) {
+        style.fontSize = `${props.styles[state].fontSize}px`;
       }
     }
-  }
-
-  getElementStyle = () => {
-    const style = Object.assign(
-      {
-        cursor: 'pointer',
-        backgroundColor: 'transparent',
-        textTransform: 'none',
-        padding: '4px',
-        minWidth: 'initial',
-        height: 'initial',
-      },
-      this.props.styles[this.state.state]
-    );
-    style.fontSize = style.fontSize + 'px';
-    delete style.fontPath;
     return style;
-  };
+  }, [props.styles, state]);
 
-  render() {
-    const style = this.getElementStyle();
+  const onClick = useCallback(() => {
+    props.onClick(props.word, props.audio);
+  }, [props]);
 
-    return (
-      <Button style={style} onClick={this.props.onClick}>
-        {' '}
-        {this.props.word + ' '}{' '}
-      </Button>
-    );
-  }
+  return (
+    <Button style={style} onClick={onClick}>
+      {` ${props.word}  `}
+    </Button>
+  );
 }
 
 export default BookWord;

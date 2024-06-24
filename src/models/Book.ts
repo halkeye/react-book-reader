@@ -148,7 +148,7 @@ const pageProcessor = ({
         words: [],
       };
       pageData.lines.push(lineData);
-      for (const word in line.WORDS) {
+      for (const word of line.WORDS) {
         const wordStyle = Object.assign({}, lineStyle);
         promises.push(
           assetManager.queueDownload(
@@ -158,10 +158,10 @@ const pageProcessor = ({
             )}.mp3`
           )
         );
-        const wordData = {
+        const wordData: BookWord = {
           word: word[0],
-          start: parseFloat(word[1]),
-          end: parseFloat(word[2]),
+          start: word[1],
+          end: word[2],
           styles: wordStyle,
           audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
             word[0]
@@ -249,7 +249,7 @@ export class Book {
     this.title = title;
     this.icon = icon;
     this.pages = {};
-    this.games = [];
+    this.games = {};
 
     const promises: Array<Promise<DownloadQueueItem>> = [];
 

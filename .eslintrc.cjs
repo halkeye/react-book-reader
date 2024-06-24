@@ -12,6 +12,7 @@ module.exports = {
   rules: {
     'prefer-template': 'error',
     'no-useless-concat': 'error',
+    'guard-for-in': 'error',
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },

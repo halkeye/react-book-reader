@@ -1,38 +1,58 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
+import { colorToInt } from '../constants/BookUtilities';
+import AssetManager from '../AssetManager';
+import { BookHotspot } from '../models/Book';
 
-// const invariant = require('react/lib/invariant');
-import BookUtilities from '../constants/BookUtilities.tsx';
+interface Props {
+  height: number;
+  width: number;
+  hotspots: BookHotspot[];
+  image: string;
+  assetManager: AssetManager;
+  onHotspot(hotspot: BookHotspot, x: number, y: number): void;
+}
 
-export default class BookHotspotMap extends React.Component {
-  static getInitialProps() {
-    return {
-      height: 0,
-      width: 0,
-      hotspots: [],
-    };
+interface State {}
+
+export default class BookHotspotMap extends React.Component<Props, State> {
+  public static defaultProps = {
+    height: 0,
+    width: 0,
+    hotspots: [],
+  };
+
+  canvas: React.RefObject<HTMLCanvasElement>;
+  imageData?: ImageData;
+
+  constructor(props: Props) {
+    super(props);
+    this.canvas = React.createRef();
   }
 
   getCanvas() {
-    return this.canvas;
+    return this.canvas.current;
   }
 
-  onClickImage(x, y) {
+  onClickImage(x: number, y: number) {
     if (!this.props.image) {
       return false;
     }
-    let canvasIndex = (x + y * this.props.width) * 4;
+    if (!this.imageData) {
+      return false;
+    }
+    const canvasIndex = (x + y * this.props.width) * 4;
 
-    let color = {
+    const color = {
       r: this.imageData.data[canvasIndex],
       g: this.imageData.data[canvasIndex + 1],
       b: this.imageData.data[canvasIndex + 2],
       a: this.imageData.data[canvasIndex + 3],
     };
 
-    let intColor = BookUtilities.colorToInt(color);
-    let hotspots = this.props.hotspots[intColor];
+    const intColor = colorToInt(color);
+    const hotspots = this.props.hotspots[intColor];
     if (hotspots && hotspots.length) {
-      let item = hotspots[Math.floor(Math.random() * hotspots.length)];
+      const item = hotspots[Math.floor(Math.random() * hotspots.length)];
       this.props.onHotspot(item, x, y);
       return true;
     }
@@ -43,8 +63,17 @@ export default class BookHotspotMap extends React.Component {
     if (!this.props.image) {
       return;
     }
-    let ctx = this.getCanvas().getContext('2d');
-    this.props.asset_manager.getAsset(this.props.image).then((img) => {
+    const canvas = this.getCanvas();
+    if (!canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
+
+    this.props.assetManager.getAsset(this.props.image).then((img) => {
       ctx.drawImage(img, 0, 0);
       this.imageData = ctx.getImageData(
         0,
@@ -67,7 +96,9 @@ export default class BookHotspotMap extends React.Component {
     if (!this.props.image) {
       return <div />;
     }
-    let surfaceStyle = {
+    const onClickImage = () => {};
+
+    const surfaceStyle: CSSProperties = {
       width: this.props.width,
       height: this.props.height,
       position: 'absolute',
@@ -75,13 +106,11 @@ export default class BookHotspotMap extends React.Component {
     };
     return (
       <canvas
-        ref={(canvas) => {
-          this.canvas = canvas;
-        }}
+        ref={this.canvas}
         height={this.props.height}
         width={this.props.width}
         style={surfaceStyle}
-        onClick={this.onClickImage}
+        onClick={onClickImage}
       />
     );
   }

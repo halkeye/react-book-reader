@@ -1,4 +1,5 @@
 import { Howl } from 'howler';
+
 export interface AssetManagerEventMap {
   load: Event;
   started: Event;
@@ -45,7 +46,6 @@ const events: Record<EventName, Array<EventFunc>> = {
 
 class AssetManager {
   private baseUrl: string;
-  private cache: Record<string, unknown> | null;
   private types: Record<string, AssetManagerTypeConstructor>;
   private assets: Record<string, Asset> = {};
   private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
@@ -67,13 +67,12 @@ class AssetManager {
   }
 
   constructor(baseUrl: string, keepCached = false) {
-    this.baseUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+    this.baseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     this.types = {
       img: Image,
       audio: AssetManagerAudioType,
     };
 
-    this.cache = keepCached ? {} : null;
     this.assets = {};
     this.downloadQueue = {};
   }
@@ -88,13 +87,10 @@ class AssetManager {
 
   _download(type: string, path: string): Promise<DownloadQueueItem> {
     return new Promise((resolve, reject) => {
-      const asset = new this.types[type]();
+      const asset: AssetType = new this.types[type]();
       asset.addEventListener(
         'load',
         () => {
-          if (this.cache) {
-            this.cache[path] = asset;
-          }
           resolve({ asset, type, src: path });
         },
         false
@@ -133,15 +129,12 @@ class AssetManager {
     return this.downloadQueue[name];
   }
 
-  getAsset(name: string) {
-    if (!this.cache) {
-      // redowload - FIXME
-      return this._download(this.assets[name].type, this.assets[name].src);
+  getAsset(name: string): Promise<Asset> {
+    if (name in this.assets) {
+      return Promise.reolve(this.assets[name]);
     }
-    if (!this.cache[name]) {
-      throw new Error(`${name} was not cached`);
-    }
-    return this.cache[name];
+    // redowload - FIXME
+    return this._download(this.assets[name].type, this.assets[name].src);
   }
 
   getAssetSrc(name: string) {
