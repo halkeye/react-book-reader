@@ -48,24 +48,6 @@ import Book from './Book.tsx';
 // }
 //
 
-interface PageProps {
-  title: string;
-}
-
-export const Page = ({ children, title }: PropsWithChildren<PageProps>) => {
-  return (
-    <>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
-      <div>
-        <h1>{title}</h1>
-        {children}
-      </div>
-    </>
-  );
-};
-
 export const App = () => {
   const [book] = useAtom(bookAtom);
   const [bookLanguage] = useAtom(bookLanguageAtom);
@@ -73,15 +55,10 @@ export const App = () => {
     if (!bookLanguage) {
       return <LanguageList />;
     }
-    // return <Page title="Page">{JSON.stringify(book)}</Page>;
     return <Book />;
   }
 
-  return (
-    <Page title="Select a book">
-      <BookList />
-    </Page>
-  );
+  return <BookList />;
 
   /*
 
