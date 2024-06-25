@@ -19,6 +19,7 @@ import LanguageList from './LanguageList.tsx';
 import { PropsWithChildren } from 'react';
 import { bookAtom, bookLanguageAtom } from '../atoms.ts';
 import Book from './Book.tsx';
+import { fontsAtom, useFonts } from '../hooks/useFonts.ts';
 //
 // /* Dispatchers */
 //
@@ -51,6 +52,9 @@ import Book from './Book.tsx';
 export const App = () => {
   const [book] = useAtom(bookAtom);
   const [bookLanguage] = useAtom(bookLanguageAtom);
+  const [fonts] = useAtom(fontsAtom);
+  useFonts(fonts);
+
   if (book) {
     if (!bookLanguage) {
       return <LanguageList />;

@@ -7,6 +7,8 @@ import {
 } from 'react';
 import Button from '@mui/material/Button';
 import { BookStyles } from '../models/Book';
+import { useAtom } from 'jotai';
+import { fontsAtom } from '../hooks/useFonts';
 
 interface Props {
   audio: string;
@@ -20,21 +22,20 @@ interface Props {
 
 function BookWord(props: Props) {
   const [state, setState] = useState('unread');
+  const [fonts, setFonts] = useAtom(fontsAtom);
   useEffect(() => {
     Object.keys(props.styles).forEach((style) => {
       /* Skip styles without fonts */
       if (!props.styles[style].fontPath) {
         return;
       }
-
       // FIXME
-      // AppDispatcher.handleViewAction({
-      //   type: Constants.ActionTypes.ADD_FONT,
-      //   fontFamily: props.styles[style].fontFamily,
-      //   fontPath: props.styles[style].fontPath,
-      // });
+      setFonts({
+        ...fonts,
+        [props.styles[style].fontFamily]: props.styles[style].fontPath,
+      });
     });
-  }, [props.styles]);
+  }, [fonts, setFonts, props.styles]);
 
   useEffect(() => {
     if (

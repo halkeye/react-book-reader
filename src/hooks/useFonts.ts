@@ -1,4 +1,8 @@
-export type Fonts = Record<string, string>;
+import { atom } from 'jotai';
+
+export type Fonts = {
+  [fontFamily: string]: string /* filename */;
+};
 
 const fontTypes = [
   ['eot#iefix', 'embedded-opentype'],
@@ -6,6 +10,8 @@ const fontTypes = [
   ['ttf', 'truetype'],
   ['svg', 'svg'],
 ];
+
+export const fontsAtom = atom<Fonts>({});
 
 export const useFonts = (fonts: Fonts) => {
   const css = Object.entries(fonts)
