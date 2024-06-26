@@ -6,9 +6,8 @@ import {
   useState,
 } from 'react';
 import Button from '@mui/material/Button';
-import { BookStyles } from '../models/Book';
-import { useAtom } from 'jotai';
-import { fontsAtom } from '../hooks/useFonts';
+import { BookStyles, StyleDataState } from '../models/Book';
+import { useAddFont } from '../hooks/useFonts';
 
 interface Props {
   audio: string;
@@ -21,20 +20,17 @@ interface Props {
 }
 
 function BookWord(props: Props) {
-  const [state, setState] = useState('unread');
-  const [fonts, setFonts] = useAtom(fontsAtom);
+  const [state, setState] = useState(StyleDataState.READ);
+  const addFont = useAddFont();
 
-  const bookStyles = props.styles[state] || {};
   useEffect(() => {
+    const bookStyles = props.styles[state];
     // Skip styles without fonts
-    if (bookStyles.fontPath) {
+    if (bookStyles && bookStyles.fontFamily && bookStyles.fontPath) {
       const { fontFamily, fontPath } = bookStyles;
-      if (!fonts[fontFamily]) {
-        // FIXME - this should be done when parsing not rendering
-        setFonts({ ...fonts, [fontFamily]: fontPath });
-      }
+      addFont(fontFamily, fontPath);
     }
-  }, [fonts, setFonts, bookStyles]);
+  }, [addFont, state, props.styles]);
 
   useEffect(() => {
     if (
@@ -43,14 +39,14 @@ function BookWord(props: Props) {
       props.audioTime !== undefined
     ) {
       if (props.audioTime > props.end) {
-        setState('read');
+        setState(StyleDataState.READ);
       } else if (props.audioTime > props.start) {
-        setState('reading');
+        setState(StyleDataState.READING);
       } else {
-        setState('unread');
+        setState(StyleDataState.UNREAD);
       }
     } else {
-      setState('unread');
+      setState(StyleDataState.UNREAD);
     }
   }, [props.audioTime, props.end, props.start, props]);
 
@@ -63,15 +59,16 @@ function BookWord(props: Props) {
       minWidth: 'initial',
       height: 'initial',
     };
-    if (props.styles[state]) {
-      if (props.styles[state].color) {
-        style.color = props.styles[state].color;
+    const stateSword = props.styles[state];
+    if (stateSword) {
+      if (stateSword.color) {
+        style.color = stateSword.color;
       }
-      if (props.styles[state].fontFamily) {
-        style.fontFamily = props.styles[state].fontFamily;
+      if (stateSword.fontFamily) {
+        style.fontFamily = stateSword.fontFamily;
       }
-      if (props.styles[state].fontSize) {
-        style.fontSize = `${props.styles[state].fontSize}px`;
+      if (stateSword.fontSize) {
+        style.fontSize = `${stateSword.fontSize}px`;
       }
     }
     return style;

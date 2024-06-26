@@ -5,7 +5,6 @@ import '@fontsource/roboto/700.css';
 import '../styles/main.css';
 
 import { useAtom } from 'jotai';
-import { Helmet } from 'react-helmet-async';
 
 /* Components */
 import BookList from './BookList.jsx';
@@ -16,10 +15,9 @@ import LanguageList from './LanguageList.tsx';
 // import Book from './Book.jsx';
 //
 // /* Stores */
-import { PropsWithChildren } from 'react';
 import { bookAtom, bookLanguageAtom } from '../atoms.ts';
 import Book from './Book.tsx';
-import { fontsAtom, useFonts } from '../hooks/useFonts.ts';
+import { useFonts } from '../hooks/useFonts.ts';
 //
 // /* Dispatchers */
 //
@@ -52,8 +50,8 @@ import { fontsAtom, useFonts } from '../hooks/useFonts.ts';
 export const App = () => {
   const [book] = useAtom(bookAtom);
   const [bookLanguage] = useAtom(bookLanguageAtom);
-  const [fonts] = useAtom(fontsAtom);
-  useFonts(fonts);
+
+  useFonts();
 
   if (book) {
     if (!bookLanguage) {

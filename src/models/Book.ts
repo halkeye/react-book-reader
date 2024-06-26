@@ -12,7 +12,11 @@ import {
 import { enumKeys } from '../enumKeys';
 import { RawBook, RawBookPage, RawBookStyles } from './RawBook';
 
-export type BookStyles = Record<string, BookStyle>;
+export type BookStyles = {
+  [StyleDataState.READ]?: BookStyle;
+  [StyleDataState.READING]?: BookStyle;
+  [StyleDataState.UNREAD]?: BookStyle;
+};
 
 export interface BookImage {
   image: string;
@@ -214,12 +218,12 @@ export enum StyleDataState {
   UNREAD = 'UNREAD',
 }
 
-export interface BookStyle {
-  color: string;
-  fontPath: string;
-  fontFamily: string;
-  fontSize: number;
-}
+export type BookStyle = {
+  color?: string;
+  fontPath?: string;
+  fontFamily?: string;
+  fontSize?: number;
+};
 
 export interface BookGame {
   gameName?: string;
