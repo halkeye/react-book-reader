@@ -23,19 +23,18 @@ interface Props {
 function BookWord(props: Props) {
   const [state, setState] = useState('unread');
   const [fonts, setFonts] = useAtom(fontsAtom);
+
+  const bookStyles = props.styles[state] || {};
   useEffect(() => {
-    Object.keys(props.styles).forEach((style) => {
-      /* Skip styles without fonts */
-      if (!props.styles[style].fontPath) {
-        return;
+    // Skip styles without fonts
+    if (bookStyles.fontPath) {
+      const { fontFamily, fontPath } = bookStyles;
+      if (!fonts[fontFamily]) {
+        // FIXME - this should be done when parsing not rendering
+        setFonts({ ...fonts, [fontFamily]: fontPath });
       }
-      // FIXME
-      setFonts({
-        ...fonts,
-        [props.styles[style].fontFamily]: props.styles[style].fontPath,
-      });
-    });
-  }, [fonts, setFonts, props.styles]);
+    }
+  }, [fonts, setFonts, bookStyles]);
 
   useEffect(() => {
     if (
