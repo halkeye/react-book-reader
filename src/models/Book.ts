@@ -1,4 +1,4 @@
-import AssetManager, { Asset, DownloadQueueItem } from '../AssetManager';
+import AssetManager, { DownloadQueueItem } from '../AssetManager';
 import { LanguageCode } from '../atoms';
 import {
   AnimFrame,
@@ -10,6 +10,7 @@ import {
   ucFirst,
 } from '../constants/BookUtilities';
 import { enumKeys } from '../enumKeys';
+import { Fonts } from '../hooks/useFonts';
 import { RawBook, RawBookPage, RawBookStyles } from './RawBook';
 
 export type BookStyles = {
@@ -62,150 +63,6 @@ export interface BookPage {
   hotspot: BookImageHotspot;
 }
 
-const pageProcessor = ({
-  promises,
-  assetManager,
-  parentStyle,
-  language,
-  page,
-  pageName,
-  nextPageRewriter,
-}: {
-  promises: Array<Promise<Asset>>;
-  assetManager: AssetManager;
-  parentStyle: BookStyles;
-  language: LanguageCode;
-  page: RawBookPage;
-  pageName: string;
-  nextPageRewriter?(p: string): string;
-}): BookPage => {
-  // HOTSPOTS
-  const pageData: BookPage = {
-    id: pageName,
-    assetManager,
-    image: '',
-    audio: '',
-    lines: [],
-    images: [],
-    hotspot: {
-      mask: '',
-      hotspots: {},
-    },
-    styles: Object.assign(
-      {},
-      parentStyle,
-      processStyleData(assetManager.getBaseUrl(), page.STYLES)
-    ),
-  };
-
-  if (page.IMAGE) {
-    for (const image of page.IMAGE) {
-      promises.push(
-        assetManager.queueDownload(
-          'img',
-          `images/${image.FILENAME.replace('[lang]', language)}.png`
-        )
-      );
-      pageData.images.push({
-        image: `images/${image.FILENAME.replace('[lang]', language)}.png`,
-        top: image.POS[0] * 100,
-        left: image.POS[1] * 100,
-        height: image.POS[2] * 100,
-        width: image.POS[3] * 100,
-      });
-    }
-  }
-  if (page.BUTTONS) {
-    for (const buttonName of Object.keys(page.BUTTONS)) {
-      const image = page.BUTTONS[buttonName];
-      let nextPageName = rewritePageName(buttonName);
-      if (nextPageRewriter) {
-        nextPageName = nextPageRewriter(nextPageName);
-      }
-
-      promises.push(
-        assetManager.queueDownload(
-          'img',
-          `buttons/pg${pageName}_${buttonName}.png`
-        )
-      );
-      pageData.images.push({
-        nextPage: nextPageName,
-        image: `buttons/pg${pageName}_${buttonName}.png`,
-        top: image.POS[0] * 100,
-        left: image.POS[1] * 100,
-        height: image.POS[2] * 100,
-        width: image.POS[3] * 100,
-      });
-    }
-  }
-  if (page.LINES) {
-    for (const line of page.LINES) {
-      const lineStyle = Object.assign(
-        {},
-        pageData.styles,
-        processStyleData(assetManager.getBaseUrl(), line.STYLES)
-      );
-      const lineData: BookLine = {
-        top: line.POS[0] * 100,
-        left: line.POS[1] * 100,
-        words: [],
-      };
-      pageData.lines.push(lineData);
-      for (const word of line.WORDS) {
-        const wordStyle = Object.assign({}, lineStyle);
-        promises.push(
-          assetManager.queueDownload(
-            'audio',
-            `voice/${language.toUpperCase()}/spliced/${audioFilename(
-              word[0]
-            )}.mp3`
-          )
-        );
-        const wordData: BookWord = {
-          word: word[0],
-          start: word[1],
-          end: word[2],
-          styles: wordStyle,
-          audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
-            word[0]
-          )}.mp3`,
-        };
-        lineData.words.push(wordData);
-      }
-    }
-  }
-  if (page.HOTSPOTS) {
-    promises.push(
-      assetManager.queueDownload('img', `pages/pg${pageName}.hotspots.gif`)
-    );
-    pageData.hotspot = {
-      mask: `pages/pg${pageName}.hotspots.gif`,
-      hotspots: {},
-    };
-    for (const [color, hotspots] of Object.entries(page.HOTSPOTS)) {
-      pageData.hotspot.hotspots[color] = [];
-      for (const hotspot of hotspots) {
-        promises.push(
-          assetManager.queueDownload(
-            'audio',
-            `voice/${language.toUpperCase()}/spliced/${audioFilename(
-              hotspot[1]
-            )}.mp3`
-          )
-        );
-        pageData.hotspot.hotspots[color].push({
-          text: hotspot[0],
-          audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
-            hotspot[1]
-          )}.mp3`,
-        });
-      }
-    }
-  }
-  return pageData;
-};
-
 export interface StyleData {
   FONT: string;
   COLOR: number;
@@ -236,6 +93,8 @@ export class Book {
   readonly pages: Record<string, BookPage>;
   readonly fonts: Fonts;
   private assetManager: AssetManager;
+  private promises: Array<Promise<DownloadQueueItem>> = [];
+
   language: LanguageCode = LanguageCode.EN;
   games: Record<string, BookGame> = {};
   bookStyles: BookStyles = {};
@@ -257,91 +116,66 @@ export class Book {
     this.games = {};
     this.fonts = {};
 
-    const promises: Array<Promise<DownloadQueueItem>> = [];
-
-    promises.push(this.assetManager.queueDownload('img', 'pages/gameEnd.png'));
-
-    promises.push(
+    this.promises.push(
+      this.assetManager.queueDownload('img', 'pages/gameEnd.png'),
       this.assetManager.queueDownload(
         'img',
         `game/gameEnd_title_${this.language}.png`,
         'game/gameEnd_title.png'
-      )
-    );
-    promises.push(
+      ),
       this.assetManager.queueDownload(
         'img',
         `buttons/gameEnd_playAgain-${this.language}.png`,
         'buttons/gameEnd_playAgain.png'
-      )
-    );
-    promises.push(
+      ),
       this.assetManager.queueDownload(
         'img',
         `buttons/gameEnd_changeDiff-${this.language}.png`,
         'buttons/gameEnd_changeDiff.png'
-      )
-    );
-    promises.push(
+      ),
       this.assetManager.queueDownload(
         'img',
         `buttons/gameEnd_backGameMenu-${this.language}.png`,
         'buttons/gameEnd_backGameMenu.png'
-      )
-    );
-
-    promises.push(
-      this.assetManager.queueDownload('img', 'buttons/control_back.png')
-    );
-    promises.push(
-      this.assetManager.queueDownload('img', 'buttons/control_home.png')
-    );
-    promises.push(
-      this.assetManager.queueDownload('img', 'buttons/control_pause.png')
-    );
-    promises.push(
-      this.assetManager.queueDownload('img', 'buttons/control_play.png')
-    );
-    promises.push(
-      this.assetManager.queueDownload('img', 'buttons/control_settings.png')
-    );
-
-    promises.push(
-      this.assetManager.queueDownload('audio', 'game/game_cupbard_correct.mp3')
-    );
-    promises.push(
+      ),
+      this.assetManager.queueDownload('img', 'buttons/control_back.png'),
+      this.assetManager.queueDownload('img', 'buttons/control_home.png'),
+      this.assetManager.queueDownload('img', 'buttons/control_pause.png'),
+      this.assetManager.queueDownload('img', 'buttons/control_play.png'),
+      this.assetManager.queueDownload('img', 'buttons/control_settings.png'),
+      this.assetManager.queueDownload('audio', 'game/game_cupbard_correct.mp3'),
       this.assetManager.queueDownload(
         'audio',
         'game/game_cupbard_incorrect.mp3'
-      )
-    );
-    promises.push(
+      ),
       this.assetManager.queueDownload(
         'audio',
         'game/game_cupbard_door_sound.mp3'
       )
     );
 
-    this.bookStyles = processStyleData(
-      this.assetManager.getBaseUrl(),
-      bookData.STYLES
-    );
+    this.bookStyles = this.processStyleData(bookData.STYLES);
 
     const gameAnimations: { [K in GameAnimations]?: Array<AnimFrame> } = {};
     for (const animName of enumKeys(GameAnimations)) {
-      getAnimFile(
-        this.assetManager.getBaseUrl(),
-        GameAnimations[animName]
-      ).then((frames) => {
-        for (const frame of frames) {
-          promises.push(this.assetManager.queueDownload('img', frame.filename));
-          frame.frame = this.assetManager.getAsset.bind(
-            this.assetManager,
-            frame.filename
-          );
-        }
-        gameAnimations[GameAnimations[animName]] = frames;
-      });
+      getAnimFile(this.assetManager.getBaseUrl(), GameAnimations[animName])
+        .then((frames) => {
+          for (const frame of frames) {
+            this.promises.push(
+              this.assetManager.queueDownload('img', frame.filename)
+            );
+            frame.frame = this.assetManager.getAsset.bind(
+              this.assetManager,
+              frame.filename
+            );
+          }
+          gameAnimations[GameAnimations[animName]] = frames;
+          return;
+        })
+        .catch((error) => {
+          // FIXME - handle error better
+          console.error('Unable to load animation', error);
+        });
     }
     const gameBoardParts = [
       'apples',
@@ -370,8 +204,11 @@ export class Book {
         image: `game_board_assets/game_board_image_${piece}.png`,
         text: `game_board_assets/game_board_text_${piece}-${this.language}.png`,
       };
-      promises.push(this.assetManager.queueDownload('img', data.image));
-      promises.push(this.assetManager.queueDownload('img', data.text));
+
+      this.promises.push(
+        this.assetManager.queueDownload('img', data.image),
+        this.assetManager.queueDownload('img', data.text)
+      );
 
       return data;
     });
@@ -379,7 +216,7 @@ export class Book {
     const gameAssets: Record<string, string> = {};
     for (const file of ['game_cupbard_door_closed', 'game_cupbard_door_open']) {
       const filename = `game/${file}.png`;
-      promises.push(this.assetManager.queueDownload('img', filename));
+      this.promises.push(this.assetManager.queueDownload('img', filename));
       gameAssets[file] = filename;
     }
     /* FIXME - move game anims to here so we can do promises with them */
@@ -388,9 +225,7 @@ export class Book {
       const pageNumber = Object.keys(this.pages).length + 1;
       const pageNumberString = `${pageNumber}`.padStart(2, '0');
 
-      this.pages[pageNumber] = pageProcessor({
-        promises,
-        assetManager: this.assetManager,
+      this.pages[pageNumber] = this.pageProcessor({
         parentStyle: this.bookStyles,
         language: this.language,
         page,
@@ -399,8 +234,10 @@ export class Book {
       const pageData = this.pages[pageNumber];
       pageData.image = `pages/pg${pageNumberString}.png`;
       pageData.audio = `voice/${this.language.toUpperCase()}/page/${pageNumberString}.mp3`;
-      promises.push(this.assetManager.queueDownload('audio', pageData.audio));
-      promises.push(this.assetManager.queueDownload('img', pageData.image));
+      this.promises.push(
+        this.assetManager.queueDownload('audio', pageData.audio),
+        this.assetManager.queueDownload('img', pageData.image)
+      );
     }
     if (bookData.UI) {
       for (const [key, uiData] of Object.entries(bookData.UI)) {
@@ -411,9 +248,7 @@ export class Book {
 
         const lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
-        this.pages[lckey] = pageProcessor({
-          promises,
-          assetManager: this.assetManager,
+        this.pages[lckey] = this.pageProcessor({
           parentStyle: this.bookStyles,
           language: this.language,
           page: uiData,
@@ -422,7 +257,9 @@ export class Book {
         const pageData = this.pages[lckey];
         pageData.id = lckey;
         pageData.image = `pages/pg${ucFirst(lckey)}.png`;
-        this.assetManager.queueDownload('img', pageData.image);
+        this.promises.push(
+          this.assetManager.queueDownload('img', pageData.image)
+        );
       }
       /*
       if (bookData.UI.GAMES) {
@@ -441,7 +278,7 @@ export class Book {
           });
           const gameDifficultyPageData = this.pages[gameDifficultyKey];
           gameDifficultyPageData.image = `pages/pgGameDifficulty_${gameName}.png`;
-          promises.push(
+          this.promises.push(
             this.assetManager.queueDownload('img', gameDifficultyPageData.image)
           );
           gameDifficultyPageData.back = 'game';
@@ -457,7 +294,7 @@ export class Book {
           const gameTutorialPageData = book.pages[`game${gameName}Tutorial`];
           gameTutorialPageData.image = `pages/tutorial_${gameName}_${this.language}.png`;
           gameTutorialPageData.back = `gameDifficulty${gameName}`;
-          promises.push(
+          this.promises.push(
             this.assetManager.queueDownload('img', gameTutorialPageData.image)
           );
 
@@ -472,7 +309,7 @@ export class Book {
               pageName: gameKey,
             }));
             difficultyPageData.image = `pages/pgGame${gameName}_${difficulty}.png`;
-            promises.push(
+            this.promises.push(
               this.assetManager.queueDownload('img', difficultyPageData.image)
             );
             difficultyPageData.gameName = gameName;
@@ -526,32 +363,172 @@ export class Book {
   hasPage(page: string) {
     return page in this.games || page in this.pages;
   }
-}
 
-function processStyleData(
-  assetBaseUrl: string,
-  styleData?: RawBookStyles
-): BookStyles {
-  const style: BookStyles = {};
-  if (!styleData) {
-    return {};
-  }
+  pageProcessor({
+    parentStyle,
+    language,
+    page,
+    pageName,
+    nextPageRewriter,
+  }: {
+    parentStyle: BookStyles;
+    language: LanguageCode;
+    page: RawBookPage;
+    pageName: string;
+    nextPageRewriter?(p: string): string;
+  }): BookPage {
+    // HOTSPOTS
+    const pageData: BookPage = {
+      id: pageName,
+      assetManager: this.assetManager,
+      image: '',
+      audio: '',
+      lines: [],
+      images: [],
+      hotspot: {
+        mask: '',
+        hotspots: {},
+      },
+      styles: Object.assign(
+        {},
+        parentStyle,
+        this.processStyleData(page.STYLES)
+      ),
+    };
 
-  for (const state of enumKeys(StyleDataState)) {
-    const stateStyleData = styleData[state];
-    if (!stateStyleData) {
-      continue;
+    if (page.IMAGE) {
+      for (const image of page.IMAGE) {
+        this.promises.push(
+          this.assetManager.queueDownload(
+            'img',
+            `images/${image.FILENAME.replace('[lang]', language)}.png`
+          )
+        );
+        pageData.images.push({
+          image: `images/${image.FILENAME.replace('[lang]', language)}.png`,
+          top: image.POS[0] * 100,
+          left: image.POS[1] * 100,
+          height: image.POS[2] * 100,
+          width: image.POS[3] * 100,
+        });
+      }
     }
+    if (page.BUTTONS) {
+      for (const buttonName of Object.keys(page.BUTTONS)) {
+        const image = page.BUTTONS[buttonName];
+        let nextPageName = rewritePageName(buttonName);
+        if (nextPageRewriter) {
+          nextPageName = nextPageRewriter(nextPageName);
+        }
 
-    const font = stateStyleData.FONT;
-    if (font) {
-      style[state] = {
-        color: intToRGBA(stateStyleData.COLOR),
-        fontPath: assetBaseUrl + font,
-        fontFamily: font,
-        fontSize: stateStyleData.SIZE,
+        this.promises.push(
+          this.assetManager.queueDownload(
+            'img',
+            `buttons/pg${pageName}_${buttonName}.png`
+          )
+        );
+        pageData.images.push({
+          nextPage: nextPageName,
+          image: `buttons/pg${pageName}_${buttonName}.png`,
+          top: image.POS[0] * 100,
+          left: image.POS[1] * 100,
+          height: image.POS[2] * 100,
+          width: image.POS[3] * 100,
+        });
+      }
+    }
+    if (page.LINES) {
+      for (const line of page.LINES) {
+        const lineStyle = Object.assign(
+          {},
+          pageData.styles,
+          this.processStyleData(line.STYLES)
+        );
+        const lineData: BookLine = {
+          top: line.POS[0] * 100,
+          left: line.POS[1] * 100,
+          words: [],
+        };
+        pageData.lines.push(lineData);
+        for (const word of line.WORDS) {
+          const wordStyle = Object.assign({}, lineStyle);
+          this.promises.push(
+            this.assetManager.queueDownload(
+              'audio',
+              `voice/${language.toUpperCase()}/spliced/${audioFilename(
+                word[0]
+              )}.mp3`
+            )
+          );
+          const wordData: BookWord = {
+            word: word[0],
+            start: word[1],
+            end: word[2],
+            styles: wordStyle,
+            audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
+              word[0]
+            )}.mp3`,
+          };
+          lineData.words.push(wordData);
+        }
+      }
+    }
+    if (page.HOTSPOTS) {
+      this.promises.push(
+        this.assetManager.queueDownload(
+          'img',
+          `pages/pg${pageName}.hotspots.gif`
+        )
+      );
+      pageData.hotspot = {
+        mask: `pages/pg${pageName}.hotspots.gif`,
+        hotspots: {},
       };
+      for (const [color, hotspots] of Object.entries(page.HOTSPOTS)) {
+        pageData.hotspot.hotspots[color] = [];
+        for (const hotspot of hotspots) {
+          this.promises.push(
+            this.assetManager.queueDownload(
+              'audio',
+              `voice/${language.toUpperCase()}/spliced/${audioFilename(
+                hotspot[1]
+              )}.mp3`
+            )
+          );
+          pageData.hotspot.hotspots[color].push({
+            text: hotspot[0],
+            audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
+              hotspot[1]
+            )}.mp3`,
+          });
+        }
+      }
     }
+    return pageData;
   }
-  return style;
+
+  processStyleData(styleData?: RawBookStyles): BookStyles {
+    const style: BookStyles = {};
+    if (!styleData) {
+      return {};
+    }
+
+    for (const state of enumKeys(StyleDataState)) {
+      const stateStyleData = styleData[state];
+      if (!stateStyleData) {
+        continue;
+      }
+
+      const font = stateStyleData.FONT;
+      if (font) {
+        style[state] = {
+          color: intToRGBA(stateStyleData.COLOR),
+          fontPath: this.assetManager.getBaseUrl() + font,
+          fontFamily: font,
+          fontSize: stateStyleData.SIZE,
+        };
+      }
+    }
+    return style;
+  }
 }

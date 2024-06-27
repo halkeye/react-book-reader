@@ -131,7 +131,7 @@ class AssetManager {
 
   getAsset(name: string): Promise<Asset> {
     if (name in this.assets) {
-      return Promise.reolve(this.assets[name]);
+      return Promise.resolve(this.assets[name]);
     }
     // redowload - FIXME
     return this._download(this.assets[name].type, this.assets[name].src);
@@ -144,7 +144,7 @@ class AssetManager {
 
 export default AssetManager;
 
-class AssetManagerAudioType implements AssetManagerType {
+export class AssetManagerAudioType implements AssetManagerType {
   public audio: Howl | undefined;
 
   private events: Record<keyof AssetManagerEventMap, (ev: Event) => void> = {
@@ -180,7 +180,9 @@ class AssetManagerAudioType implements AssetManagerType {
         if (error instanceof Error) {
           this.events.error(new ErrorEvent(error.message));
         } else {
-          this.events.error(new ErrorEvent(`Unknown: ${JSON.stringify(error)}`));
+          this.events.error(
+            new ErrorEvent(`Unknown: ${JSON.stringify(error)}`)
+          );
         }
         this.events.error = () => {};
       },

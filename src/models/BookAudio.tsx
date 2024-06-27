@@ -1,123 +1,165 @@
-// require the core node events module
-import { EventEmitter } from 'node:events';
-import AssetManager from '../AssetManager';
+import AssetManager, { AssetManagerAudioType } from '../AssetManager';
+import { Howl } from 'howler';
 
-class BookAudio extends EventEmitter {
-  private asset_manager: AssetManager;
-  private currentFilename: string | null;
-  private playMode: string | null;
+class TimeUpdateEvent extends Event {
+  time: number;
+  constructor(type: string, time: number) {
+    super(`${type}-timeupdate`);
+    this.time = time;
+  }
+}
+
+class PlayEvent extends Event {
+  constructor(type: string) {
+    super(`${type}-play`);
+  }
+}
+
+class PauseEvent extends Event {
+  constructor(type: string) {
+    super(`${type}-pause`);
+  }
+}
+
+class EndedEvent extends Event {
+  constructor(type: string) {
+    super(`${type}-ended`);
+  }
+}
+
+class BookAudio extends EventTarget {
+  private assetManager: AssetManager;
+  private currentFilename?: string;
+  private playMode?: string;
   private state: string;
-  private asset: any;
-  private interval: any;
-  private seekInterval: any;
+  private audioAsset?: Howl;
+  private interval?: NodeJS.Timeout;
+  private seekInterval?: NodeJS.Timeout;
 
   constructor(asset_manager: AssetManager) {
     super();
-    this.asset_manager = asset_manager;
-    this.currentFilename = null;
-    this.playMode = null;
+    this.assetManager = asset_manager;
+    this.currentFilename = undefined;
+    this.playMode = undefined;
     this.state = 'paused';
   }
 
   bind(
     type: string,
     ev: string,
-    func: Parameters<EventEmitter['on']>[1]
+    func: Parameters<EventTarget['addEventListener']>[1]
   ): this {
-    this.on(`${type}-${ev}`, func);
+    this.addEventListener(`${type}-${ev}`, func);
     return this;
   }
 
   pause() {
     this.stopUpdateCurrentDuration();
-    if (!this.asset) {
+    if (!this.audioAsset) {
       return this;
     }
-    this.asset.pause();
+    this.audioAsset.pause();
     return this;
   }
 
   stop() {
     this.stopUpdateCurrentDuration();
-    if (!this.asset) {
+    if (!this.audioAsset) {
       return this;
     }
-    this.asset.stop();
-    this.asset.onEnded();
+    this.audioAsset.stop();
+    // FIXME - is this still needed
+    // this.audioAsset.onEnded();
     return this;
   }
 
   play(type: string, path: string): this {
     // don't double play
     if (
-      this.asset !== null &&
+      this.audioAsset !== null &&
       this.playMode === type &&
       this.currentFilename === path
     ) {
-      if (this.asset) {
+      if (this.audioAsset) {
         this.interval = setInterval(
-          this.updateCurrentDuration.bind(this, this.asset, type),
+          this.updateCurrentDuration.bind(this, this.audioAsset, type),
           100
         );
-        this.asset.play();
+        this.audioAsset.play();
       }
       return this;
     }
-    this.asset_manager.getAsset(path).then((asset) => {
-      asset = asset.audio;
-      this.currentFilename = path;
-      this.playMode = type;
-      asset.on('play', () => {
-        this.state = 'playing';
-        this.seekInterval = setInterval(() => {
-          const time = asset.seek();
-          if (time) {
-            this.emit(`${type}-timeupdate`, time);
-          }
-        }, 100);
-        this.emit(`${type}-play`);
-      });
-      asset.on('pause', () => {
-        this.emit(`${type}-pause`);
-      });
-      asset.onEnded = () => {
-        asset.off('play');
-        asset.off('pause');
-        asset.off('end');
-        this.emit(`${type}-ended`);
-        if (this.asset === asset) {
-          this.playMode = null;
-          this.asset = null;
-          this.stopUpdateCurrentDuration();
-          if (this.seekInterval) {
-            clearInterval(this.seekInterval);
-            this.seekInterval = 0;
-          }
+    this.assetManager
+      .getAsset(path)
+      .then((asset) => {
+        if (!(asset instanceof AssetManagerAudioType)) {
+          throw new TypeError(`trying to play non audio ${path}`);
         }
-      };
-      asset.on('end', asset.onEnded);
-      this.interval = setInterval(
-        this.updateCurrentDuration.bind(this, asset, type),
-        100
-      );
-      asset.play();
+        if (!asset.audio) {
+          throw new Error(`audio asset without audio ${path}`);
+        }
+        const audioAsset = asset.audio;
+        this.currentFilename = path;
+        this.playMode = type;
+        audioAsset.on('play', () => {
+          this.state = 'playing';
+          this.seekInterval = setInterval(() => {
+            const time = audioAsset.seek();
+            if (time) {
+              this.dispatchEvent(new TimeUpdateEvent(type, time));
+            }
+          }, 100);
+          this.dispatchEvent(new PlayEvent(type));
+        });
+        audioAsset.on('pause', () => {
+          this.dispatchEvent(new PauseEvent(type));
+        });
+        audioAsset.on('end', () => {
+          audioAsset.off('play');
+          audioAsset.off('pause');
+          audioAsset.off('end');
+          this.dispatchEvent(new EndedEvent(type));
+          if (this.audioAsset === audioAsset) {
+            this.playMode = undefined;
+            this.audioAsset = undefined;
+            this.stopUpdateCurrentDuration();
+            if (this.seekInterval) {
+              clearInterval(this.seekInterval);
+              this.seekInterval = undefined;
+            }
+          }
+        });
+        // FIXME - is this still needed
+        // audioAsset.on('end', asset.onEnded);
+        this.interval = setInterval(
+          () => this.updateCurrentDuration(audioAsset, type),
+          100
+        );
+        audioAsset.play();
 
-      this.asset = asset;
-    });
+        this.audioAsset = audioAsset;
+        return;
+      })
+      .catch((error) => {
+        // fIXME - better error handling
+        console.error('unable to load audio', error);
+      });
     return this;
   }
 
   removeAll() {
-    this.removeAllListeners();
+    // FIXME - no longer exists
+    // this.removeAllListeners();
     this.stop();
     this.stopUpdateCurrentDuration();
-    if (this.asset) {
+    if (this.audioAsset) {
       this.stop();
     }
   }
 
-  updateCurrentDuration(asset, type) {
-    this.emit(`${type}-timeupdate`, asset.pos());
+  updateCurrentDuration(asset: Howl, type: string) {
+    // FIXME - this is not a number
+    this.dispatchEvent(new TimeUpdateEvent(type, asset.pos()[0]));
   }
 
   stopUpdateCurrentDuration() {
