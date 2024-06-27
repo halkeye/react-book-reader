@@ -30,6 +30,7 @@ module.exports = {
     'jsx-a11y',
   ],
   rules: {
+    'unicorn/prefer-ternary': ['error', 'only-single-line'],
     'no-only-tests/no-only-tests': 'error',
     'object-shorthand': ['error', 'methods'],
     '@typescript-eslint/array-type': ['error', { default: 'generic' }],

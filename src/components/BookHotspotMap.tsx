@@ -33,7 +33,7 @@ export default class BookHotspotMap extends Component<Props, State> {
     return this.canvas.current;
   }
 
-  onClickImage(x: number, y: number) {
+  onClickImage = (x: number, y: number) => {
     if (!this.props.mask) {
       return false;
     }
@@ -57,7 +57,7 @@ export default class BookHotspotMap extends Component<Props, State> {
       return true;
     }
     return false;
-  }
+  };
 
   draw() {
     if (!this.props.mask) {
@@ -74,13 +74,13 @@ export default class BookHotspotMap extends Component<Props, State> {
     }
 
     this.props.assetManager
-      .getAsset(this.props.mask)
+      .getAsset('img', this.props.mask)
       .then((img) => {
-        if (!(img instanceof HTMLImageElement)) {
+        if (!(img.asset instanceof HTMLImageElement)) {
           throw new TypeError(`${this.props.mask} isn't a mask`);
         }
 
-        context.drawImage(img, 0, 0);
+        context.drawImage(img.asset, 0, 0);
         this.imageData = context.getImageData(
           0,
           0,
@@ -98,7 +98,7 @@ export default class BookHotspotMap extends Component<Props, State> {
     this.draw();
   }
 
-  componentDidUpdate(previousProps, previousState) {
+  componentDidUpdate() {
     this.draw();
   }
 
@@ -106,7 +106,6 @@ export default class BookHotspotMap extends Component<Props, State> {
     if (!this.props.mask) {
       return <div />;
     }
-    const onClickImage = () => {};
 
     const surfaceStyle: CSSProperties = {
       width: this.props.width,
@@ -120,7 +119,6 @@ export default class BookHotspotMap extends Component<Props, State> {
         height={this.props.height}
         width={this.props.width}
         style={surfaceStyle}
-        onClick={onClickImage}
       />
     );
   }

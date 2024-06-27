@@ -225,12 +225,12 @@ class GameScreen extends React.Component {
   }
 
   closeAllDoors() {
-    for (const key of Object.keys(this)
-      .filter((key) => {
-        return key.startsWith('cupboard_');
-      })) {
-        this[key].close(false);
-      }
+    const doors = Object.entries(this).filter(([key]) => {
+      return key.startsWith('cupboard_');
+    });
+    for (const [, door] of doors) {
+      door.close(false);
+    }
   }
 
   start() {
@@ -246,7 +246,7 @@ class GameScreen extends React.Component {
   }
 
   playMp3(mp3) {
-    this.props.page.asset_manager.getAsset(mp3).then((asset) => {
+    this.props.page.asset_manager.getAsset('audio', mp3).then((asset) => {
       asset.audio.play();
     });
   }

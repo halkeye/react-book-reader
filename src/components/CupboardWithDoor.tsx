@@ -50,7 +50,7 @@ class CupboardWithDoor extends React.Component {
 
   playDoorSound() {
     this.props.asset_manager
-      .getAsset('game/game_cupbard_door_sound.mp3')
+      .getAsset('audio', 'game/game_cupbard_door_sound.mp3')
       .then((asset) => {
         asset.audio.play();
       });

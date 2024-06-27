@@ -4,7 +4,7 @@ import { Asset } from '../AssetManager';
 export class AnimFrame {
   filename: string;
   nextTiming: number;
-  frame?: (asset: Asset) => void;
+  frame?: Promise<Asset>;
 
   constructor(filename: string, nextTiming: number) {
     this.filename = filename;
@@ -96,14 +96,16 @@ export interface Color {
 }
 
 export const colorToInt = (color: Color) => {
-  return (color.a << 24) | (color.r << 16) | (color.g << 8) | (Math.trunc(color.b));
+  return (
+    (color.a << 24) | (color.r << 16) | (color.g << 8) | Math.trunc(color.b)
+  );
 };
 
 export const intToRGBA = (colorInt: number) => {
   const alpha = ((colorInt >> 24) & 255) / 255;
   const red = (colorInt >> 16) & 255;
   const green = (colorInt >> 8) & 255;
-  const blue = (Math.trunc(colorInt)) & 255;
+  const blue = Math.trunc(colorInt) & 255;
 
   return `rgba(${[red, green, blue].join(',')}, ${alpha})`;
 };

@@ -90,15 +90,15 @@ export class BookAudio extends EventTarget {
       return this;
     }
     this.assetManager
-      .getAsset(path)
+      .getAsset('audio', path)
       .then((asset) => {
-        if (!(asset instanceof AssetManagerAudioType)) {
+        if (!(asset.asset instanceof AssetManagerAudioType)) {
           throw new TypeError(`trying to play non audio ${path}`);
         }
-        if (!asset.audio) {
+        if (!asset.asset.audio) {
           throw new Error(`audio asset without audio ${path}`);
         }
-        const audioAsset = asset.audio;
+        const audioAsset = asset.asset.audio;
         this.currentFilename = path;
         this.playMode = type;
         audioAsset.on('play', () => {
@@ -158,8 +158,8 @@ export class BookAudio extends EventTarget {
   }
 
   updateCurrentDuration(asset: Howl, type: string) {
-    // FIXME - this is not a number
-    this.dispatchEvent(new TimeUpdateEvent(type, asset.pos()[0]));
+    const position = asset.seek();
+    this.dispatchEvent(new TimeUpdateEvent(type, position));
   }
 
   stopUpdateCurrentDuration() {

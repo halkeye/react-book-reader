@@ -10,10 +10,6 @@ export interface AssetManagerEventMap {
 
 type EventName = keyof AssetManagerEventMap;
 
-export interface AssetManagerTypeConstructor {
-  new (): AssetType;
-}
-
 export type AssetType = HTMLImageElement | AssetManagerAudioType;
 
 export interface Asset {
@@ -33,8 +29,6 @@ const events: Record<EventName, Array<EventFunction>> = {
 
 class AssetManager {
   private baseUrl: string;
-  private types: Record<string, AssetManagerTypeConstructor>;
-  private assets: Record<string, Asset> = {};
   private downloadQueue: Record<string, Promise<Asset>> = {};
 
   static on(eventName: EventName, func: EventFunction) {
@@ -55,12 +49,6 @@ class AssetManager {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    this.types = {
-      img: Image,
-      audio: AssetManagerAudioType,
-    };
-
-    this.assets = {};
     this.downloadQueue = {};
   }
 
@@ -68,10 +56,17 @@ class AssetManager {
     return this.baseUrl;
   }
 
-  async _download(type: string, path: string): Promise<Asset> {
-    const assetLoader: AssetType = new this.types[type]();
+  async _download(
+    type: keyof typeof ASSET_TYPES,
+    path: string
+  ): Promise<Asset> {
+    const assetLoader: AssetType = new ASSET_TYPES[type]();
 
     try {
+      if ('crossOrigin' in assetLoader) {
+        assetLoader.crossOrigin = 'anonymous';
+      }
+
       if ('src' in assetLoader) {
         assetLoader.src = new URL(path, this.baseUrl).toString();
       }
@@ -85,9 +80,13 @@ class AssetManager {
     }
   }
 
-  queueDownload(type: string, path: string, name = path) {
+  // FIXME - type should be enum
+  getAsset(
+    type: keyof typeof ASSET_TYPES,
+    path: string,
+    name = path
+  ): Promise<Asset> {
     if (!this.downloadQueue[name]) {
-      this.assets[name] = { asset: undefined, src: path, type };
       AssetManager.trigger('started');
       this.downloadQueue[name] = this._download(type, path)
         .then((asset) => {
@@ -106,16 +105,8 @@ class AssetManager {
     return this.downloadQueue[name];
   }
 
-  getAsset(name: string): Promise<Asset> {
-    if (name in this.assets) {
-      return Promise.resolve(this.assets[name]);
-    }
-    // redowload - FIXME
-    return this._download(this.assets[name].type, this.assets[name].src);
-  }
-
-  getAssetSrc(name: string) {
-    return this.baseUrl + this.assets[name].src;
+  getAssetSrc(source: string) {
+    return new URL(source, this.baseUrl).toString();
   }
 }
 
@@ -166,3 +157,8 @@ export class AssetManagerAudioType {
     });
   }
 }
+
+const ASSET_TYPES = {
+  img: Image,
+  audio: AssetManagerAudioType,
+};

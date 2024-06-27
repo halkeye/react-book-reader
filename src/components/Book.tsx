@@ -11,20 +11,22 @@ import {
   bookLanguageAtom,
   bookPageAtom,
 } from '../atoms.js';
-import { useMemo } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Book as BookClass } from '../models/Book';
 import { dirname } from '../constants/BookUtilities.js';
 import Screen from './Screen.tsx';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Book = () => {
   const [bookData] = useAtom(bookAtom);
   const [page] = useAtom(bookPageAtom);
   const [language] = useAtom(bookLanguageAtom);
+  const [bookLoaded, setBookLoaded] = useState(false);
 
   const book = useMemo(() => {
     if (!bookData || !language) {
-      return null;
+      return;
     }
 
     return new BookClass(
@@ -36,6 +38,22 @@ const Book = () => {
       language as LanguageCode
     );
   }, [bookData, language]);
+
+  useEffect(() => {
+    if (book) {
+      book
+        .finishLoading()
+        .then(() => {
+          setBookLoaded(true);
+          return;
+        })
+        .catch(() => {
+          alert('error loading book');
+        });
+    } else {
+      setBookLoaded(false);
+    }
+  }, [book]);
 
   const pageTitle = useMemo(() => {
     if (!book) {
@@ -51,7 +69,17 @@ const Book = () => {
 
   if (!book || !page) {
     // it has to be something by here
-    return null;
+    return false;
+  }
+
+  if (!bookLoaded) {
+    // FIXME - switch to loading bar
+    return (
+      <div>
+        Loading
+        <CircularProgress color="inherit" size={16} />
+      </div>
+    );
   }
 
   // <Screen book={book} language={language} page={page} />
@@ -68,7 +96,7 @@ const Book = () => {
       <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
     );
   } */
-  let body = null;
+  let body: ReactElement;
   if (book.hasGame(page)) {
     const pageData = book.games[page];
     if (!pageData.gameName) {

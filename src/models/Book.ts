@@ -100,6 +100,10 @@ export class Book {
   games: Record<string, BookGame> = {};
   bookStyles: BookStyles = {};
 
+  finishLoading() {
+    return Promise.all(this.promises);
+  }
+
   constructor(
     id: string,
     title: string,
@@ -118,41 +122,35 @@ export class Book {
     this.fonts = {};
 
     this.promises.push(
-      this.assetManager.queueDownload('img', 'pages/gameEnd.png'),
-      this.assetManager.queueDownload(
+      this.assetManager.getAsset('img', 'pages/gameEnd.png'),
+      this.assetManager.getAsset(
         'img',
         `game/gameEnd_title_${this.language}.png`,
         'game/gameEnd_title.png'
       ),
-      this.assetManager.queueDownload(
+      this.assetManager.getAsset(
         'img',
         `buttons/gameEnd_playAgain-${this.language}.png`,
         'buttons/gameEnd_playAgain.png'
       ),
-      this.assetManager.queueDownload(
+      this.assetManager.getAsset(
         'img',
         `buttons/gameEnd_changeDiff-${this.language}.png`,
         'buttons/gameEnd_changeDiff.png'
       ),
-      this.assetManager.queueDownload(
+      this.assetManager.getAsset(
         'img',
         `buttons/gameEnd_backGameMenu-${this.language}.png`,
         'buttons/gameEnd_backGameMenu.png'
       ),
-      this.assetManager.queueDownload('img', 'buttons/control_back.png'),
-      this.assetManager.queueDownload('img', 'buttons/control_home.png'),
-      this.assetManager.queueDownload('img', 'buttons/control_pause.png'),
-      this.assetManager.queueDownload('img', 'buttons/control_play.png'),
-      this.assetManager.queueDownload('img', 'buttons/control_settings.png'),
-      this.assetManager.queueDownload('audio', 'game/game_cupbard_correct.mp3'),
-      this.assetManager.queueDownload(
-        'audio',
-        'game/game_cupbard_incorrect.mp3'
-      ),
-      this.assetManager.queueDownload(
-        'audio',
-        'game/game_cupbard_door_sound.mp3'
-      )
+      this.assetManager.getAsset('img', 'buttons/control_back.png'),
+      this.assetManager.getAsset('img', 'buttons/control_home.png'),
+      this.assetManager.getAsset('img', 'buttons/control_pause.png'),
+      this.assetManager.getAsset('img', 'buttons/control_play.png'),
+      this.assetManager.getAsset('img', 'buttons/control_settings.png'),
+      this.assetManager.getAsset('audio', 'game/game_cupbard_correct.mp3'),
+      this.assetManager.getAsset('audio', 'game/game_cupbard_incorrect.mp3'),
+      this.assetManager.getAsset('audio', 'game/game_cupbard_door_sound.mp3')
     );
 
     this.bookStyles = this.processStyleData(bookData.STYLES);
@@ -162,13 +160,8 @@ export class Book {
       getAnimFile(this.assetManager.getBaseUrl(), GameAnimations[animName])
         .then((frames) => {
           for (const frame of frames) {
-            this.promises.push(
-              this.assetManager.queueDownload('img', frame.filename)
-            );
-            frame.frame = this.assetManager.getAsset.bind(
-              this.assetManager,
-              frame.filename
-            );
+            frame.frame = this.assetManager.getAsset('img', frame.filename);
+            this.promises.push(frame.frame);
           }
           gameAnimations[GameAnimations[animName]] = frames;
           return;
@@ -207,8 +200,8 @@ export class Book {
       };
 
       this.promises.push(
-        this.assetManager.queueDownload('img', data.image),
-        this.assetManager.queueDownload('img', data.text)
+        this.assetManager.getAsset('img', data.image),
+        this.assetManager.getAsset('img', data.text)
       );
 
       return data;
@@ -217,7 +210,7 @@ export class Book {
     const gameAssets: Record<string, string> = {};
     for (const file of ['game_cupbard_door_closed', 'game_cupbard_door_open']) {
       const filename = `game/${file}.png`;
-      this.promises.push(this.assetManager.queueDownload('img', filename));
+      this.promises.push(this.assetManager.getAsset('img', filename));
       gameAssets[file] = filename;
     }
 
@@ -236,8 +229,8 @@ export class Book {
       pageData.image = `pages/pg${pageNumberString}.png`;
       pageData.audio = `voice/${this.language.toUpperCase()}/page${pageNumberString}.mp3`;
       this.promises.push(
-        this.assetManager.queueDownload('audio', pageData.audio),
-        this.assetManager.queueDownload('img', pageData.image)
+        this.assetManager.getAsset('audio', pageData.audio),
+        this.assetManager.getAsset('img', pageData.image)
       );
     }
 
@@ -259,9 +252,7 @@ export class Book {
         const pageData = this.pages[lckey];
         pageData.id = lckey;
         pageData.image = `pages/pg${ucFirst(lckey)}.png`;
-        this.promises.push(
-          this.assetManager.queueDownload('img', pageData.image)
-        );
+        this.promises.push(this.assetManager.getAsset('img', pageData.image));
       }
 
       /*
@@ -282,7 +273,7 @@ export class Book {
           const gameDifficultyPageData = this.pages[gameDifficultyKey];
           gameDifficultyPageData.image = `pages/pgGameDifficulty_${gameName}.png`;
           this.promises.push(
-            this.assetManager.queueDownload('img', gameDifficultyPageData.image)
+            this.assetManager.getAsset('img', gameDifficultyPageData.image)
           );
           gameDifficultyPageData.back = 'game';
 
@@ -298,7 +289,7 @@ export class Book {
           gameTutorialPageData.image = `pages/tutorial_${gameName}_${this.language}.png`;
           gameTutorialPageData.back = `gameDifficulty${gameName}`;
           this.promises.push(
-            this.assetManager.queueDownload('img', gameTutorialPageData.image)
+            this.assetManager.getAsset('img', gameTutorialPageData.image)
           );
 
           ['easy', 'medium', 'hard'].forEach((difficulty) => {
@@ -313,7 +304,7 @@ export class Book {
             }));
             difficultyPageData.image = `pages/pgGame${gameName}_${difficulty}.png`;
             this.promises.push(
-              this.assetManager.queueDownload('img', difficultyPageData.image)
+              this.assetManager.getAsset('img', difficultyPageData.image)
             );
             difficultyPageData.gameName = gameName;
             difficultyPageData.back = `gameDifficulty${gameName}`;
@@ -403,7 +394,7 @@ export class Book {
     if (page.IMAGE) {
       for (const image of page.IMAGE) {
         this.promises.push(
-          this.assetManager.queueDownload(
+          this.assetManager.getAsset(
             'img',
             `images/${image.FILENAME.replace('[lang]', language)}.png`
           )
@@ -426,7 +417,7 @@ export class Book {
         }
 
         this.promises.push(
-          this.assetManager.queueDownload(
+          this.assetManager.getAsset(
             'img',
             `buttons/pg${pageName}_${buttonName}.png`
           )
@@ -457,7 +448,7 @@ export class Book {
         for (const word of line.WORDS) {
           const wordStyle = Object.assign({}, lineStyle);
           this.promises.push(
-            this.assetManager.queueDownload(
+            this.assetManager.getAsset(
               'audio',
               `voice/${language.toUpperCase()}/spliced/${audioFilename(
                 word[0]
@@ -482,7 +473,7 @@ export class Book {
       const hotspotData = pageData.hotspot;
       this.promises.push(
         this.assetManager
-          .queueDownload('img', `pages/pg${pageName}.hotspots.gif`)
+          .getAsset('img', `pages/pg${pageName}.hotspots.gif`)
           .then((asset) => {
             hotspotData.mask = asset.src;
             return asset;
@@ -492,7 +483,7 @@ export class Book {
         for (const hotspot of hotspots) {
           const filename = `voice/${language.toUpperCase()}/spliced/${audioFilename(hotspot[1])}.mp3`;
           this.promises.push(
-            this.assetManager.queueDownload('audio', filename).then((asset) => {
+            this.assetManager.getAsset('audio', filename).then((asset) => {
               if (!hotspotData.hotspots[color]) {
                 hotspotData.hotspots[color] = [];
               }

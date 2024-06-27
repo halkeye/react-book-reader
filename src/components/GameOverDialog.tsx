@@ -4,11 +4,11 @@ import ImageButton from './ImageButton.tsx';
 
 class GameOverDialog extends React.Component {
   render() {
-    const asset_manager = this.props.asset_manager;
+    const assetManager = this.props.assetManager;
     return (
       <div
         style={{
-          backgroundImage: `url(${asset_manager.getAssetSrc('pages/gameEnd.png')})`,
+          backgroundImage: `url(${assetManager.getAssetSrc('pages/gameEnd.png')})`,
           position: 'absolute',
           top: '0',
           left: '90',
@@ -19,7 +19,7 @@ class GameOverDialog extends React.Component {
         <div style={{ position: 'relative' }}>
           <div
             style={{
-              backgroundImage: `url(${asset_manager.getAssetSrc(
+              backgroundImage: `url(${assetManager.getAssetSrc(
                 'game/gameEnd_title.png'
               )})`,
               position: 'absolute',
@@ -34,7 +34,7 @@ class GameOverDialog extends React.Component {
             left="190px"
             height="95"
             width="538"
-            asset_manager={asset_manager}
+            assetManager={assetManager}
             image={'buttons/gameEnd_playAgain.png'}
             onClick={this.props.onPlayAgain}
           />
@@ -43,7 +43,7 @@ class GameOverDialog extends React.Component {
             left="190px"
             height="95"
             width="538"
-            asset_manager={asset_manager}
+            assetManager={assetManager}
             image={'buttons/gameEnd_changeDiff.png'}
             onClick={this.props.onChangeDiff}
           />
@@ -52,7 +52,7 @@ class GameOverDialog extends React.Component {
             left="190px"
             height="95"
             width="538"
-            asset_manager={asset_manager}
+            assetManager={assetManager}
             image={'buttons/gameEnd_backGameMenu.png'}
             onClick={this.props.onBackGameMenu}
           />

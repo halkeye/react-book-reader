@@ -1,6 +1,6 @@
 import IconButton from '@mui/material/IconButton';
 import { useAtom } from 'jotai';
-import { createRef, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import AssetManager from '../AssetManager.ts';
 import { LanguageCode, bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
 import Constants from '../constants/AppConstants.js';
@@ -17,8 +17,6 @@ const clickThreshold = 5;
 interface Props {
   page: BookPage;
   book: Book;
-  language: LanguageCode;
-  children: React.ReactNode;
 }
 
 function ScreenImageButton({
@@ -89,7 +87,7 @@ export function Screen(properties: Props) {
   const [playButton, setPlayButton] = useState<string>('play');
   const audioReference = useRef<BookAudio | null>(null);
   const hotspotPhraseReference = useRef<typeof BookHotspotPhrase>();
-  const hotspotMapReference = createRef<BookHotspotMap>();
+  const hotspotMapReference = useRef<BookHotspotMap>();
 
   const pagePrevious = () => {
     const pageNumber = Number.parseInt(properties.page.id, 10);
@@ -252,9 +250,12 @@ export function Screen(properties: Props) {
   };
 
   const onClickPage = useCallback(
-    (ev: Event) => {
-      alert('onClickpage');
-      if (hotspotMapReference.current) {
+    (ev: MouseEvent) => {
+      if (
+        hotspotMapReference.current &&
+        ev.currentTarget &&
+        ev.currentTarget instanceof HTMLElement
+      ) {
         const x = ev.pageX - ev.currentTarget.offsetLeft;
         const y = ev.pageY - ev.currentTarget.offsetTop;
         if (hotspotMapReference.current.onClickImage(x, y)) {
@@ -266,14 +267,7 @@ export function Screen(properties: Props) {
     [hotspotMapReference]
   );
 
-  const key = [
-    'book',
-    properties.book,
-    'language',
-    properties.language,
-    'page',
-    properties.page,
-  ].join('_');
+  const key = ['book', properties.book, 'page', properties.page].join('_');
 
   const extraImages = properties.page.images.map((image, index) => (
     <ScreenImageButton
@@ -333,7 +327,8 @@ export function Screen(properties: Props) {
     <div style={getPageStyle()} {...swipeHandlers} onClick={onClickPage}>
       <BookHotspotMap
         ref={hotspotMapReference}
-        {...properties.page.hotspot}
+        mask={properties.page.hotspot.mask}
+        hotspots={properties.page.hotspot.hotspots}
         assetManager={properties.page.assetManager}
         height={getPageHeight()}
         width={getPageWidth()}
@@ -377,7 +372,6 @@ export function Screen(properties: Props) {
       />
       {extraImages}
       {extraLines}
-      {properties.children}
     </div>
   );
 }
