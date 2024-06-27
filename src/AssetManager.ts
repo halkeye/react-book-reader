@@ -110,7 +110,7 @@ class AssetManager {
 
   queueDownload(type: string, path: string, name = path) {
     if (!this.downloadQueue[name]) {
-      this.assets[name] = { asset: null, src: path, type: type };
+      this.assets[name] = { asset: null, src: path, type };
       AssetManager.trigger('started', null);
       this.downloadQueue[name] = this._download(type, path);
       this.downloadQueue[name]

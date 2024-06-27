@@ -2,19 +2,19 @@
 import { Dispatcher } from 'flux';
 import Constants from '../constants/AppConstants';
 
-let AppDispatcher = Object.assign(new Dispatcher(), {
+const AppDispatcher = Object.assign(new Dispatcher(), {
   handleServerAction(action) {
-    let payload = {
+    const payload = {
       source: Constants.ActionSources.SERVER_ACTION,
-      action: action,
+      action,
     };
     this.dispatch(payload);
   },
 
   handleViewAction(action) {
-    let payload = {
+    const payload = {
       source: Constants.ActionSources.VIEW_ACTION,
-      action: action,
+      action,
     };
     this.dispatch(payload);
   },

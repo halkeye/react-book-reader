@@ -4,12 +4,11 @@ import ImageButton from './ImageButton.tsx';
 
 class GameOverDialog extends React.Component {
   render() {
-    let asset_manager = this.props.asset_manager;
+    const asset_manager = this.props.asset_manager;
     return (
       <div
         style={{
-          backgroundImage:
-            'url(' + asset_manager.getAssetSrc('pages/gameEnd.png') + ')',
+          backgroundImage: `url(${asset_manager.getAssetSrc('pages/gameEnd.png')})`,
           position: 'absolute',
           top: '0',
           left: '90',
@@ -20,10 +19,9 @@ class GameOverDialog extends React.Component {
         <div style={{ position: 'relative' }}>
           <div
             style={{
-              backgroundImage:
-                'url(' +
-                asset_manager.getAssetSrc('game/gameEnd_title.png') +
-                ')',
+              backgroundImage: `url(${asset_manager.getAssetSrc(
+                'game/gameEnd_title.png'
+              )})`,
               position: 'absolute',
               top: '200',
               left: '215',

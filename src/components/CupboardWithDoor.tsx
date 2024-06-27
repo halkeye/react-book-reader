@@ -16,13 +16,13 @@ class CupboardWithDoor extends React.Component {
   }
 
   draw() {
-    let canvas = this.getCanvas();
-    let ctx = canvas.getContext('2d');
+    const canvas = this.getCanvas();
+    const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (this.props.objectImage) {
       ctx.drawImage(this.props.objectImage, 0, 0);
     }
-    let img = this.props[this.state.status + 'Image'];
+    const img = this.props[`${this.state.status}Image`];
     if (img) {
       ctx.drawImage(img, 0, 0);
     }

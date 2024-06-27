@@ -39,7 +39,7 @@ class ReactionBox extends React.Component {
         this.props.onComplete(this.props.mode);
       }
     }
-    let frame = this.props.animations[this.props.mode][frameNo];
+    const frame = this.props.animations[this.props.mode][frameNo];
     this.stopAnimation();
     this._animInterval = setTimeout(this.getNextFrame, frame.nextTiming);
     this.setState({ frameNo: frameNo });
@@ -53,8 +53,8 @@ class ReactionBox extends React.Component {
     if (!this.props.animations) {
       return;
     }
-    let canvas = this.getCanvas();
-    let ctx = canvas.getContext('2d');
+    const canvas = this.getCanvas();
+    const ctx = canvas.getContext('2d');
     this.props.animations[this.props.mode][this.state.frameNo]
       .frame()
       .then((img) => {

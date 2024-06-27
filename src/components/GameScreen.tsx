@@ -12,13 +12,13 @@ import BookUtilities from '../constants/BookUtilities.jsx';
 
 class GameScreen extends React.Component {
   static defaultProps = {
-    getCupboardContents: function () {
+    getCupboardContents() {
       return [];
     },
-    clickedOnDoor: function (isOpen) {
+    clickedOnDoor(isOpen) {
       return true;
     },
-    isEndGame: function () {
+    isEndGame() {
       throw new Error('overwrite please');
     },
   };
@@ -49,12 +49,12 @@ class GameScreen extends React.Component {
   }
 
   componentDidMount() {
-    let promises = [];
-    let gameAssets = {};
-    let gameParts = [];
+    const promises = [];
+    const gameAssets = {};
+    const gameParts = [];
 
     this.props.page.gameBoardParts.forEach((part) => {
-      let gamePart = { key: part.key, image: null, text: null };
+      const gamePart = { key: part.key, image: null, text: null };
       gameParts.push(gamePart);
       promises.push(
         this.props.page.asset_manager.getAsset(part.image).then((img) => {
@@ -68,7 +68,7 @@ class GameScreen extends React.Component {
       );
     });
     Object.keys(this.props.page.gameAssets).forEach((assetName) => {
-      let promise = this.props.page.asset_manager
+      const promise = this.props.page.asset_manager
         .getAsset(this.props.page.gameAssets[assetName])
         .then((img) => {
           gameAssets[assetName] = img;
@@ -77,7 +77,7 @@ class GameScreen extends React.Component {
     });
 
     Promise.all(promises).then((parts) => {
-      this.setState({ gameAssets: gameAssets, gameParts: gameParts }, () => {
+      this.setState({ gameAssets, gameParts }, () => {
         this.resetGame(this.props);
       });
     });
@@ -88,18 +88,18 @@ class GameScreen extends React.Component {
   }
 
   resetGame(props) {
-    let state = this.startingState();
-    let contents = Shuffle.shuffle({
+    const state = this.startingState();
+    const contents = Shuffle.shuffle({
       deck: props.getCupboardContents(
         this.state.gameParts,
         this.numberOfDoors()
       ),
     });
     this.props.page.boxes.matchLocs.forEach((loc, idx) => {
-      let cupboard = this[`cupboard_${idx}`];
+      const cupboard = this[`cupboard_${idx}`];
       cupboard.reset();
 
-      let content = contents.draw();
+      const content = contents.draw();
       if (!content) {
         return;
       }
@@ -109,15 +109,15 @@ class GameScreen extends React.Component {
   }
 
   render() {
-    let triesBoxStyle = Object.assign(
+    const triesBoxStyle = Object.assign(
       { position: 'absolute' },
       this.props.page.boxes.tries
     );
-    let matchBoxStyle = Object.assign(
+    const matchBoxStyle = Object.assign(
       { position: 'absolute' },
       this.props.page.boxes.match
     );
-    let reactionBoxStyle = Object.assign(
+    const reactionBoxStyle = Object.assign(
       { position: 'absolute' },
       this.props.page.boxes.reactionBox
     );
@@ -127,13 +127,13 @@ class GameScreen extends React.Component {
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
-        let style = Object.assign({ position: 'absolute' }, loc);
-        let cupbardObject = this.state[`cupboard_${idx}`] || {};
+        const style = Object.assign({ position: 'absolute' }, loc);
+        const cupbardObject = this.state[`cupboard_${idx}`] || {};
 
-        let props = {
+        const props = {
           ref: (node) => (this[`cupboard_${idx}`] = node),
           key: idx,
-          style: style,
+          style,
           asset_manager: this.props.page.asset_manager,
           openImage: this.state.gameAssets.game_cupbard_door_open,
           closedImage: this.state.gameAssets.game_cupbard_door_closed,
@@ -149,7 +149,7 @@ class GameScreen extends React.Component {
       this.state.displayBox &&
       this.state.displayBox.props.objectImage
     ) {
-      let style = Object.assign(
+      const style = Object.assign(
         { position: 'absolute' },
         this.props.page.boxes.displayBox
       );
@@ -240,7 +240,7 @@ class GameScreen extends React.Component {
   }
 
   onCompleteReaction(reaction) {
-    let defaultMode = this.getDefaultReaction();
+    const defaultMode = this.getDefaultReaction();
     if (reaction !== defaultMode) {
       this.setState({ reaction: defaultMode });
     }

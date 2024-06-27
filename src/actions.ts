@@ -1,6 +1,8 @@
 import { push } from 'react-router-redux';
 
-import 'whatwg-fetch'; // polyfill
+import 'whatwg-fetch';
+
+import BookUtilities from './constants/BookUtilities.jsx'; // polyfill
 
 export { push };
 
@@ -9,18 +11,16 @@ export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
 export const ASSET_MANAGER_INCR_SUCCESS = 'ASSET_MANAGER_INCR_SUCCESS';
 export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
 
-import BookUtilities from './constants/BookUtilities.jsx';
-
 export function init() {
   return (dispatch) => {
     const baseUrl = 'https://books.saltystories.ca/';
-    fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
+    fetch(`${baseUrl}books/index.json?_cacheBust=${new Date().getTime()}`)
       .then((response) => response.json())
       .then((json) => {
-        for (let book of json) {
-          book.url = baseUrl + 'books/' + book.url;
-          book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
-          book.icon = baseUrl + 'books/' + book.icon;
+        for (const book of json) {
+          book.url = `${baseUrl}books/${book.url}`;
+          book.iconBig = `${baseUrl}books/${book.iconBig || book.icon}`;
+          book.icon = `${baseUrl}books/${book.icon}`;
           dispatch({
             type: 'LOADED_BOOK_LIST_ITEM',
             payload: book,
@@ -62,7 +62,7 @@ export function chooseLanguage(language) {
     return fetch(book.url)
       .then((response) => response.json())
       .then((json) => {
-        let assetBaseUrl = BookUtilities.dirname(book.url);
+        const assetBaseUrl = BookUtilities.dirname(book.url);
         return BookUtilities.processBookData(
           {},
           assetBaseUrl,

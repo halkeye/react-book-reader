@@ -6,7 +6,7 @@ import { BookHotspot } from '../models/Book';
 interface Props {
   height: number;
   width: number;
-  hotspots: BookHotspot[];
+  hotspots: Array<BookHotspot>;
   image: string;
   assetManager: AssetManager;
   onHotspot(hotspot: BookHotspot, x: number, y: number): void;

@@ -82,7 +82,7 @@ const pageProcessor = ({
   // HOTSPOTS
   const pageData: BookPage = {
     id: pageName,
-    assetManager: assetManager,
+    assetManager,
     image: '',
     audio: '',
     lines: [],
@@ -389,11 +389,11 @@ export class Book {
       const pageNumStr = `${pageNum}`.padStart(2, '0');
 
       this.pages[pageNum] = pageProcessor({
-        promises: promises,
+        promises,
         assetManager: this.assetManager,
         parentStyle: this.bookStyles,
         language: this.language,
-        page: page,
+        page,
         pageName: pageNumStr,
       });
       const pageData = this.pages[pageNum];
@@ -412,7 +412,7 @@ export class Book {
         const lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
         this.pages[lckey] = pageProcessor({
-          promises: promises,
+          promises,
           assetManager: this.assetManager,
           parentStyle: this.bookStyles,
           language: this.language,

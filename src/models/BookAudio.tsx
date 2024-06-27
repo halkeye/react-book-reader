@@ -19,7 +19,11 @@ class BookAudio extends EventEmitter {
     this.state = 'paused';
   }
 
-  bind(type: string, ev: string, func: Parameters<EventEmitter['on']>[1]): this {
+  bind(
+    type: string,
+    ev: string,
+    func: Parameters<EventEmitter['on']>[1]
+  ): this {
     this.on(`${type}-${ev}`, func);
     return this;
   }
@@ -68,19 +72,19 @@ class BookAudio extends EventEmitter {
         this.seekInterval = setInterval(() => {
           const time = asset.seek();
           if (time) {
-            this.emit(type + '-timeupdate', time);
+            this.emit(`${type}-timeupdate`, time);
           }
         }, 100);
-        this.emit(type + '-play');
+        this.emit(`${type}-play`);
       });
       asset.on('pause', () => {
-        this.emit(type + '-pause');
+        this.emit(`${type}-pause`);
       });
       asset.onEnded = () => {
         asset.off('play');
         asset.off('pause');
         asset.off('end');
-        this.emit(type + '-ended');
+        this.emit(`${type}-ended`);
         if (this.asset === asset) {
           this.playMode = null;
           this.asset = null;
@@ -113,7 +117,7 @@ class BookAudio extends EventEmitter {
   }
 
   updateCurrentDuration(asset, type) {
-    this.emit(type + '-timeupdate', asset.pos());
+    this.emit(`${type}-timeupdate`, asset.pos());
   }
 
   stopUpdateCurrentDuration() {

@@ -7,8 +7,8 @@ class GamePP extends React.Component {
   state = { openDoor1: null };
 
   getCupboardContents = (gameParts, size) => {
-    let deck = Shuffle.shuffle({ deck: gameParts });
-    let array = deck.drawRandom(Math.floor(size / 2));
+    const deck = Shuffle.shuffle({ deck: gameParts });
+    const array = deck.drawRandom(Math.floor(size / 2));
     if (this.props.mode === 'PP') {
       return array.concat(array).map((elm) => {
         return { key: elm.key, image: elm.image };
@@ -95,7 +95,7 @@ class GamePP extends React.Component {
   };
 
   render() {
-    let props = Object.assign({}, this.props, {
+    const props = Object.assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,

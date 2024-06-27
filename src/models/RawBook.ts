@@ -11,7 +11,7 @@ export type RawBookPages = {
 };
 
 export interface RawBookPage {
-  LINES: RawBookLine[];
+  LINES: Array<RawBookLine>;
   HOTSPOTS: RawBookHotspots;
   STYLES?: RawBookStyles;
   // I think only PAGE_HOME, END, and PAGE_GAMES
@@ -20,21 +20,21 @@ export interface RawBookPage {
 }
 
 export interface RawBookLine {
-  WORDS: [string, number, number][];
+  WORDS: Array<[string, number, number]>;
   STYLES?: RawBookStyles;
-  POS: number[];
+  POS: Array<number>;
 }
 
 export interface RawBookHotspots {
-  [color: string]: [string, string][];
+  [color: string]: Array<[string, string]>;
 }
 
 export interface RawBookGameDetails {
-  tries: number[];
-  match: number[];
-  reactionBox: number[];
-  matches: Array<number[]>;
-  IMAGE: RawBookImage[];
+  tries: Array<number>;
+  match: Array<number>;
+  reactionBox: Array<number>;
+  matches: Array<Array<number>>;
+  IMAGE: Array<RawBookImage>;
 }
 
 export interface RawBookGame {
@@ -67,17 +67,17 @@ export interface RawBookUI {
 
 export interface PageHome {
   BUTTONS: RawBookButtons;
-  IMAGE: RawBookImage[];
+  IMAGE: Array<RawBookImage>;
 }
 
 export interface RawBookImage {
   FILENAME: string;
-  POS: number[];
+  POS: Array<number>;
 }
 
 export interface RawBookButtons {
   [key: string]: {
-    POS: number[];
+    POS: Array<number>;
   };
 }
 

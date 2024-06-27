@@ -7,8 +7,8 @@ class GamePP extends React.Component {
   state = { openDoor1: null };
 
   getCupboardContents = (parts, size) => {
-    let deck = Shuffle.shuffle({ deck: parts });
-    let array = deck.drawRandom(size);
+    const deck = Shuffle.shuffle({ deck: parts });
+    const array = deck.drawRandom(size);
     return array.map((elm) => {
       return { key: elm.key, image: elm.image };
     });
@@ -31,13 +31,13 @@ class GamePP extends React.Component {
   };
 
   updateDisplayBox = (any = false) => {
-    let cupboards =
+    const cupboards =
       any === false
         ? this.gamescreen.getCupboards().filter((elm) => {
             return elm.isClosed();
           })
         : this.gamescreen.getCupboards();
-    let cupboard = cupboards[Math.floor(Math.random() * cupboards.length)];
+    const cupboard = cupboards[Math.floor(Math.random() * cupboards.length)];
     this.gamescreen.setState({ displayBox: cupboard });
   };
 
@@ -83,7 +83,7 @@ class GamePP extends React.Component {
   };
 
   render() {
-    let props = Object.assign({}, this.props, {
+    const props = Object.assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,

@@ -2,10 +2,10 @@
 
 // NOTE: This file is formatted for React.js + Browserify
 // You might need to make some changes to use it without Browserify
-'use strict';
+import Mousetrap from 'br-mousetrap';
+('use strict');
 
 let MousetrapMixin;
-import Mousetrap from 'br-mousetrap';
 
 MousetrapMixin = {
   /**
@@ -19,7 +19,7 @@ MousetrapMixin = {
    * @param key
    * @param callback
    */
-  bindShortcut: function (key, callback) {
+  bindShortcut(key, callback) {
     Mousetrap.bind(key, callback);
 
     this.mousetrapBindings.push(key);
@@ -30,8 +30,8 @@ MousetrapMixin = {
    *
    * @param key
    */
-  unbindShortcut: function (key) {
-    let index = this.mousetrapBindings.indexOf(key);
+  unbindShortcut(key) {
+    const index = this.mousetrapBindings.indexOf(key);
 
     if (index > -1) {
       this.mousetrapBindings.splice(index, 1);
@@ -43,7 +43,7 @@ MousetrapMixin = {
   /**
    * Remove any Mousetrap bindings
    */
-  unbindAllShortcuts: function () {
+  unbindAllShortcuts() {
     if (this.mousetrapBindings.length < 1) {
       return;
     }
@@ -56,7 +56,7 @@ MousetrapMixin = {
   /**
    * Handle component unmount
    */
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     // Remove any Mousetrap bindings before unmounting
     this.unbindAllShortcuts();
   },

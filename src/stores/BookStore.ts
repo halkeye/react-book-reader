@@ -14,7 +14,7 @@ let _bookData = {};
 let _urls = null;
 
 // Facebook style store creation.
-let BookStore = Object.assign({}, BaseStore, {
+const BookStore = Object.assign({}, BaseStore, {
   // public methods used by Controller-View to operate on data
   getAll() {
     return new Promise((resolve, reject) => {
@@ -23,14 +23,14 @@ let BookStore = Object.assign({}, BaseStore, {
       }
       _urls = {};
       const baseUrl = 'https://books.saltystories.ca/';
-      fetch(baseUrl + 'books/index.json?_cacheBust=' + new Date().getTime())
+      fetch(`${baseUrl}books/index.json?_cacheBust=${new Date().getTime()}`)
         .then((response) => response.json())
         .then((json) => {
           _bookList = json.map((book) => {
             book = Object.assign({}, book);
-            _urls[book.id] = baseUrl + 'books/' + book.url;
-            book.iconBig = baseUrl + 'books/' + (book.iconBig || book.icon);
-            book.icon = baseUrl + 'books/' + book.icon;
+            _urls[book.id] = `${baseUrl}books/${book.url}`;
+            book.iconBig = `${baseUrl}books/${book.iconBig || book.icon}`;
+            book.icon = `${baseUrl}books/${book.icon}`;
             return book;
           });
           resolve(_bookList);
@@ -52,7 +52,7 @@ let BookStore = Object.assign({}, BaseStore, {
         return resolve(_bookData);
       }
       BookStore.getAll().then((allBooks) => {
-        let extraData = _.find(allBooks, function (data) {
+        const extraData = _.find(allBooks, function (data) {
           return data.id === book;
         });
 
@@ -62,7 +62,7 @@ let BookStore = Object.assign({}, BaseStore, {
             return response.json();
           })
           .then((json) => {
-            let assetBaseUrl = BookUtilities.dirname(_urls[book]);
+            const assetBaseUrl = BookUtilities.dirname(_urls[book]);
             return BookUtilities.processBookData(
               {},
               assetBaseUrl,

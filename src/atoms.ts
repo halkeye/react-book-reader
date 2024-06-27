@@ -90,7 +90,7 @@ export const bookLanguageAtom =
 export const bookLanguagesAtom = atom<Promise<Array<LanguageCode>>>(
   async (get) => {
     const bookData = await get(bookAtom);
-    return Object.keys(bookData?.PAGES ?? []) as LanguageCode[];
+    return Object.keys(bookData?.PAGES ?? []) as Array<LanguageCode>;
   }
 );
 
