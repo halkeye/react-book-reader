@@ -26,7 +26,7 @@ export const getAnimFile = async (
   const text = await fetch(
     `${assetBaseUrl}animations/${animName}/anim.txt`
   ).then((response) => response.text());
-  const arr = [];
+  const array = [];
   for (const line of text
     .replace('\r', '\n')
     .replace(/\n+/, '\n')
@@ -35,14 +35,14 @@ export const getAnimFile = async (
       continue;
     }
     const [frameNo, timing] = line.split(',');
-    arr.push(
+    array.push(
       new AnimFrame(
         `animations/${animName}/${animName}${frameNo}.png`,
-        parseInt(timing, 10)
+        Number.parseInt(timing, 10)
       )
     );
   }
-  return arr;
+  return array;
 };
 
 export const rewritePageName = (pageName: string) => {
@@ -61,8 +61,8 @@ export const audioFilename = (filename: string) => {
   return diacritics
     .remove(filename)
     .toLowerCase()
-    .replace(/[^\w ]/g, '')
-    .replace(/\s+$/g, '');
+    .replaceAll(/[^\w ]/g, '')
+    .replaceAll(/\s+$/g, '');
 };
 
 export const dirname = (path: string | undefined | null): string => {
@@ -79,13 +79,13 @@ export const dirname = (path: string | undefined | null): string => {
   if (!path) {
     return '';
   }
-  return path.replace(/\\/g, '/').replace(/\/[^/]*\/?$/, '');
+  return path.replaceAll('\\', '/').replace(/\/[^/]*\/?$/, '');
 };
 
-export const ucFirst = (str: string) => {
-  str += '';
-  const f = str.charAt(0).toUpperCase();
-  return f + str.substring(1).toLowerCase();
+export const ucFirst = (string_: string) => {
+  string_ += '';
+  const f = string_.charAt(0).toUpperCase();
+  return f + string_.slice(1).toLowerCase();
 };
 
 export interface Color {
@@ -96,21 +96,21 @@ export interface Color {
 }
 
 export const colorToInt = (color: Color) => {
-  return (color.a << 24) | (color.r << 16) | (color.g << 8) | (color.b << 0);
+  return (color.a << 24) | (color.r << 16) | (color.g << 8) | (Math.trunc(color.b));
 };
 
 export const intToRGBA = (colorInt: number) => {
   const alpha = ((colorInt >> 24) & 255) / 255;
   const red = (colorInt >> 16) & 255;
   const green = (colorInt >> 8) & 255;
-  const blue = (colorInt >> 0) & 255;
+  const blue = (Math.trunc(colorInt)) & 255;
 
   return `rgba(${[red, green, blue].join(',')}, ${alpha})`;
 };
 
 export function isKeyInObject<T extends object>(
-  obj: T,
+  object: T,
   key: string | number | symbol
 ): key is keyof T {
-  return obj[key as keyof typeof obj] !== undefined;
+  return object[key as keyof typeof object] !== undefined;
 }

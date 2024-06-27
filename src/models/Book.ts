@@ -99,7 +99,7 @@ const pageProcessor = ({
   };
 
   if (page.IMAGE) {
-    page.IMAGE.forEach((image) => {
+    for (const image of page.IMAGE) {
       promises.push(
         assetManager.queueDownload(
           'img',
@@ -113,7 +113,7 @@ const pageProcessor = ({
         height: image.POS[2] * 100,
         width: image.POS[3] * 100,
       });
-    });
+    }
   }
   if (page.BUTTONS) {
     for (const buttonName of Object.keys(page.BUTTONS)) {
@@ -333,13 +333,13 @@ export class Book {
         this.assetManager.getBaseUrl(),
         GameAnimations[animName]
       ).then((frames) => {
-        frames.forEach((frame) => {
+        for (const frame of frames) {
           promises.push(this.assetManager.queueDownload('img', frame.filename));
           frame.frame = this.assetManager.getAsset.bind(
             this.assetManager,
             frame.filename
           );
-        });
+        }
         gameAnimations[GameAnimations[animName]] = frames;
       });
     }
@@ -377,28 +377,28 @@ export class Book {
     });
 
     const gameAssets: Record<string, string> = {};
-    ['game_cupbard_door_closed', 'game_cupbard_door_open'].forEach((file) => {
+    for (const file of ['game_cupbard_door_closed', 'game_cupbard_door_open']) {
       const filename = `game/${file}.png`;
       promises.push(this.assetManager.queueDownload('img', filename));
       gameAssets[file] = filename;
-    });
+    }
     /* FIXME - move game anims to here so we can do promises with them */
 
     for (const page of bookData.PAGES[this.language]) {
-      const pageNum = Object.keys(this.pages).length + 1;
-      const pageNumStr = `${pageNum}`.padStart(2, '0');
+      const pageNumber = Object.keys(this.pages).length + 1;
+      const pageNumberString = `${pageNumber}`.padStart(2, '0');
 
-      this.pages[pageNum] = pageProcessor({
+      this.pages[pageNumber] = pageProcessor({
         promises,
         assetManager: this.assetManager,
         parentStyle: this.bookStyles,
         language: this.language,
         page,
-        pageName: pageNumStr,
+        pageName: pageNumberString,
       });
-      const pageData = this.pages[pageNum];
-      pageData.image = `pages/pg${pageNumStr}.png`;
-      pageData.audio = `voice/${this.language.toUpperCase()}/page/${pageNumStr}.mp3`;
+      const pageData = this.pages[pageNumber];
+      pageData.image = `pages/pg${pageNumberString}.png`;
+      pageData.audio = `voice/${this.language.toUpperCase()}/page/${pageNumberString}.mp3`;
       promises.push(this.assetManager.queueDownload('audio', pageData.audio));
       promises.push(this.assetManager.queueDownload('img', pageData.image));
     }

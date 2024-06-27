@@ -53,7 +53,7 @@ class GameScreen extends React.Component {
     const gameAssets = {};
     const gameParts = [];
 
-    this.props.page.gameBoardParts.forEach((part) => {
+    for (const part of this.props.page.gameBoardParts) {
       const gamePart = { key: part.key, image: null, text: null };
       gameParts.push(gamePart);
       promises.push(
@@ -66,15 +66,15 @@ class GameScreen extends React.Component {
           gamePart.text = img;
         })
       );
-    });
-    Object.keys(this.props.page.gameAssets).forEach((assetName) => {
+    }
+    for (const assetName of Object.keys(this.props.page.gameAssets)) {
       const promise = this.props.page.asset_manager
         .getAsset(this.props.page.gameAssets[assetName])
         .then((img) => {
           gameAssets[assetName] = img;
         });
       promises.push(promise);
-    });
+    }
 
     Promise.all(promises).then((parts) => {
       this.setState({ gameAssets, gameParts }, () => {
@@ -87,24 +87,24 @@ class GameScreen extends React.Component {
     return this.props.page.boxes.matchLocs.length;
   }
 
-  resetGame(props) {
+  resetGame(properties) {
     const state = this.startingState();
     const contents = Shuffle.shuffle({
-      deck: props.getCupboardContents(
+      deck: properties.getCupboardContents(
         this.state.gameParts,
         this.numberOfDoors()
       ),
     });
-    this.props.page.boxes.matchLocs.forEach((loc, idx) => {
-      const cupboard = this[`cupboard_${idx}`];
+    for (const [index, loc] of this.props.page.boxes.matchLocs.entries()) {
+      const cupboard = this[`cupboard_${index}`];
       cupboard.reset();
 
       const content = contents.draw();
       if (!content) {
-        return;
+        continue;
       }
-      state[`cupboard_${idx}`] = content;
-    });
+      state[`cupboard_${index}`] = content;
+    }
     this.setState(state);
   }
 
@@ -126,22 +126,22 @@ class GameScreen extends React.Component {
     let gameOverDialog = <div />;
 
     if (this.state.gameAssets) {
-      cupboardLocations = this.props.page.boxes.matchLocs.map((loc, idx) => {
+      cupboardLocations = this.props.page.boxes.matchLocs.map((loc, index) => {
         const style = Object.assign({ position: 'absolute' }, loc);
-        const cupbardObject = this.state[`cupboard_${idx}`] || {};
+        const cupbardObject = this.state[`cupboard_${index}`] || {};
 
-        const props = {
-          ref: (node) => (this[`cupboard_${idx}`] = node),
-          key: idx,
+        const properties = {
+          ref: (node) => (this[`cupboard_${index}`] = node),
+          key: index,
           style,
           asset_manager: this.props.page.asset_manager,
           openImage: this.state.gameAssets.game_cupbard_door_open,
           closedImage: this.state.gameAssets.game_cupbard_door_closed,
           objectImage: cupbardObject.image,
           objectName: cupbardObject.key,
-          onClick: this.onCupboardClick.bind(this, idx),
+          onClick: this.onCupboardClick.bind(this, index),
         };
-        return <CupboardWithDoor key={idx} {...props} />;
+        return <CupboardWithDoor key={index} {...properties} />;
       });
     }
     if (
@@ -197,8 +197,8 @@ class GameScreen extends React.Component {
   }
 
   getCupboards() {
-    return this.props.page.boxes.matchLocs.map((loc, idx) => {
-      return this[`cupboard_${idx}`];
+    return this.props.page.boxes.matchLocs.map((loc, index) => {
+      return this[`cupboard_${index}`];
     });
   }
 
@@ -214,10 +214,10 @@ class GameScreen extends React.Component {
     return this.props.dispatch(choosePage('game'));
   }
 
-  onCupboardClick(idx) {
+  onCupboardClick(index) {
     // FIXME - let stateVar = {};
     // FIXME - let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
-    this.props.clickedOnDoor(this[`cupboard_${idx}`]);
+    this.props.clickedOnDoor(this[`cupboard_${index}`]);
   }
 
   hasStarted() {
@@ -225,13 +225,12 @@ class GameScreen extends React.Component {
   }
 
   closeAllDoors() {
-    Object.keys(this)
+    for (const key of Object.keys(this)
       .filter((key) => {
         return key.startsWith('cupboard_');
-      })
-      .forEach((key) => {
+      })) {
         this[key].close(false);
-      });
+      }
   }
 
   start() {

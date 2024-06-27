@@ -38,11 +38,11 @@ export const useFonts = () => {
   const styleId = 'ReactHtmlReaderFonts';
   let style = document.querySelector<HTMLStyleElement>(`style.${styleId}`);
   if (style && style.parentNode) {
-    style.parentNode.removeChild(style);
+    style.remove();
   }
 
   style = document.createElement('style', {});
   style.id = styleId;
-  style.appendChild(document.createTextNode(css));
-  document.getElementsByTagName('head')[0].appendChild(style);
+  style.append(document.createTextNode(css));
+  document.querySelectorAll('head')[0].append(style);
 };

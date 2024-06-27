@@ -24,8 +24,8 @@ export default class BookHotspotMap extends React.Component<Props, State> {
   canvas: React.RefObject<HTMLCanvasElement>;
   imageData?: ImageData;
 
-  constructor(props: Props) {
-    super(props);
+  constructor(properties: Props) {
+    super(properties);
     this.canvas = React.createRef();
   }
 
@@ -51,7 +51,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
 
     const intColor = colorToInt(color);
     const hotspots = this.props.hotspots[intColor];
-    if (hotspots && hotspots.length) {
+    if (hotspots && hotspots.length > 0) {
       const item = hotspots[Math.floor(Math.random() * hotspots.length)];
       this.props.onHotspot(item, x, y);
       return true;
@@ -68,14 +68,14 @@ export default class BookHotspotMap extends React.Component<Props, State> {
       return;
     }
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
+    const context = canvas.getContext('2d');
+    if (!context) {
       return;
     }
 
     this.props.assetManager.getAsset(this.props.image).then((img) => {
-      ctx.drawImage(img, 0, 0);
-      this.imageData = ctx.getImageData(
+      context.drawImage(img, 0, 0);
+      this.imageData = context.getImageData(
         0,
         0,
         this.props.width,
@@ -88,7 +88,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
     this.draw();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(previousProps, previousState) {
     this.draw();
   }
 

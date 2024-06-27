@@ -1,5 +1,5 @@
 // require the core node events module
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import AssetManager from '../AssetManager';
 
 class BookAudio extends EventEmitter {

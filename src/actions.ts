@@ -4,7 +4,7 @@ import 'whatwg-fetch';
 
 import BookUtilities from './constants/BookUtilities.jsx'; // polyfill
 
-export { push };
+
 
 export const LOADED_BOOK_LIST_ITEM = 'LOADED_BOOK_LIST_ITEM';
 export const ASSET_MANAGER_INCR_STARTED = 'ASSET_MANAGER_INCR_STARTED';
@@ -14,7 +14,7 @@ export const ASSET_MANAGER_INCR_ERROR = 'ASSET_MANAGER_INCR_ERROR';
 export function init() {
   return (dispatch) => {
     const baseUrl = 'https://books.saltystories.ca/';
-    fetch(`${baseUrl}books/index.json?_cacheBust=${new Date().getTime()}`)
+    fetch(`${baseUrl}books/index.json?_cacheBust=${Date.now()}`)
       .then((response) => response.json())
       .then((json) => {
         for (const book of json) {
@@ -27,9 +27,9 @@ export function init() {
           });
         }
       })
-      .catch(function (ex) {
-        console.log('parsing failed', ex);
-        throw ex;
+      .catch(function (error) {
+        console.log('parsing failed', error);
+        throw error;
       });
   };
 }
@@ -107,3 +107,5 @@ export function assetDownloadSuccess(asset) {
     payload: asset,
   };
 }
+
+export {push} from 'react-router-redux';

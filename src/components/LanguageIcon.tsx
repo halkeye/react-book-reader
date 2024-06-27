@@ -10,9 +10,9 @@ interface Props {
 }
 
 const LanguageIcon: React.FC<Props> = ({ languageCode }) => {
-  const str = languageMap[languageCode] || languageCode;
+  const string_ = languageMap[languageCode] || languageCode;
   const classString = '';
-  return <span className={classString}>{str}</span>;
+  return <span className={classString}>{string_}</span>;
 };
 
 export default LanguageIcon;

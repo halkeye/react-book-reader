@@ -19,28 +19,28 @@ interface Props {
   word: string;
 }
 
-function BookWord(props: Props) {
+function BookWord(properties: Props) {
   const [state, setState] = useState(StyleDataState.READ);
   const addFont = useAddFont();
 
   useEffect(() => {
-    const bookStyles = props.styles[state];
+    const bookStyles = properties.styles[state];
     // Skip styles without fonts
     if (bookStyles && bookStyles.fontFamily && bookStyles.fontPath) {
       const { fontFamily, fontPath } = bookStyles;
       addFont(fontFamily, fontPath);
     }
-  }, [addFont, state, props.styles]);
+  }, [addFont, state, properties.styles]);
 
   useEffect(() => {
     if (
-      props.start !== undefined &&
-      props.end !== undefined &&
-      props.audioTime !== undefined
+      properties.start !== undefined &&
+      properties.end !== undefined &&
+      properties.audioTime !== undefined
     ) {
-      if (props.audioTime > props.end) {
+      if (properties.audioTime > properties.end) {
         setState(StyleDataState.READ);
-      } else if (props.audioTime > props.start) {
+      } else if (properties.audioTime > properties.start) {
         setState(StyleDataState.READING);
       } else {
         setState(StyleDataState.UNREAD);
@@ -48,7 +48,7 @@ function BookWord(props: Props) {
     } else {
       setState(StyleDataState.UNREAD);
     }
-  }, [props.audioTime, props.end, props.start, props]);
+  }, [properties.audioTime, properties.end, properties.start, properties]);
 
   const style = useMemo(() => {
     const style: CSSProperties = {
@@ -59,7 +59,7 @@ function BookWord(props: Props) {
       minWidth: 'initial',
       height: 'initial',
     };
-    const stateSword = props.styles[state];
+    const stateSword = properties.styles[state];
     if (stateSword) {
       if (stateSword.color) {
         style.color = stateSword.color;
@@ -72,15 +72,15 @@ function BookWord(props: Props) {
       }
     }
     return style;
-  }, [props.styles, state]);
+  }, [properties.styles, state]);
 
   const onClick = useCallback(() => {
-    props.onClick(props.word, props.audio);
-  }, [props]);
+    properties.onClick(properties.word, properties.audio);
+  }, [properties]);
 
   return (
     <Button style={style} onClick={onClick}>
-      {` ${props.word}  `}
+      {` ${properties.word}  `}
     </Button>
   );
 }

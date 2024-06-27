@@ -44,13 +44,13 @@ MousetrapMixin = {
    * Remove any Mousetrap bindings
    */
   unbindAllShortcuts() {
-    if (this.mousetrapBindings.length < 1) {
+    if (this.mousetrapBindings.length === 0) {
       return;
     }
 
-    this.mousetrapBindings.forEach(function (binding) {
+    for (const binding of this.mousetrapBindings) {
       Mousetrap.unbind(binding);
-    });
+    }
   },
 
   /**

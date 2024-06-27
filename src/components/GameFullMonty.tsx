@@ -83,13 +83,13 @@ class GamePP extends React.Component {
   };
 
   render() {
-    const props = Object.assign({}, this.props, {
+    const properties = Object.assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,
       clickedOnDoor: this.clickedOnDoor,
     });
-    return <GameScreen ref={(node) => (this.gamescreen = node)} {...props} />;
+    return <GameScreen ref={(node) => (this.gamescreen = node)} {...properties} />;
   }
 }
 

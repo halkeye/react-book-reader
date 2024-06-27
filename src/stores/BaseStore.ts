@@ -1,5 +1,5 @@
 'use strict';
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 const CHANGE_EVENT = 'change';
 

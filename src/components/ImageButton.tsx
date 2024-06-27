@@ -17,14 +17,14 @@ interface Props {
   onClick: () => void;
 }
 
-const ImageButton = (props: Props) => {
-  if (props.enabled === false) {
+const ImageButton = (properties: Props) => {
+  if (properties.enabled === false) {
     return <div />;
   }
 
-  const buttonWidth = props.width || AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
-  const buttonHeight = props.height || AppConstants.Dimensions.BUTTON_HEIGHT;
-  const img = props.assetManager.getAssetSrc(props.image);
+  const buttonWidth = properties.width || AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
+  const buttonHeight = properties.height || AppConstants.Dimensions.BUTTON_HEIGHT;
+  const img = properties.assetManager.getAssetSrc(properties.image);
 
   const style: React.CSSProperties = {
     position: 'absolute',
@@ -37,13 +37,13 @@ const ImageButton = (props: Props) => {
   };
 
   for (const field of ['top', 'left', 'right', 'bottom']) {
-    if (field in props) {
+    if (field in properties) {
       // @ts-expect-error - I don't know how to make this work in typescript - it doesn't match top inside of style and Props
-      style[field] = props[field];
+      style[field] = properties[field];
     }
   }
 
-  return <IconButton style={style} onClick={props.onClick} />;
+  return <IconButton style={style} onClick={properties.onClick} />;
 };
 
 export default ImageButton;

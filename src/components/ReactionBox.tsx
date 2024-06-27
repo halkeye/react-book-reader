@@ -54,15 +54,15 @@ class ReactionBox extends React.Component {
       return;
     }
     const canvas = this.getCanvas();
-    const ctx = canvas.getContext('2d');
+    const context = canvas.getContext('2d');
     this.props.animations[this.props.mode][this.state.frameNo]
       .frame()
       .then((img) => {
         if (!img) {
           return;
         }
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(img, 0, 0);
       });
   }
 
@@ -71,7 +71,7 @@ class ReactionBox extends React.Component {
     this.draw();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(previousProps, previousState) {
     this.draw();
   }
 

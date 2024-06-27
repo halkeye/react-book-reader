@@ -23,7 +23,7 @@ const BookStore = Object.assign({}, BaseStore, {
       }
       _urls = {};
       const baseUrl = 'https://books.saltystories.ca/';
-      fetch(`${baseUrl}books/index.json?_cacheBust=${new Date().getTime()}`)
+      fetch(`${baseUrl}books/index.json?_cacheBust=${Date.now()}`)
         .then((response) => response.json())
         .then((json) => {
           _bookList = json.map((book) => {
@@ -35,9 +35,9 @@ const BookStore = Object.assign({}, BaseStore, {
           });
           resolve(_bookList);
         })
-        .catch(function (ex) {
-          console.log('parsing failed', ex);
-          reject(ex);
+        .catch(function (error) {
+          console.log('parsing failed', error);
+          reject(error);
         });
     });
   },
@@ -76,9 +76,9 @@ const BookStore = Object.assign({}, BaseStore, {
                 _bookData.icon = _bookData.icon || extraData.icon;
                 resolve(_bookData);
               },
-              function (values) {
-                console.log('rejected processBookData', values);
-                reject(values);
+              function (error) {
+                console.log('rejected processBookData', error);
+                reject(error);
               }
             );
           }) /* .catch(function(ex) {

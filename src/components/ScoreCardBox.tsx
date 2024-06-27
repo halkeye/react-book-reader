@@ -19,13 +19,13 @@ class ScoreCardBox extends React.Component {
 
   draw() {
     const canvas = this.getCanvas();
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.textBaseline = 'middle';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = this.props.style.color;
-    ctx.font = `${canvas.width}px ${this.props.style.fontFamily}`; // FIXME
-    ctx.fillText(
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+    context.fillStyle = this.props.style.color;
+    context.font = `${canvas.width}px ${this.props.style.fontFamily}`; // FIXME
+    context.fillText(
       this.props.text,
       canvas.width / 2,
       canvas.height / 2,
@@ -47,7 +47,7 @@ class ScoreCardBox extends React.Component {
     this.draw();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(previousProps, previousState) {
     this.draw();
   }
 }

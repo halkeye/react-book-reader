@@ -21,11 +21,13 @@ export class BookListRecord extends BookListRecordClass {}
 
 function assets(state = { total: null, loaded: null }, action) {
   switch (action.type) {
-    case ASSET_MANAGER_INCR_STARTED:
+    case ASSET_MANAGER_INCR_STARTED: {
       return { ...state, total: (state.total || 0) + 1 };
+    }
     case ASSET_MANAGER_INCR_SUCCESS:
-    case ASSET_MANAGER_INCR_ERROR:
+    case ASSET_MANAGER_INCR_ERROR: {
       return { ...state, loaded: (state.loaded || 0) + 1 };
+    }
   }
   return state;
 }

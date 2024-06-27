@@ -43,7 +43,7 @@ const Book = () => {
     }
 
     // if numeric page number
-    if (page && page.match(/^\d+/)) {
+    if (page && /^\d+/.test(page)) {
       return `${book.title} - ${page}`;
     }
     return book.title;

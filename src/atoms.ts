@@ -38,13 +38,13 @@ function atomFromQueryString<T>(name: string, defaultValue?: T) {
   return atom(
     (get) => get(locationAtom).searchParams?.get(name) ?? defaultValue,
     (get, set, value: T) => {
-      const newSearchParams = new URLSearchParams(
+      const newSearchParameters = new URLSearchParams(
         get(locationAtom).searchParams
       );
-      newSearchParams.set(name, value as string);
-      set(locationAtom, (prev) => ({
-        ...prev,
-        searchParams: newSearchParams,
+      newSearchParameters.set(name, value as string);
+      set(locationAtom, (previous) => ({
+        ...previous,
+        searchParams: newSearchParameters,
       }));
     }
   );

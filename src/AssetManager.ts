@@ -35,9 +35,9 @@ export interface Asset {
 
 export type DownloadQueueItem = Asset;
 
-type EventFunc = (asset: Asset | null) => void;
+type EventFunction = (asset: Asset | null) => void;
 
-const events: Record<EventName, Array<EventFunc>> = {
+const events: Record<EventName, Array<EventFunction>> = {
   load: [],
   started: [],
   finished: [],
@@ -50,20 +50,20 @@ class AssetManager {
   private assets: Record<string, Asset> = {};
   private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
 
-  static on(eventName: EventName, func: EventFunc) {
+  static on(eventName: EventName, func: EventFunction) {
     events[eventName].push(func);
   }
 
-  static off(eventName: EventName, func: EventFunc) {
-    events[eventName] = events[eventName].filter((cb) => {
-      return cb !== func;
+  static off(eventName: EventName, func: EventFunction) {
+    events[eventName] = events[eventName].filter((callback) => {
+      return callback !== func;
     });
   }
 
   static trigger(eventName: EventName, asset: Asset | null) {
-    events[eventName].forEach(function (func) {
+    for (const func of events[eventName]) {
       func(asset);
-    });
+    }
   }
 
   constructor(baseUrl: string, keepCached = false) {
@@ -118,8 +118,8 @@ class AssetManager {
           (asset) => {
             AssetManager.trigger('finished', asset);
           },
-          (err) => {
-            AssetManager.trigger('error', err);
+          (error) => {
+            AssetManager.trigger('error', error);
           }
         )
         .then(() => {
@@ -167,8 +167,8 @@ class AssetManagerAudioType implements AssetManagerType {
     this.events[type] = listener;
   }
 
-  set src(val: string) {
-    const urls = [val.replace(/.mp3$/, '.ogg'), val];
+  set src(value: string) {
+    const urls = [value.replace(/.mp3$/, '.ogg'), value];
     this.urls = urls;
     this.audio = new Howl({
       src: this.urls,
@@ -176,11 +176,11 @@ class AssetManagerAudioType implements AssetManagerType {
         this.events.load(new Event('load'));
         this.events.load = () => {};
       },
-      onloaderror: (_soundId, err) => {
-        if (err instanceof Error) {
-          this.events.error(new ErrorEvent(err.message));
+      onloaderror: (_soundId, error) => {
+        if (error instanceof Error) {
+          this.events.error(new ErrorEvent(error.message));
         } else {
-          this.events.error(new ErrorEvent(`Unknown: ${JSON.stringify(err)}`));
+          this.events.error(new ErrorEvent(`Unknown: ${JSON.stringify(error)}`));
         }
         this.events.error = () => {};
       },

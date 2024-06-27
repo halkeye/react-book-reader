@@ -8,7 +8,7 @@ export const BookList = () => {
   const [books] = useAtom(bookListAtom);
   const title = 'Select a book';
 
-  if (!books || books.length == 0) {
+  if (!books || books.length === 0) {
     return (
       <div>
         Loading

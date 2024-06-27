@@ -14,12 +14,9 @@ class GamePP extends React.Component {
         return { key: elm.key, image: elm.image };
       });
     } else if (this.props.mode === 'WP') {
-      return []
-        .concat(
-          array.map((elm) => {
+      return [array.map((elm) => {
             return { key: elm.key, image: elm.image };
-          })
-        )
+          })].flat()
         .concat(
           array.map((elm) => {
             return { key: elm.key, image: elm.text };
@@ -95,13 +92,13 @@ class GamePP extends React.Component {
   };
 
   render() {
-    const props = Object.assign({}, this.props, {
+    const properties = Object.assign({}, this.props, {
       getCupboardContents: this.getCupboardContents,
       isEndGame: this.isEndGame,
       isPerfectGame: this.isPerfectGame,
       clickedOnDoor: this.clickedOnDoor,
     });
-    return <GameScreen ref={(node) => (this.gamescreen = node)} {...props} />;
+    return <GameScreen ref={(node) => (this.gamescreen = node)} {...properties} />;
   }
 }
 
