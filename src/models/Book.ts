@@ -233,7 +233,7 @@ export class Book {
       });
       const pageData = this.pages[pageNumber];
       pageData.image = `pages/pg${pageNumberString}.png`;
-      pageData.audio = `voice/${this.language.toUpperCase()}/page/${pageNumberString}.mp3`;
+      pageData.audio = `voice/${this.language.toUpperCase()}/page${pageNumberString}.mp3`;
       this.promises.push(
         this.assetManager.queueDownload('audio', pageData.audio),
         this.assetManager.queueDownload('img', pageData.image)
