@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react';
+import { Component, createRef, CSSProperties } from 'react';
 import { colorToInt } from '../constants/BookUtilities';
 import AssetManager from '../AssetManager';
 import { BookHotspot } from '../models/Book';
@@ -6,15 +6,15 @@ import { BookHotspot } from '../models/Book';
 interface Props {
   height: number;
   width: number;
-  hotspots: Array<BookHotspot>;
-  image: string;
+  hotspots: Record<number, Array<BookHotspot>>;
+  mask: string;
   assetManager: AssetManager;
   onHotspot(hotspot: BookHotspot, x: number, y: number): void;
 }
 
 interface State {}
 
-export default class BookHotspotMap extends React.Component<Props, State> {
+export default class BookHotspotMap extends Component<Props, State> {
   public static defaultProps = {
     height: 0,
     width: 0,
@@ -26,7 +26,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
 
   constructor(properties: Props) {
     super(properties);
-    this.canvas = React.createRef();
+    this.canvas = createRef();
   }
 
   getCanvas() {
@@ -34,7 +34,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
   }
 
   onClickImage(x: number, y: number) {
-    if (!this.props.image) {
+    if (!this.props.mask) {
       return false;
     }
     if (!this.imageData) {
@@ -60,7 +60,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
   }
 
   draw() {
-    if (!this.props.image) {
+    if (!this.props.mask) {
       return;
     }
     const canvas = this.getCanvas();
@@ -73,15 +73,25 @@ export default class BookHotspotMap extends React.Component<Props, State> {
       return;
     }
 
-    this.props.assetManager.getAsset(this.props.image).then((img) => {
-      context.drawImage(img, 0, 0);
-      this.imageData = context.getImageData(
-        0,
-        0,
-        this.props.width,
-        this.props.height
-      );
-    });
+    this.props.assetManager
+      .getAsset(this.props.mask)
+      .then((img) => {
+        if (!(img instanceof HTMLImageElement)) {
+          throw new TypeError(`${this.props.mask} isn't a mask`);
+        }
+
+        context.drawImage(img, 0, 0);
+        this.imageData = context.getImageData(
+          0,
+          0,
+          this.props.width,
+          this.props.height
+        );
+        return;
+      })
+      .catch((error) => {
+        console.error('unable to get image mask', error);
+      });
   }
 
   componentDidMount() {
@@ -93,7 +103,7 @@ export default class BookHotspotMap extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.props.image) {
+    if (!this.props.mask) {
       return <div />;
     }
     const onClickImage = () => {};

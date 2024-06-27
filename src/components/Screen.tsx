@@ -1,18 +1,12 @@
 import IconButton from '@mui/material/IconButton';
 import { useAtom } from 'jotai';
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import AssetManager from '../AssetManager.ts';
 import { LanguageCode, bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
 import Constants from '../constants/AppConstants.js';
 import useSwipe from '../hooks/useSwipe.ts';
 import { Book, BookHotspot, BookImage, BookPage } from '../models/Book.ts';
-import BookAudio from '../models/BookAudio.jsx';
+import { BookAudio, TimeUpdateEvent } from '../models/BookAudio.jsx';
 import BookHotspotMap from './BookHotspotMap.tsx';
 import BookHotspotPhrase from './BookHotspotPhrase.tsx';
 import BookWord from './BookWord.tsx';
@@ -65,11 +59,28 @@ function ScreenImageButton({
   return (
     <img
       key={`button_${image.image}`}
+      alt=""
       style={style}
       src={assetManager.getAssetSrc(image.image)}
     />
   );
 }
+
+const getPageHeight = (): number => {
+  return Constants.Dimensions.HEIGHT;
+  /*
+    let dom = this.bookpage.getDOMNode();
+    return dom.offsetHeight || dom.clientHeight;
+    */
+};
+
+const getPageWidth = (): number => {
+  return Constants.Dimensions.WIDTH;
+  /*
+    let dom = this.bookpage.getDOMNode();
+    return dom.offsetWidth || dom.clientWidth;
+    */
+};
 
 export function Screen(properties: Props) {
   const [, setBookPage] = useAtom(bookPageAtom);
@@ -77,12 +88,12 @@ export function Screen(properties: Props) {
   const [audioTime, setAudioTime] = useState<number>(0);
   const [playButton, setPlayButton] = useState<string>('play');
   const audioReference = useRef<BookAudio | null>(null);
-  const hotspotPhraseReference = useRef<typeof BookHotspotPhrase | null>(null);
+  const hotspotPhraseReference = useRef<typeof BookHotspotPhrase>();
   const hotspotMapReference = createRef<BookHotspotMap>();
 
   const pagePrevious = () => {
     const pageNumber = Number.parseInt(properties.page.id, 10);
-    if (isNaN(pageNumber)) {
+    if (Number.isNaN(pageNumber)) {
       return;
     }
     setBookPage((pageNumber - 1).toString());
@@ -90,7 +101,7 @@ export function Screen(properties: Props) {
 
   const pageNext = () => {
     const pageNumber = Number.parseInt(properties.page.id, 10);
-    if (isNaN(pageNumber)) {
+    if (Number.isNaN(pageNumber)) {
       return;
     }
     setBookPage((pageNumber + 1).toString());
@@ -172,30 +183,14 @@ export function Screen(properties: Props) {
     setPlayButton('play');
   };
 
-  const onPageTime = (time: number) => {
-    if (time) {
-      setAudioTime(time);
+  const onPageTime = (event: TimeUpdateEvent) => {
+    if (event.time) {
+      setAudioTime(event.time);
     }
   };
 
   const hasPlayButton = () => {
     return !!properties.page.audio;
-  };
-
-  const getPageHeight = (): number => {
-    return Constants.Dimensions.HEIGHT;
-    /*
-    let dom = this.bookpage.getDOMNode();
-    return dom.offsetHeight || dom.clientHeight;
-    */
-  };
-
-  const getPageWidth = (): number => {
-    return Constants.Dimensions.WIDTH;
-    /*
-    let dom = this.bookpage.getDOMNode();
-    return dom.offsetWidth || dom.clientWidth;
-    */
   };
 
   const onHotspot = (hotspot: BookHotspot, x: number, y: number) => {
@@ -212,8 +207,8 @@ export function Screen(properties: Props) {
   };
 
   const onBackButtonClick = () => {
-    // FIXME
-    // setBookPage(props.page.back);
+    setBookPage(properties.page.back);
+    setAutoplay(false);
   };
   const onHomeButtonClick = () => {
     setBookPage('');
@@ -256,17 +251,20 @@ export function Screen(properties: Props) {
     }
   };
 
-  const onClickPage = (/* ev: Event */) => {
-    alert('onClickpage');
-    // if (this.hotspotMap) {
-    //   const x = ev.pageX - ev.currentTarget.offsetLeft;
-    //   const y = ev.pageY - ev.currentTarget.offsetTop;
-    //   if (this.hotspotMap.onClickImage(x, y)) {
-    //     ev.preventDefault();
-    //     ev.stopPropagation();
-    //   }
-    // }
-  };
+  const onClickPage = useCallback(
+    (ev: Event) => {
+      alert('onClickpage');
+      if (hotspotMapReference.current) {
+        const x = ev.pageX - ev.currentTarget.offsetLeft;
+        const y = ev.pageY - ev.currentTarget.offsetTop;
+        if (hotspotMapReference.current.onClickImage(x, y)) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      }
+    },
+    [hotspotMapReference]
+  );
 
   const key = [
     'book',
@@ -310,27 +308,26 @@ export function Screen(properties: Props) {
     );
   });
 
-  let homeBackButton;
-  homeBackButton = hasBackButton() ? (
-      <ImageButton
-        key="homeButton"
-        top="0"
-        left="0"
-        assetManager={properties.page.assetManager}
-        image={'buttons/control_back.png'}
-        onClick={onBackButtonClick}
-      />
-    ) : (
-      <ImageButton
-        key="backButton"
-        top="0"
-        left="0"
-        assetManager={properties.page.assetManager}
-        image={'buttons/control_home.png'}
-        enabled={hasHomeButton()}
-        onClick={onHomeButtonClick}
-      />
-    );
+  const homeBackButton = hasBackButton() ? (
+    <ImageButton
+      key="homeButton"
+      top="0"
+      left="0"
+      assetManager={properties.page.assetManager}
+      image={'buttons/control_back.png'}
+      onClick={onBackButtonClick}
+    />
+  ) : (
+    <ImageButton
+      key="backButton"
+      top="0"
+      left="0"
+      assetManager={properties.page.assetManager}
+      image={'buttons/control_home.png'}
+      enabled={hasHomeButton()}
+      onClick={onHomeButtonClick}
+    />
+  );
 
   return (
     <div style={getPageStyle()} {...swipeHandlers} onClick={onClickPage}>
@@ -346,7 +343,7 @@ export function Screen(properties: Props) {
         phrase={'word'}
         x={1}
         y={1}
-        {...properties.page.styles.unread}
+        {...properties.page.styles.UNREAD}
       />
       <div
         style={{
@@ -438,17 +435,6 @@ class Screen extends React.Component<Props, State> {
       )})`;
     }
     return ret;
-  }
-
-  onClickPage(ev) {
-    if (this.hotspotMap) {
-      const x = ev.pageX - ev.currentTarget.offsetLeft;
-      const y = ev.pageY - ev.currentTarget.offsetTop;
-      if (this.hotspotMap.onClickImage(x, y)) {
-        ev.preventDefault();
-        ev.stopPropagation();
-      }
-    }
   }
 
   onHotspot(hotspot, x, y) {

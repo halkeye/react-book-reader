@@ -1,7 +1,7 @@
 import AssetManager, { AssetManagerAudioType } from '../AssetManager';
 import { Howl } from 'howler';
 
-class TimeUpdateEvent extends Event {
+export class TimeUpdateEvent extends Event {
   time: number;
   constructor(type: string, time: number) {
     super(`${type}-timeupdate`);
@@ -9,25 +9,25 @@ class TimeUpdateEvent extends Event {
   }
 }
 
-class PlayEvent extends Event {
+export class PlayEvent extends Event {
   constructor(type: string) {
     super(`${type}-play`);
   }
 }
 
-class PauseEvent extends Event {
+export class PauseEvent extends Event {
   constructor(type: string) {
     super(`${type}-pause`);
   }
 }
 
-class EndedEvent extends Event {
+export class EndedEvent extends Event {
   constructor(type: string) {
     super(`${type}-ended`);
   }
 }
 
-class BookAudio extends EventTarget {
+export class BookAudio extends EventTarget {
   private assetManager: AssetManager;
   private currentFilename?: string;
   private playMode?: string;
@@ -46,10 +46,10 @@ class BookAudio extends EventTarget {
 
   bind(
     type: string,
-    ev: string,
+    eventName: string,
     func: Parameters<EventTarget['addEventListener']>[1]
   ): this {
-    this.addEventListener(`${type}-${ev}`, func);
+    this.addEventListener(`${type}-${eventName}`, func);
     return this;
   }
 
@@ -167,5 +167,3 @@ class BookAudio extends EventTarget {
     delete this.interval;
   }
 }
-
-export default BookAudio;

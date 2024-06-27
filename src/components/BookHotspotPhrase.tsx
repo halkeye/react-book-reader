@@ -1,4 +1,4 @@
-import React, { useState, CSSProperties } from 'react';
+import { useState, CSSProperties } from 'react';
 import { motion } from 'framer-motion';
 
 interface Props extends CSSProperties {
@@ -7,12 +7,7 @@ interface Props extends CSSProperties {
   y: number;
 }
 
-const BookHotspotPhrase: React.FC<Props> = ({
-  phrase,
-  x,
-  y,
-  ...styleProps
-}) => {
+const BookHotspotPhrase = ({ phrase, x, y, ...styleProps }: Props) => {
   const [display, setDisplay] = useState<string>('none');
 
   // const triggerAnimation = () => {

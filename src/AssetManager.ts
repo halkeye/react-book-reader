@@ -1,4 +1,5 @@
 import { Howl } from 'howler';
+import { pEvent } from 'p-event';
 
 export interface AssetManagerEventMap {
   load: Event;
@@ -9,23 +10,11 @@ export interface AssetManagerEventMap {
 
 type EventName = keyof AssetManagerEventMap;
 
-export interface AssetManagerType {
-  addEventListener(
-    type: EventName,
-    listener: (ev: Event) => void,
-    options?: boolean
-  ): void;
-  removeEventListener<K extends keyof AssetManagerEventMap>(
-    type: K,
-    listener: (ev: AssetManagerEventMap[K]) => void
-  ): void;
-}
-
 export interface AssetManagerTypeConstructor {
   new (): AssetType;
 }
 
-export interface AssetType extends AssetManagerType {}
+export type AssetType = HTMLImageElement | AssetManagerAudioType;
 
 export interface Asset {
   src: string;
@@ -46,7 +35,7 @@ class AssetManager {
   private baseUrl: string;
   private types: Record<string, AssetManagerTypeConstructor>;
   private assets: Record<string, Asset> = {};
-  private downloadQueue: Record<string, Promise<void>> = {};
+  private downloadQueue: Record<string, Promise<Asset>> = {};
 
   static on(eventName: EventName, func: EventFunction) {
     events[eventName].push(func);
@@ -79,31 +68,21 @@ class AssetManager {
     return this.baseUrl;
   }
 
-  addType(type: string, cls: AssetManagerTypeConstructor) {
-    this.types[type] = cls;
-  }
+  async _download(type: string, path: string): Promise<Asset> {
+    const assetLoader: AssetType = new this.types[type]();
 
-  _download(type: string, path: string): Promise<Asset> {
-    return new Promise((resolve, reject) => {
-      const asset: AssetType = new this.types[type]();
-      asset.addEventListener(
-        'load',
-        () => {
-          resolve({ asset, type, src: path });
-        },
-        false
-      );
-      asset.addEventListener(
-        'error',
-        () => {
-          reject({ asset, type, src: path });
-        },
-        false
-      );
-      if ('src' in asset) {
-        asset.src = `${this.baseUrl}${path}`;
+    try {
+      if ('src' in assetLoader) {
+        assetLoader.src = new URL(path, this.baseUrl).toString();
       }
-    });
+
+      await pEvent(assetLoader, 'load');
+
+      return { asset: assetLoader, type, src: path };
+    } catch (error) {
+      console.error('error loading asset', error);
+      throw error;
+    }
   }
 
   queueDownload(type: string, path: string, name = path) {
@@ -113,11 +92,12 @@ class AssetManager {
       this.downloadQueue[name] = this._download(type, path)
         .then((asset) => {
           AssetManager.trigger('finished', asset);
-          return;
+          return asset;
         })
         .catch((error) => {
           AssetManager.trigger('error', error);
-          return;
+          console.error(`error downloading asset ${path}`, error);
+          throw error;
         })
         .finally(() => {
           delete this.downloadQueue[name];
@@ -141,7 +121,7 @@ class AssetManager {
 
 export default AssetManager;
 
-export class AssetManagerAudioType implements AssetManagerType {
+export class AssetManagerAudioType {
   public audio: Howl | undefined;
 
   private events: Record<keyof AssetManagerEventMap, (ev: Event) => void> = {
@@ -153,8 +133,8 @@ export class AssetManagerAudioType implements AssetManagerType {
 
   private urls: Array<string> = [];
 
-  removeEventListener() {
-    throw new Error('Method not implemented.');
+  removeEventListener(type: keyof AssetManagerEventMap) {
+    this.events[type] = () => {};
   }
 
   addEventListener(

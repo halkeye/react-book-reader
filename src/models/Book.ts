@@ -1,4 +1,4 @@
-import AssetManager from '../AssetManager';
+import AssetManager, { Asset } from '../AssetManager';
 import { LanguageCode } from '../atoms';
 import {
   AnimFrame,
@@ -53,6 +53,7 @@ export interface BookImageHotspot {
 }
 
 export interface BookPage {
+  back: string;
   id: string;
   assetManager: AssetManager;
   image: string;
@@ -93,7 +94,7 @@ export class Book {
   readonly pages: Record<string, BookPage>;
   readonly fonts: Fonts;
   private assetManager: AssetManager;
-  private promises: Array<Promise<void>> = [];
+  private promises: Array<Promise<Asset>> = [];
 
   language: LanguageCode = LanguageCode.EN;
   games: Record<string, BookGame> = {};
@@ -391,6 +392,7 @@ export class Book {
         mask: '',
         hotspots: {},
       },
+      back: 'FIXME',
       styles: Object.assign(
         {},
         parentStyle,
@@ -476,33 +478,31 @@ export class Book {
       }
     }
     if (page.HOTSPOTS) {
+      pageData.hotspot = { mask: '', hotspots: {} };
+      const hotspotData = pageData.hotspot;
       this.promises.push(
-        this.assetManager.queueDownload(
-          'img',
-          `pages/pg${pageName}.hotspots.gif`
-        )
+        this.assetManager
+          .queueDownload('img', `pages/pg${pageName}.hotspots.gif`)
+          .then((asset) => {
+            hotspotData.mask = asset.src;
+            return asset;
+          })
       );
-      pageData.hotspot = {
-        mask: `pages/pg${pageName}.hotspots.gif`,
-        hotspots: {},
-      };
       for (const [color, hotspots] of Object.entries(page.HOTSPOTS)) {
-        pageData.hotspot.hotspots[color] = [];
         for (const hotspot of hotspots) {
+          const filename = `voice/${language.toUpperCase()}/spliced/${audioFilename(hotspot[1])}.mp3`;
           this.promises.push(
-            this.assetManager.queueDownload(
-              'audio',
-              `voice/${language.toUpperCase()}/spliced/${audioFilename(
-                hotspot[1]
-              )}.mp3`
-            )
+            this.assetManager.queueDownload('audio', filename).then((asset) => {
+              if (!hotspotData.hotspots[color]) {
+                hotspotData.hotspots[color] = [];
+              }
+              hotspotData.hotspots[color].push({
+                text: hotspot[0],
+                audio: asset.src,
+              });
+              return asset;
+            })
           );
-          pageData.hotspot.hotspots[color].push({
-            text: hotspot[0],
-            audio: `voice/${language.toUpperCase()}/spliced/${audioFilename(
-              hotspot[1]
-            )}.mp3`,
-          });
         }
       }
     }
