@@ -29,13 +29,11 @@ export interface AssetType extends AssetManagerType {}
 
 export interface Asset {
   src: string;
-  asset: AssetType | null;
+  asset?: AssetType;
   type: string;
 }
 
-export type DownloadQueueItem = Asset;
-
-type EventFunction = (asset: Asset | null) => void;
+type EventFunction = (asset: Asset | undefined) => void;
 
 const events: Record<EventName, Array<EventFunction>> = {
   load: [],
@@ -48,7 +46,7 @@ class AssetManager {
   private baseUrl: string;
   private types: Record<string, AssetManagerTypeConstructor>;
   private assets: Record<string, Asset> = {};
-  private downloadQueue: Record<string, Promise<DownloadQueueItem>> = {};
+  private downloadQueue: Record<string, Promise<void>> = {};
 
   static on(eventName: EventName, func: EventFunction) {
     events[eventName].push(func);
@@ -60,13 +58,13 @@ class AssetManager {
     });
   }
 
-  static trigger(eventName: EventName, asset: Asset | null) {
+  static trigger(eventName: EventName, asset?: Asset) {
     for (const func of events[eventName]) {
       func(asset);
     }
   }
 
-  constructor(baseUrl: string, keepCached = false) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     this.types = {
       img: Image,
@@ -85,7 +83,7 @@ class AssetManager {
     this.types[type] = cls;
   }
 
-  _download(type: string, path: string): Promise<DownloadQueueItem> {
+  _download(type: string, path: string): Promise<Asset> {
     return new Promise((resolve, reject) => {
       const asset: AssetType = new this.types[type]();
       asset.addEventListener(
@@ -110,19 +108,18 @@ class AssetManager {
 
   queueDownload(type: string, path: string, name = path) {
     if (!this.downloadQueue[name]) {
-      this.assets[name] = { asset: null, src: path, type };
-      AssetManager.trigger('started', null);
-      this.downloadQueue[name] = this._download(type, path);
-      this.downloadQueue[name]
-        .then(
-          (asset) => {
-            AssetManager.trigger('finished', asset);
-          },
-          (error) => {
-            AssetManager.trigger('error', error);
-          }
-        )
-        .then(() => {
+      this.assets[name] = { asset: undefined, src: path, type };
+      AssetManager.trigger('started');
+      this.downloadQueue[name] = this._download(type, path)
+        .then((asset) => {
+          AssetManager.trigger('finished', asset);
+          return;
+        })
+        .catch((error) => {
+          AssetManager.trigger('error', error);
+          return;
+        })
+        .finally(() => {
           delete this.downloadQueue[name];
         });
     }
@@ -168,7 +165,7 @@ export class AssetManagerAudioType implements AssetManagerType {
   }
 
   set src(value: string) {
-    const urls = [value.replace(/.mp3$/, '.ogg'), value];
+    const urls = [value, value.replace(/.mp3$/, '.ogg')];
     this.urls = urls;
     this.audio = new Howl({
       src: this.urls,

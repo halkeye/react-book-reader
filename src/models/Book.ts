@@ -1,4 +1,4 @@
-import AssetManager, { DownloadQueueItem } from '../AssetManager';
+import AssetManager from '../AssetManager';
 import { LanguageCode } from '../atoms';
 import {
   AnimFrame,
@@ -93,7 +93,7 @@ export class Book {
   readonly pages: Record<string, BookPage>;
   readonly fonts: Fonts;
   private assetManager: AssetManager;
-  private promises: Array<Promise<DownloadQueueItem>> = [];
+  private promises: Array<Promise<void>> = [];
 
   language: LanguageCode = LanguageCode.EN;
   games: Record<string, BookGame> = {};
@@ -219,8 +219,8 @@ export class Book {
       this.promises.push(this.assetManager.queueDownload('img', filename));
       gameAssets[file] = filename;
     }
-    /* FIXME - move game anims to here so we can do promises with them */
 
+    /* FIXME - move game anims to here so we can do promises with them */
     for (const page of bookData.PAGES[this.language]) {
       const pageNumber = Object.keys(this.pages).length + 1;
       const pageNumberString = `${pageNumber}`.padStart(2, '0');
@@ -239,6 +239,7 @@ export class Book {
         this.assetManager.queueDownload('img', pageData.image)
       );
     }
+
     if (bookData.UI) {
       for (const [key, uiData] of Object.entries(bookData.UI)) {
         /* Ignore GAMES key, its not a page - HAACK */
@@ -261,6 +262,7 @@ export class Book {
           this.assetManager.queueDownload('img', pageData.image)
         );
       }
+
       /*
       if (bookData.UI.GAMES) {
         for (const [gameName, gameData] of Object.entries(bookData.UI.GAMES)) {
