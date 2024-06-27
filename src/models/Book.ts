@@ -234,6 +234,7 @@ export class Book {
   readonly title: string;
   readonly icon: string;
   readonly pages: Record<string, BookPage>;
+  readonly fonts: Fonts;
   private assetManager: AssetManager;
   language: LanguageCode = LanguageCode.EN;
   games: Record<string, BookGame> = {};
@@ -254,6 +255,7 @@ export class Book {
     this.icon = icon;
     this.pages = {};
     this.games = {};
+    this.fonts = {};
 
     const promises: Array<Promise<DownloadQueueItem>> = [];
 

@@ -1,4 +1,3 @@
-import { atom, useAtom } from 'jotai';
 import { createContext } from 'react';
 
 export type Fonts = {
@@ -18,7 +17,6 @@ const fonts: Fonts = {};
 
 export function useAddFont() {
   return (fontFamily: string, fontPath: string) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     if (!fonts[fontFamily]) {
       // FIXME - this should be done when parsing not rendering
       fonts[fontFamily] = fontPath;
