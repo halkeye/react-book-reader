@@ -1,14 +1,22 @@
 import IconButton from '@mui/material/IconButton';
 import { useAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  MouseEvent,
+  KeyboardEvent,
+  createRef,
+} from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import AssetManager from '../AssetManager.ts';
-import { LanguageCode, bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
+import { bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
 import Constants from '../constants/AppConstants.js';
 import useSwipe from '../hooks/useSwipe.ts';
 import { Book, BookHotspot, BookImage, BookPage } from '../models/Book.ts';
 import { BookAudio, TimeUpdateEvent } from '../models/BookAudio.jsx';
 import BookHotspotMap from './BookHotspotMap.tsx';
-import BookHotspotPhrase from './BookHotspotPhrase.tsx';
 import BookWord from './BookWord.tsx';
 import ImageButton from './ImageButton.tsx';
 
@@ -80,14 +88,23 @@ const getPageWidth = (): number => {
     */
 };
 
+interface HotspotAnimation {
+  interval: NodeJS.Timeout;
+  uuid: string;
+  word: string;
+  x: number;
+  y: number;
+  duration: number;
+}
+
 export function Screen(properties: Props) {
   const [, setBookPage] = useAtom(bookPageAtom);
   const [autoplay, setAutoplay] = useAtom(bookAutoplayAtom);
+  const [hotspots, setHotspots] = useState<Array<HotspotAnimation>>([]);
   const [audioTime, setAudioTime] = useState<number>(0);
   const [playButton, setPlayButton] = useState<string>('play');
   const audioReference = useRef<BookAudio | null>(null);
-  const hotspotPhraseReference = useRef<typeof BookHotspotPhrase>();
-  const hotspotMapReference = useRef<BookHotspotMap>();
+  const hotspotMapReference = createRef<BookHotspotMap>();
 
   const pagePrevious = () => {
     const pageNumber = Number.parseInt(properties.page.id, 10);
@@ -103,6 +120,29 @@ export function Screen(properties: Props) {
       return;
     }
     setBookPage((pageNumber + 1).toString());
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+
+    switch (event.key) {
+      case 'ArrowLeft': {
+        pagePrevious();
+        break;
+      }
+      case 'ArrowRight': {
+        pageNext();
+        break;
+      }
+      default: {
+        return;
+      } // Quit when this doesn't handle the key event.
+    }
+
+    // Cancel the default action to avoid it being handled twice
+    event.preventDefault();
   };
 
   const onSwipedLeft = () => {
@@ -139,16 +179,10 @@ export function Screen(properties: Props) {
     audio.bind('page', 'timeupdate', onPageTime);
     audioReference.current = audio;
 
-    // FIXME
-    // bindShortcut('left', pagePrev);
-    // bindShortcut('right', pageNext);
-
     onNewPage();
 
     return () => {
       audioReference.current?.removeAll();
-      // unbindShortcut('left');
-      // unbindShortcut('right');
     };
   }, [properties.page.assetManager, onNewPage]);
 
@@ -181,8 +215,8 @@ export function Screen(properties: Props) {
     setPlayButton('play');
   };
 
-  const onPageTime = (event: TimeUpdateEvent) => {
-    if (event.time) {
+  const onPageTime = (event: Event) => {
+    if (event instanceof TimeUpdateEvent && event.time) {
       setAudioTime(event.time);
     }
   };
@@ -192,14 +226,26 @@ export function Screen(properties: Props) {
   };
 
   const onHotspot = (hotspot: BookHotspot, x: number, y: number) => {
+    const uuid = uuidv4();
+    const duration = 1000; // FIXME - random
     setAudioTime(0);
+    setHotspots([
+      ...hotspots,
+      {
+        interval: setTimeout(() => {
+          setHotspots((previousState) =>
+            previousState.filter((h) => h.uuid !== uuid)
+          );
+        }, duration),
+        uuid: uuid,
+        x: x,
+        y: y,
+        word: hotspot.text,
+        duration: duration,
+      },
+    ]);
     if (audioReference.current) {
       audioReference.current.stop();
-    }
-    if (hotspotPhraseReference.current) {
-      hotspotPhraseReference.current.triggerAnimation(hotspot.text, x, y);
-    }
-    if (audioReference.current) {
       audioReference.current.play('hotspot', hotspot.audio);
     }
   };
@@ -250,24 +296,24 @@ export function Screen(properties: Props) {
   };
 
   const onClickPage = useCallback(
-    (ev: MouseEvent) => {
+    (event: MouseEvent) => {
       if (
         hotspotMapReference.current &&
-        ev.currentTarget &&
-        ev.currentTarget instanceof HTMLElement
+        event.currentTarget &&
+        event.currentTarget instanceof HTMLElement
       ) {
-        const x = ev.pageX - ev.currentTarget.offsetLeft;
-        const y = ev.pageY - ev.currentTarget.offsetTop;
+        const x = event.pageX - event.currentTarget.offsetLeft;
+        const y = event.pageY - event.currentTarget.offsetTop;
         if (hotspotMapReference.current.onClickImage(x, y)) {
-          ev.preventDefault();
-          ev.stopPropagation();
+          event.preventDefault();
+          event.stopPropagation();
         }
       }
     },
     [hotspotMapReference]
   );
 
-  const key = ['book', properties.book, 'page', properties.page].join('_');
+  // const key = ['book', properties.book, 'page', properties.page].join('_');
 
   const extraImages = properties.page.images.map((image, index) => (
     <ScreenImageButton
@@ -324,7 +370,13 @@ export function Screen(properties: Props) {
   );
 
   return (
-    <div style={getPageStyle()} {...swipeHandlers} onClick={onClickPage}>
+    <div
+      role="none"
+      style={getPageStyle()}
+      {...swipeHandlers}
+      onClick={onClickPage}
+      onKeyDown={onKeyDown}
+    >
       <BookHotspotMap
         ref={hotspotMapReference}
         mask={properties.page.hotspot.mask}
@@ -334,13 +386,24 @@ export function Screen(properties: Props) {
         width={getPageWidth()}
         onHotspot={onHotspot}
       />
-      <BookHotspotPhrase
-        phrase={'word'}
-        x={1}
-        y={1}
-        {...properties.page.styles.UNREAD}
-      />
+      {hotspots.map((hotspot) => (
+        <div
+          key={hotspot.uuid}
+          style={{
+            animation: `hotspotAnimation ${hotspot.duration / 1000}s ease-out`,
+            willChange: 'opacity, transform',
+            position: 'absolute',
+            top: hotspot.y,
+            left: hotspot.x,
+            textShadow: '2px 2px 2px gray',
+            ...properties.page.styles.UNREAD,
+          }}
+        >
+          {hotspot.word}
+        </div>
+      ))}
       <div
+        role="none"
         style={{
           top: 0,
           left: 0,
@@ -351,6 +414,7 @@ export function Screen(properties: Props) {
         onClick={pagePrevious}
       />
       <div
+        role="none"
         style={{
           top: 0,
           right: 0,
@@ -377,124 +441,3 @@ export function Screen(properties: Props) {
 }
 
 export default Screen;
-/*
-class Screen extends React.Component<Props, State> {
-  static initialProps = {
-    styles: {},
-  };
-
-  restartState() {
-    return {
-      audioTime: 0,
-      playButton: 'play',
-    };
-  }
-
-  constructor(props: Props) {
-    super(props);
-    this.setState(this.restartState());
-  }
-
-  componentWillUnmount() {
-    this.state.audio.removeAll();
-    // this.unbindShortcut('left');
-    // this.unbindShortcut('right');
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.page !== nextProps.page) {
-      this.onNewPage(nextProps);
-    }
-  }
-
-  onNewPage(props) {
-    this.state.audio.stop();
-    this.setState(this.restartState(), () => {
-      if (props.autoplay && props.page.pageAudio) {
-        this.state.audio.play('page', props.page.pageAudio);
-      }
-    });
-  }
-
-  getPageStyle() {
-    const ret: React.CSSProperties = {
-      position: 'relative',
-      width: `${this.getPageWidth()}px`,
-      height: `${this.getPageHeight()}px`,
-    };
-    if (this.props.page.image) {
-      ret.backgroundSize = 'contain';
-      ret.backgroundImage = `url(${this.props.page.assetManager.getAssetSrc(
-        this.props.page.image
-      )})`;
-    }
-    return ret;
-  }
-
-  onHotspot(hotspot, x, y) {
-    this.setState({ audioTime: 0 });
-    this.state.audio.stop();
-    this.hotspotPhrase.triggerAnimation(hotspot.text, x, y);
-    this.state.audio.play('hotspot', hotspot.audio);
-  }
-
-  hasHomeButton() {
-    return this.props.page.id !== 'home';
-  }
-
-  hasBackButton() {
-    return this.hasHomeButton() && this.props.page.back;
-  }
-
-  onBackButtonClick() {
-    this.props.dispatch(choosePage(this.props.page.back));
-  }
-
-  onHomeButtonClick() {
-    this.props.dispatch(choosePage(''));
-    this.props.dispatch(chooseAutoplay(false));
-  }
-
-  onButtonClick(page) {
-    if (page === 'read' || page === 'readAudio') {
-      this.props.dispatch(choosePage(1));
-      this.props.dispatch(chooseAutoplay(page === 'readAudio'));
-      return;
-    }
-    this.props.dispatch(choosePage(page));
-  }
-
-  onPlayPauseButtonClick() {
-    if (this.state.playButton === 'play') {
-      this.state.audio.play('page', this.props.page.pageAudio);
-    } else {
-      this.state.audio.pause();
-    }
-  }
-
-  onWordClick(word) {
-    this.setState({ audioTime: 0 });
-    this.state.audio.stop();
-    this.state.audio.play('word', word.audio);
-  }
-
-  // FIXME
-  pagePrev() {
-    if (isNaN(this.props.page.id)) {
-      return;
-    }
-
-    const newPage = this.props.page.id - 1;
-    this.props.dispatch(choosePage(newPage));
-  }
-
-  pageNext() {
-    if (isNaN(this.props.page.id)) {
-      return;
-    }
-
-    const newPage = this.props.page.id + 1;
-    this.props.dispatch(choosePage(newPage));
-  }
-}
-*/
