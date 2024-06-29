@@ -7,25 +7,32 @@ import { useAtom } from 'jotai';
 import {
   LanguageCode,
   bookAtom,
-  bookAutoplayAtom,
   bookLanguageAtom,
   bookPageAtom,
 } from '../atoms.js';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Book as BookClass } from '../models/Book';
-import { dirname } from '../constants/BookUtilities.js';
+import { dirname } from '../constants/BookUtilities';
 import Screen from './Screen.tsx';
 import CircularProgress from '@mui/material/CircularProgress';
+import AssetManager, { AssetManagerContext } from '../AssetManager';
 
 const Book = () => {
   const [bookData] = useAtom(bookAtom);
-  const [page] = useAtom(bookPageAtom);
+  const [page, setPage] = useAtom(bookPageAtom);
   const [language] = useAtom(bookLanguageAtom);
   const [bookLoaded, setBookLoaded] = useState(false);
 
+  const assetManager = useMemo(() => {
+    if (!bookData) {
+      return new AssetManager('');
+    }
+    return new AssetManager(dirname(bookData.url));
+  }, [bookData]);
+
   const book = useMemo(() => {
-    if (!bookData || !language) {
+    if (!bookData || !language || !assetManager) {
       return;
     }
 
@@ -33,11 +40,11 @@ const Book = () => {
       bookData.id,
       bookData.title,
       bookData.icon,
-      dirname(bookData.url),
       bookData,
-      language as LanguageCode
+      language as LanguageCode,
+      assetManager
     );
-  }, [bookData, language]);
+  }, [bookData, language, assetManager]);
 
   useEffect(() => {
     if (book) {
@@ -96,7 +103,7 @@ const Book = () => {
       <div><BookPage key={'page_' + page} book={book} language={language} page={page} autoplay={autoplay} /></div>
     );
   } */
-  let body: ReactElement;
+  let body: ReactElement = <></>;
   if (book.hasGame(page)) {
     const pageData = book.games[page];
     if (!pageData.gameName) {
@@ -114,7 +121,12 @@ const Book = () => {
     }
   } else {
     const pageData = book.pages[page];
-    body = <Screen key={`screen_${page}`} page={pageData} />;
+    if (pageData) {
+      const key = ['screen', book.id, 'page', page].join('_');
+      body = <Screen key={key} page={pageData} />;
+    } else {
+      setPage('home');
+    }
   }
   return (
     <>
@@ -122,7 +134,9 @@ const Book = () => {
         <title>{pageTitle}</title>
         <link rel="shortcut icon" sizes="196x196" href={book.icon} />
       </Helmet>
-      <div>{body}</div>
+      <AssetManagerContext.Provider value={assetManager}>
+        {body}
+      </AssetManagerContext.Provider>
     </>
   );
 };

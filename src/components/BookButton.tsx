@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { useAtom } from 'jotai';
-import { Book, bookIdAtom } from '../atoms';
+import { bookIdAtom } from '../atoms';
+import { Book } from '../models/Book';
 
-export const BookButton = ({
+const BookButton = ({
   id,
   title,
   icon,
@@ -20,7 +21,7 @@ export const BookButton = ({
 
   return (
     <Button onClick={handleSelectBookClick}>
-      <img src={icon} />
+      <img src={icon} alt={`select ${title}`} />
       <span className="mui-raised-button-label">{title}</span>
     </Button>
   );

@@ -108,11 +108,11 @@ export class Book {
     id: string,
     title: string,
     icon: string,
-    assetBaseUrl: string,
     bookData: RawBook,
-    language: LanguageCode
+    language: LanguageCode,
+    assetManager: AssetManager
   ) {
-    this.assetManager = new AssetManager(assetBaseUrl);
+    this.assetManager = assetManager;
     this.language = language;
     this.id = id;
     this.title = title;
@@ -383,7 +383,7 @@ export class Book {
         mask: '',
         hotspots: {},
       },
-      back: 'FIXME',
+      back: 'home',
       styles: Object.assign(
         {},
         parentStyle,

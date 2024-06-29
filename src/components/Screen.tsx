@@ -5,42 +5,64 @@ import {
   useEffect,
   useRef,
   useState,
-  MouseEvent,
   KeyboardEvent,
-  createRef,
+  useContext,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import AssetManager from '../AssetManager.ts';
 import { bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
 import Constants from '../constants/AppConstants.js';
 import useSwipe from '../hooks/useSwipe.ts';
-import { Book, BookHotspot, BookImage, BookPage } from '../models/Book.ts';
+import { BookHotspot, BookImage, BookPage } from '../models/Book.ts';
 import { BookAudio, TimeUpdateEvent } from '../models/BookAudio.jsx';
 import BookHotspotMap from './BookHotspotMap.tsx';
 import BookWord from './BookWord.tsx';
 import ImageButton from './ImageButton.tsx';
+import { AssetManagerContext } from '../AssetManager.ts';
 
 const clickThreshold = 5;
 
 interface Props {
   page: BookPage;
-  book: Book;
+}
+
+const hotspotTimeouts: Record<string, NodeJS.Timeout> = {};
+
+function createHotspotAnimation(
+  text: string,
+  x: number,
+  y: number,
+  cleanupHotspot: (uuid: string) => void
+): HotspotAnimation {
+  const uuid = uuidv4();
+  const duration = 1000; // FIXME - random
+
+  hotspotTimeouts[uuid] = setTimeout(() => {
+    cleanupHotspot(uuid);
+    delete hotspotTimeouts[uuid];
+  }, duration);
+
+  return {
+    uuid: uuid,
+    x: x,
+    y: y,
+    word: text,
+    duration: duration,
+  };
 }
 
 function ScreenImageButton({
   image,
-  assetManager,
   onButtonClick,
 }: {
   image: BookImage;
-  assetManager: AssetManager;
   onButtonClick: (page: string) => void;
 }) {
-  const onClick = useCallback(() => {
+  const assetManager = useContext(AssetManagerContext);
+  const onClick = () => {
     if (image.nextPage) {
       onButtonClick(image.nextPage);
     }
-  }, [image, onButtonClick]);
+  };
 
   const style: React.CSSProperties = {
     position: 'absolute',
@@ -89,7 +111,6 @@ const getPageWidth = (): number => {
 };
 
 interface HotspotAnimation {
-  interval: NodeJS.Timeout;
   uuid: string;
   word: string;
   x: number;
@@ -97,14 +118,14 @@ interface HotspotAnimation {
   duration: number;
 }
 
-export function Screen(properties: Props) {
+function Screen(properties: Props) {
+  const assetManager = useContext(AssetManagerContext);
   const [, setBookPage] = useAtom(bookPageAtom);
   const [autoplay, setAutoplay] = useAtom(bookAutoplayAtom);
   const [hotspots, setHotspots] = useState<Array<HotspotAnimation>>([]);
   const [audioTime, setAudioTime] = useState<number>(0);
   const [playButton, setPlayButton] = useState<string>('play');
   const audioReference = useRef<BookAudio | null>(null);
-  const hotspotMapReference = createRef<BookHotspotMap>();
 
   const pagePrevious = () => {
     const pageNumber = Number.parseInt(properties.page.id, 10);
@@ -166,13 +187,13 @@ export function Screen(properties: Props) {
   const onNewPage = useCallback(() => {
     audioReference.current?.stop();
     restartState();
-    if (autoplay && properties.page.audio) {
+    if (autoplay == 'true' && properties.page.audio) {
       audioReference.current?.play('page', properties.page.audio);
     }
-  }, [audioReference, autoplay, properties.page.audio]);
+  }, [audioReference, autoplay, properties.page]);
 
   useEffect(() => {
-    const audio = new BookAudio(properties.page.assetManager);
+    const audio = new BookAudio(assetManager);
     audio.bind('page', 'play', onPagePlay);
     audio.bind('page', 'pause', onPagePause);
     audio.bind('page', 'ended', onPageEnded);
@@ -184,11 +205,19 @@ export function Screen(properties: Props) {
     return () => {
       audioReference.current?.removeAll();
     };
-  }, [properties.page.assetManager, onNewPage]);
+  }, [assetManager, onNewPage]);
 
   useEffect(() => {
     properties.page && onNewPage();
   }, [properties.page, onNewPage]);
+
+  useEffect(() => {
+    return () => {
+      for (const timeoutId of Object.values(hotspotTimeouts)) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, []);
 
   const getPageStyle = () => {
     const returnValue: React.CSSProperties = {
@@ -198,7 +227,7 @@ export function Screen(properties: Props) {
     };
     if (properties.page.image) {
       returnValue.backgroundSize = 'contain';
-      returnValue.backgroundImage = `url(${properties.page.assetManager.getAssetSrc(properties.page.image)})`;
+      returnValue.backgroundImage = `url(${assetManager.getAssetSrc(properties.page.image)})`;
     }
     return returnValue;
   };
@@ -225,24 +254,18 @@ export function Screen(properties: Props) {
     return !!properties.page.audio;
   };
 
+  const cleanupHotspot = (uuid: string) => {
+    setHotspots((previousState) =>
+      previousState.filter((h) => h.uuid !== uuid)
+    );
+  };
+
   const onHotspot = (hotspot: BookHotspot, x: number, y: number) => {
-    const uuid = uuidv4();
-    const duration = 1000; // FIXME - random
     setAudioTime(0);
-    setHotspots([
-      ...hotspots,
-      {
-        interval: setTimeout(() => {
-          setHotspots((previousState) =>
-            previousState.filter((h) => h.uuid !== uuid)
-          );
-        }, duration),
-        uuid: uuid,
-        x: x,
-        y: y,
-        word: hotspot.text,
-        duration: duration,
-      },
+    setPlayButton('play');
+    setHotspots((existingHotspots) => [
+      ...existingHotspots,
+      createHotspotAnimation(hotspot.text, x, y, cleanupHotspot),
     ]);
     if (audioReference.current) {
       audioReference.current.stop();
@@ -254,12 +277,16 @@ export function Screen(properties: Props) {
     setBookPage(properties.page.back);
     setAutoplay(false);
   };
+
   const onHomeButtonClick = () => {
     setBookPage('');
     setAutoplay(false);
   };
 
   const onButtonClick = (page: string) => {
+    if (page === 'readAudio') {
+      setAutoplay(true);
+    }
     if (page === 'read' || page === 'readAudio') {
       setBookPage('1');
       return;
@@ -295,32 +322,11 @@ export function Screen(properties: Props) {
     }
   };
 
-  const onClickPage = useCallback(
-    (event: MouseEvent) => {
-      if (
-        hotspotMapReference.current &&
-        event.currentTarget &&
-        event.currentTarget instanceof HTMLElement
-      ) {
-        const x = event.pageX - event.currentTarget.offsetLeft;
-        const y = event.pageY - event.currentTarget.offsetTop;
-        if (hotspotMapReference.current.onClickImage(x, y)) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-    },
-    [hotspotMapReference]
-  );
-
-  // const key = ['book', properties.book, 'page', properties.page].join('_');
-
   const extraImages = properties.page.images.map((image, index) => (
     <ScreenImageButton
       key={index}
       image={image}
       onButtonClick={onButtonClick}
-      assetManager={properties.page.assetManager}
     />
   ));
 
@@ -328,7 +334,7 @@ export function Screen(properties: Props) {
     const words = line.words.map((word, wordIndex) => {
       return (
         <BookWord
-          key={`word${wordIndex}`}
+          key={`word_${lineIndex}_${wordIndex}`}
           audioTime={audioTime}
           {...word}
           onClick={onWordClick}
@@ -353,7 +359,6 @@ export function Screen(properties: Props) {
       key="homeButton"
       top="0"
       left="0"
-      assetManager={properties.page.assetManager}
       image={'buttons/control_back.png'}
       onClick={onBackButtonClick}
     />
@@ -362,7 +367,6 @@ export function Screen(properties: Props) {
       key="backButton"
       top="0"
       left="0"
-      assetManager={properties.page.assetManager}
       image={'buttons/control_home.png'}
       enabled={hasHomeButton()}
       onClick={onHomeButtonClick}
@@ -374,14 +378,11 @@ export function Screen(properties: Props) {
       role="none"
       style={getPageStyle()}
       {...swipeHandlers}
-      onClick={onClickPage}
       onKeyDown={onKeyDown}
     >
       <BookHotspotMap
-        ref={hotspotMapReference}
         mask={properties.page.hotspot.mask}
         hotspots={properties.page.hotspot.hotspots}
-        assetManager={properties.page.assetManager}
         height={getPageHeight()}
         width={getPageWidth()}
         onHotspot={onHotspot}
@@ -392,6 +393,8 @@ export function Screen(properties: Props) {
           style={{
             animation: `hotspotAnimation ${hotspot.duration / 1000}s ease-out`,
             willChange: 'opacity, transform',
+            border: '1px solid red',
+            transform: 'translate(-50%, -50%)', // move it half way over so its centered
             position: 'absolute',
             top: hotspot.y,
             left: hotspot.x,
@@ -399,7 +402,17 @@ export function Screen(properties: Props) {
             ...properties.page.styles.UNREAD,
           }}
         >
-          {hotspot.word}
+          <div
+            style={{
+              textAlign: 'center',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              position: 'absolute',
+            }}
+          >
+            {hotspot.word}
+          </div>
         </div>
       ))}
       <div
@@ -429,7 +442,6 @@ export function Screen(properties: Props) {
         key="playPauseButton"
         top="0"
         right="0"
-        assetManager={properties.page.assetManager}
         image={`buttons/control_${playButton}.png`}
         enabled={hasPlayButton()}
         onClick={onPlayPauseButtonClick}

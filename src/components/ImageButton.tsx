@@ -1,12 +1,12 @@
 'use strict';
 import AppConstants from '../constants/AppConstants';
 import IconButton from '@mui/material/IconButton';
-import AssetManager from '../AssetManager';
+import { useContext } from 'react';
+import { AssetManagerContext } from '../AssetManager';
 
 interface Props {
   image: string;
   enabled?: boolean;
-  assetManager: AssetManager;
 
   width?: number;
   height?: number;
@@ -18,13 +18,15 @@ interface Props {
 }
 
 const ImageButton = (properties: Props) => {
+  const assetManager = useContext(AssetManagerContext);
   if (properties.enabled === false) {
     return <div />;
   }
 
   const buttonWidth = properties.width || AppConstants.Dimensions.BUTTON_WIDTH; // FIXME
-  const buttonHeight = properties.height || AppConstants.Dimensions.BUTTON_HEIGHT;
-  const img = properties.assetManager.getAssetSrc(properties.image);
+  const buttonHeight =
+    properties.height || AppConstants.Dimensions.BUTTON_HEIGHT;
+  const img = assetManager.getAssetSrc(properties.image);
 
   const style: React.CSSProperties = {
     position: 'absolute',

@@ -36,9 +36,9 @@ export class BookAudio extends EventTarget {
   private interval?: NodeJS.Timeout;
   private seekInterval?: NodeJS.Timeout;
 
-  constructor(asset_manager: AssetManager) {
+  constructor(assetManager: AssetManager) {
     super();
-    this.assetManager = asset_manager;
+    this.assetManager = assetManager;
     this.currentFilename = undefined;
     this.playMode = undefined;
     this.state = 'paused';

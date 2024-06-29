@@ -1,5 +1,6 @@
 import { Howl } from 'howler';
 import { pEvent } from 'p-event';
+import { createContext } from 'react';
 
 export interface AssetManagerEventMap {
   load: Event;
@@ -162,3 +163,7 @@ const ASSET_TYPES = {
   img: Image,
   audio: AssetManagerAudioType,
 };
+
+export const AssetManagerContext = createContext<AssetManager>(
+  new AssetManager('')
+);

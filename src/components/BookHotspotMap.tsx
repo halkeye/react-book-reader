@@ -1,125 +1,116 @@
-import { Component, createRef, CSSProperties } from 'react';
+import {
+  CSSProperties,
+  MouseEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { colorToInt } from '../constants/BookUtilities';
-import AssetManager from '../AssetManager';
 import { BookHotspot } from '../models/Book';
+import { AssetManagerContext } from '../AssetManager';
 
 interface Props {
   height: number;
   width: number;
   hotspots: Record<number, Array<BookHotspot>>;
   mask: string;
-  assetManager: AssetManager;
   onHotspot(hotspot: BookHotspot, x: number, y: number): void;
 }
 
-interface State {}
-
-export default class BookHotspotMap extends Component<Props, State> {
-  public static defaultProps = {
-    height: 0,
-    width: 0,
-    hotspots: [],
-  };
-
-  canvas: React.RefObject<HTMLCanvasElement>;
-  imageData?: ImageData;
-
-  constructor(properties: Props) {
-    super(properties);
-    this.canvas = createRef();
-  }
-
-  getCanvas() {
-    return this.canvas.current;
-  }
-
-  onClickImage = (x: number, y: number) => {
-    if (!this.props.mask) {
-      return false;
+function BookHotspotMap(properties: Props) {
+  const [imageData, setImageData] = useState<ImageData>();
+  const assetManager = useContext(AssetManagerContext);
+  const canvasReference = useRef<HTMLCanvasElement>(null);
+  const onClickHandler = (event: MouseEvent) => {
+    if (!properties.mask) {
+      return;
     }
-    if (!this.imageData) {
-      return false;
+
+    if (!imageData) {
+      return;
     }
-    const canvasIndex = (x + y * this.props.width) * 4;
+
+    if (!canvasReference.current) {
+      return;
+    }
+
+    const x = event.pageX - canvasReference.current.offsetLeft;
+    const y = event.pageY - canvasReference.current.offsetTop;
+
+    const canvasIndex = (x + y * properties.width) * 4;
 
     const color = {
-      r: this.imageData.data[canvasIndex],
-      g: this.imageData.data[canvasIndex + 1],
-      b: this.imageData.data[canvasIndex + 2],
-      a: this.imageData.data[canvasIndex + 3],
+      r: imageData.data[canvasIndex],
+      g: imageData.data[canvasIndex + 1],
+      b: imageData.data[canvasIndex + 2],
+      a: imageData.data[canvasIndex + 3],
     };
 
     const intColor = colorToInt(color);
-    const hotspots = this.props.hotspots[intColor];
+    const hotspots = properties.hotspots[intColor];
     if (hotspots && hotspots.length > 0) {
       const item = hotspots[Math.floor(Math.random() * hotspots.length)];
-      this.props.onHotspot(item, x, y);
+      event.preventDefault();
+      event.stopPropagation();
+      properties.onHotspot(item, x, y);
       return true;
     }
     return false;
   };
 
-  draw() {
-    if (!this.props.mask) {
+  useEffect(() => {
+    if (!properties.mask || !canvasReference.current || !assetManager) {
       return;
     }
-    const canvas = this.getCanvas();
-    if (!canvas) {
-      return;
-    }
-
+    const canvas = canvasReference.current;
     const context = canvas.getContext('2d');
+
     if (!context) {
       return;
     }
 
-    this.props.assetManager
-      .getAsset('img', this.props.mask)
+    assetManager
+      .getAsset('img', properties.mask)
       .then((img) => {
         if (!(img.asset instanceof HTMLImageElement)) {
-          throw new TypeError(`${this.props.mask} isn't a mask`);
+          throw new TypeError(`${properties.mask} isn't a mask`);
         }
 
         context.drawImage(img.asset, 0, 0);
-        this.imageData = context.getImageData(
-          0,
-          0,
-          this.props.width,
-          this.props.height
+        setImageData(
+          context.getImageData(0, 0, properties.width, properties.height)
         );
         return;
       })
       .catch((error) => {
         console.error('unable to get image mask', error);
       });
+  }, [assetManager, properties.height, properties.mask, properties.width]);
+
+  if (!properties.mask) {
+    return <div />;
   }
 
-  componentDidMount() {
-    this.draw();
-  }
-
-  componentDidUpdate() {
-    this.draw();
-  }
-
-  render() {
-    if (!this.props.mask) {
-      return <div />;
-    }
-
-    const surfaceStyle: CSSProperties = {
-      width: this.props.width,
-      height: this.props.height,
-      position: 'absolute',
-      display: 'none',
-    };
-    return (
+  const containerStyle: CSSProperties = {
+    width: properties.width,
+    height: properties.height,
+    position: 'absolute',
+  };
+  const canvasStyle: CSSProperties = {
+    display: 'none',
+    visibility: 'hidden',
+  };
+  return (
+    <div role="none" onClick={onClickHandler} style={containerStyle}>
       <canvas
-        ref={this.canvas}
-        height={this.props.height}
-        width={this.props.width}
-        style={surfaceStyle}
+        ref={canvasReference}
+        height={properties.height}
+        width={properties.width}
+        style={canvasStyle}
       />
-    );
-  }
+    </div>
+  );
 }
+
+export default BookHotspotMap;

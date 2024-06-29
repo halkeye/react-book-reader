@@ -4,7 +4,7 @@ import BookButton from './BookButton.tsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Helmet } from 'react-helmet-async';
 
-export const BookList = () => {
+const BookList = () => {
   const [books] = useAtom(bookListAtom);
   const title = 'Select a book';
 

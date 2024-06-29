@@ -96,4 +96,4 @@ export const bookLanguagesAtom = atom<Promise<Array<LanguageCode>>>(
 
 export const bookAutoplayAtom = atomFromQueryString<boolean>('bookAutoplay');
 
-export const bookPageAtom = atomFromQueryString<string>('bookPage', '1');
+export const bookPageAtom = atomFromQueryString<string>('bookPage', 'home');
