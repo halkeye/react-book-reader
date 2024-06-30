@@ -125,6 +125,7 @@ const Book = () => {
       const key = ['screen', book.id, 'page', page].join('_');
       body = <Screen key={key} page={pageData} />;
     } else {
+      console.error('page', page, 'not found');
       setPage('home');
     }
   }
