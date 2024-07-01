@@ -11,8 +11,8 @@ export type RawBookPages = {
 };
 
 export interface RawBookPage {
-  LINES: Array<RawBookLine>;
-  HOTSPOTS: RawBookHotspots;
+  LINES?: Array<RawBookLine>;
+  HOTSPOTS?: RawBookHotspots;
   STYLES?: RawBookStyles;
   // I think only PAGE_HOME, END, and PAGE_GAMES
   IMAGE?: Array<RawBookImage>;
@@ -33,42 +33,39 @@ export interface RawBookGameDetails {
   tries: Array<number>;
   match: Array<number>;
   reactionBox: Array<number>;
-  matches: Array<Array<number>>;
+  matchLocs: Array<Array<number>>;
   IMAGE: Array<RawBookImage>;
 }
 
-export interface RawBookGame {
-  easy: RawBookGameDetails;
-  medium: RawBookGameDetails;
-  hard: RawBookGameDetails;
-  BUTTONS: RawBookButtons;
-  IMAGE: RawBookImage;
+export enum RawBookDifficulties {
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
 }
 
-export interface RawBookUI {
-  PAGE_HOME: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
-  PAGE_GAMES: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
+export type RawBookGame = RawBookPage & {
+  [gameName in RawBookDifficulties]: RawBookGameDetails;
+};
+
+export enum RawBookGames {
+  WORD_PICTURE = 'WP',
+  PICTURE_WORD = 'PP',
+  MEMORY = 'fullMonty',
+}
+
+export type RawBookUI = {
+  PAGE_HOME: RawBookScreen;
+  PAGE_GAMES: RawBookScreen;
   GAMES: {
-    WP: RawBookGame;
-    fullMonty: RawBookGame;
-    PP: RawBookGame;
+    [gameName in RawBookGames]: RawBookGame;
   };
-  PAGE_END: {
-    BUTTONS: RawBookButtons;
-    IMAGE: RawBookImage;
-  };
-}
+  PAGE_END: RawBookScreen;
+};
 
-export interface PageHome {
+export type RawBookScreen = {
   BUTTONS: RawBookButtons;
   IMAGE: Array<RawBookImage>;
-}
+};
 
 export interface RawBookImage {
   FILENAME: string;

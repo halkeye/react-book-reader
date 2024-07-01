@@ -1,5 +1,6 @@
 import AssetManager, { Asset } from '../AssetManager';
 import { LanguageCode } from '../atoms';
+import Constants from '../constants/AppConstants';
 import {
   AnimFrame,
   GameAnimations,
@@ -11,7 +12,16 @@ import {
 } from '../constants/BookUtilities';
 import { enumKeys } from '../enumKeys';
 import { Fonts } from '../hooks/useFonts';
-import { RawBook, RawBookPage, RawBookStyles } from './RawBook';
+import {
+  RawBook,
+  RawBookDifficulties,
+  RawBookGame,
+  RawBookGameDetails,
+  RawBookGames,
+  RawBookPage,
+  RawBookScreen,
+  RawBookStyles,
+} from './RawBook';
 
 export type BookStyles = {
   [StyleDataState.READ]?: BookStyle;
@@ -19,12 +29,15 @@ export type BookStyles = {
   [StyleDataState.UNREAD]?: BookStyle;
 };
 
-export interface BookImage {
-  image: string;
+export interface BookItemPosition {
   top: number;
   left: number;
   height: number;
   width: number;
+}
+
+export interface BookImage extends BookItemPosition {
+  image: string;
   nextPage?: string;
 }
 
@@ -52,14 +65,17 @@ export interface BookImageHotspot {
   hotspots: Record<string, Array<BookHotspot>>;
 }
 
-export interface BookPage {
+export type BookScreen = {
   back: string;
   id: string;
   assetManager: AssetManager;
   image: string;
-  audio: string;
   styles: BookStyles;
   images: Array<BookImage>;
+};
+
+export interface BookPage extends BookScreen {
+  audio: string;
   lines: Array<BookLine>;
   hotspot: BookImageHotspot;
 }
@@ -83,7 +99,29 @@ export type BookStyle = {
   fontSize?: number;
 };
 
-export interface BookGame {
+interface BookGameParts {
+  key: string;
+  image: string;
+  text: string;
+}
+
+interface BookGameBoxes {
+  tries?: BookItemPosition;
+  match?: BookItemPosition;
+  reactionBox?: BookItemPosition;
+  displayBox?: BookItemPosition;
+}
+
+export interface BookGame extends BookPage {
+  boxes: BookGameBoxes;
+  gameAssets: Record<string, string>;
+  gameAnimations: {
+    bad?: Array<AnimFrame>;
+    good?: Array<AnimFrame>;
+    neutral?: Array<AnimFrame>;
+    pointing?: Array<AnimFrame>;
+  };
+  gameBoardParts: Array<BookGameParts>;
   gameName?: string;
 }
 
@@ -240,13 +278,12 @@ export class Book {
         if (key === 'GAMES') {
           return;
         }
-
         const lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
         this.pages[lckey] = this.pageProcessor({
           parentStyle: this.bookStyles,
           language: this.language,
-          page: uiData,
+          page: uiData as RawBookScreen,
           pageName: ucFirst(lckey),
         });
         const pageData = this.pages[lckey];
@@ -255,16 +292,18 @@ export class Book {
         this.promises.push(this.assetManager.getAsset('img', pageData.image));
       }
 
-      /*
       if (bookData.UI.GAMES) {
-        for (const [gameName, gameData] of Object.entries(bookData.UI.GAMES)) {
+        for (const gameName of enumKeys(RawBookGames)) {
+          const gamePageData = bookData.UI.GAMES[RawBookGames[gameName]];
+          if (!gamePageData) {
+            continue;
+          }
+
           const gameDifficultyKey = `gameDifficulty${gameName}`;
-          this.pages[gameDifficultyKey] = pageProcessor({
-            promises: promises,
-            assetManager: this.assetManager,
+          this.pages[gameDifficultyKey] = this.pageProcessor({
             parentStyle: this.bookStyles,
             language: this.language,
-            page: gameData,
+            page: gamePageData,
             pageName: 'GameDifficulty',
             nextPageRewriter: (name) => {
               return `game${gameName}${ucFirst(name)}`;
@@ -277,31 +316,33 @@ export class Book {
           );
           gameDifficultyPageData.back = 'game';
 
-          book.pages[`game${gameName}Tutorial`] = pageProcessor({
-            promises: promises,
-            assetManager: this.assetManager,
-            parentStyle: book.bookStyles,
+          this.pages[`game${gameName}Tutorial`] = this.pageProcessor({
+            parentStyle: this.bookStyles,
             language: this.language,
             page: { LINES: [], HOTSPOTS: {} },
             pageName: `game${gameName}Tutorial`,
           });
-          const gameTutorialPageData = book.pages[`game${gameName}Tutorial`];
+          const gameTutorialPageData = this.pages[`game${gameName}Tutorial`];
           gameTutorialPageData.image = `pages/tutorial_${gameName}_${this.language}.png`;
           gameTutorialPageData.back = `gameDifficulty${gameName}`;
           this.promises.push(
             this.assetManager.getAsset('img', gameTutorialPageData.image)
           );
 
-          ['easy', 'medium', 'hard'].forEach((difficulty) => {
+          for (const difficulty of enumKeys(RawBookDifficulties)) {
+            const gameDifficultyData =
+              gamePageData[RawBookDifficulties[difficulty]];
+            if (!gameDifficultyData) {
+              continue;
+            }
             const gameKey = `game${gameName}${ucFirst(difficulty)}`;
-            const difficultyPageData = (book.games[gameKey] = pageProcessor({
-              promises: promises,
-              assetManager: this.assetManager,
-              parentStyle: book.bookStyles,
+            this.games[gameKey] = this.pageProcessor<BookGame>({
+              parentStyle: this.bookStyles,
               language: this.language,
-              page: bookData.UI.GAMES[gameName][difficulty],
+              page: gamePageData[RawBookDifficulties[difficulty]],
               pageName: gameKey,
-            }));
+            });
+            const difficultyPageData = this.games[gameKey];
             difficultyPageData.image = `pages/pgGame${gameName}_${difficulty}.png`;
             this.promises.push(
               this.assetManager.getAsset('img', difficultyPageData.image)
@@ -311,43 +352,32 @@ export class Book {
             difficultyPageData.gameBoardParts = gameBoardParts;
             difficultyPageData.gameAnimations = gameAnimations;
             difficultyPageData.gameAssets = {};
-            Object.keys(gameAssets).forEach((value) => {
+            for (const value of Object.keys(gameAssets)) {
               difficultyPageData.gameAssets[value] = gameAssets[value];
-            });
+            }
 
             difficultyPageData.boxes = {};
-            ['tries', 'match', 'reactionBox', 'displayBox'].forEach(
-              (boxName) => {
-                if (!bookData.UI.GAMES[gameName][difficulty][boxName]) {
-                  return;
-                }
-                const boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
-                difficultyPageData.boxes[boxName] = {
-                  top: boxData[0] * Constants.Dimensions.HEIGHT,
-                  left: boxData[1] * Constants.Dimensions.WIDTH,
-                  height: boxData[2] * Constants.Dimensions.HEIGHT,
-                  width: boxData[3] * Constants.Dimensions.WIDTH,
-                };
+            for (const boxName of [
+              'tries',
+              'match',
+              'reactionBox',
+              'displayBox',
+              'matchLocs',
+            ] as Array<keyof RawBookGameDetails>) {
+              const gameBoxData = gameDifficultyData[boxName] as Array<number>;
+              if (!gameBoxData) {
+                continue;
               }
-            );
-            ['matchLocs'].forEach((boxName) => {
-              if (!bookData.UI.GAMES[gameName][difficulty][boxName]) {
-                return;
-              }
-              const boxData = bookData.UI.GAMES[gameName][difficulty][boxName];
-              difficultyPageData.boxes[boxName] = boxData.map((data) => {
-                return {
-                  top: data[0] * Constants.Dimensions.HEIGHT,
-                  left: data[1] * Constants.Dimensions.WIDTH,
-                  height: data[2] * Constants.Dimensions.HEIGHT,
-                  width: data[3] * Constants.Dimensions.WIDTH,
-                };
-              });
-            });
-          });
+              difficultyPageData.boxes[boxName as keyof BookGameBoxes] = {
+                top: gameBoxData[0] * Constants.Dimensions.HEIGHT,
+                left: gameBoxData[1] * Constants.Dimensions.WIDTH,
+                height: gameBoxData[2] * Constants.Dimensions.HEIGHT,
+                width: gameBoxData[3] * Constants.Dimensions.WIDTH,
+              };
+            }
+          }
         }
       }
-      */
     }
   }
   hasGame(page: string) {
@@ -358,7 +388,7 @@ export class Book {
     return page in this.games || page in this.pages;
   }
 
-  pageProcessor({
+  pageProcessor<T extends BookPage = BookPage>({
     parentStyle,
     language,
     page,
@@ -367,10 +397,10 @@ export class Book {
   }: {
     parentStyle: BookStyles;
     language: LanguageCode;
-    page: RawBookPage;
+    page: RawBookScreen | RawBookPage | RawBookGame | RawBookGameDetails;
     pageName: string;
     nextPageRewriter?(p: string): string;
-  }): BookPage {
+  }): T {
     // HOTSPOTS
     const pageData: BookPage = {
       id: pageName,
@@ -384,12 +414,12 @@ export class Book {
         hotspots: {},
       },
       back: 'home',
-      styles: Object.assign(
-        {},
-        parentStyle,
-        this.processStyleData(page.STYLES)
-      ),
+      styles: Object.assign({}, parentStyle),
     };
+
+    if ('STYLES' in page && page.STYLES) {
+      Object.assign(pageData.styles, this.processStyleData(page.STYLES));
+    }
 
     if (page.IMAGE) {
       for (const image of page.IMAGE) {
@@ -408,7 +438,7 @@ export class Book {
         });
       }
     }
-    if (page.BUTTONS) {
+    if ('BUTTONS' in page && page.BUTTONS) {
       for (const buttonName of Object.keys(page.BUTTONS)) {
         const image = page.BUTTONS[buttonName];
         let nextPageName = rewritePageName(buttonName);
@@ -432,7 +462,7 @@ export class Book {
         });
       }
     }
-    if (page.LINES) {
+    if ('LINES' in page && page.LINES) {
       for (const line of page.LINES) {
         const lineStyle = Object.assign(
           {},
@@ -468,7 +498,7 @@ export class Book {
         }
       }
     }
-    if (page.HOTSPOTS) {
+    if ('HOTSPOTS' in page && page.HOTSPOTS) {
       pageData.hotspot = { mask: '', hotspots: {} };
       const hotspotData = pageData.hotspot;
       this.promises.push(
@@ -497,7 +527,7 @@ export class Book {
         }
       }
     }
-    return pageData;
+    return pageData as T;
   }
 
   processStyleData(styleData?: RawBookStyles): BookStyles {

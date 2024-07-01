@@ -19,8 +19,10 @@ export interface BookListEntry {
 }
 
 export const bookListAtom = atom(async (/*get*/) => {
-  const res = await fetch('https://books.saltystories.ca/books/index.json');
-  const data = (await res.json()) as Array<BookListEntry>;
+  const response = await fetch(
+    'https://books.saltystories.ca/books/index.json'
+  );
+  const data = (await response.json()) as Array<BookListEntry>;
 
   return data.map((bookListEntry) => {
     return {
@@ -52,26 +54,26 @@ function atomFromQueryString<T>(name: string, defaultValue?: T) {
 
 export const bookIdAtom = atomFromQueryString('bookId');
 
-export const bookAtom = atom<Promise<RawBook | null>>(async (get) => {
+export const bookAtom = atom<Promise<RawBook | undefined>>(async (get) => {
   const bookDataList = await get(bookListAtom);
   if (!bookDataList) {
-    return null;
+    return;
   }
 
   const bookId =
     bookDataList.length == 1 ? bookDataList[0].id : get(bookIdAtom);
   if (!bookId) {
-    return null;
+    return;
   }
 
   const bookData = bookDataList.find((b) => b.id === bookId);
   if (!bookData) {
-    return null;
+    return;
   }
 
   const book = {
     ...bookData,
-    ...(await fetch(bookData.url).then((res) => res.json())),
+    ...(await fetch(bookData.url).then((response) => response.json())),
   };
 
   return book as unknown as RawBook;
