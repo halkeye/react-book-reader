@@ -56,7 +56,6 @@
     "raw-loader": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "shuffle": "^0.2.5",
     "uuid": "^10.0.0",
     "whatwg-fetch": "^3.6.20"
   },
@@ -88,6 +87,7 @@
     "prettier": "^3.3.2",
     "react-helmet-async": "^2.0.5",
     "sass": "^1.77.6",
+    "shuffle": "^0.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

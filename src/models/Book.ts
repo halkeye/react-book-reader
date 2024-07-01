@@ -110,6 +110,7 @@ interface BookGameBoxes {
   match?: BookItemPosition;
   reactionBox?: BookItemPosition;
   displayBox?: BookItemPosition;
+  matchLocs: Array<BookItemPosition>;
 }
 
 export interface BookGame extends BookPage {
@@ -356,24 +357,38 @@ export class Book {
               difficultyPageData.gameAssets[value] = gameAssets[value];
             }
 
-            difficultyPageData.boxes = {};
+            difficultyPageData.boxes = {
+              matchLocs: [],
+            };
             for (const boxName of [
               'tries',
               'match',
               'reactionBox',
               'displayBox',
-              'matchLocs',
             ] as Array<keyof RawBookGameDetails>) {
               const gameBoxData = gameDifficultyData[boxName] as Array<number>;
               if (!gameBoxData) {
                 continue;
               }
-              difficultyPageData.boxes[boxName as keyof BookGameBoxes] = {
+              difficultyPageData.boxes[
+                boxName as keyof Omit<BookGameBoxes, 'matchLocs'>
+              ] = {
                 top: gameBoxData[0] * Constants.Dimensions.HEIGHT,
                 left: gameBoxData[1] * Constants.Dimensions.WIDTH,
                 height: gameBoxData[2] * Constants.Dimensions.HEIGHT,
                 width: gameBoxData[3] * Constants.Dimensions.WIDTH,
               };
+            }
+            if (gameDifficultyData.matchLocs) {
+              for (const gameBoxData of gameDifficultyData.matchLocs) {
+                difficultyPageData.boxes.matchLocs = [];
+                difficultyPageData.boxes.matchLocs.push({
+                  top: gameBoxData[0] * Constants.Dimensions.HEIGHT,
+                  left: gameBoxData[1] * Constants.Dimensions.WIDTH,
+                  height: gameBoxData[2] * Constants.Dimensions.HEIGHT,
+                  width: gameBoxData[3] * Constants.Dimensions.WIDTH,
+                });
+              }
             }
           }
         }

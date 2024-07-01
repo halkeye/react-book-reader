@@ -1,22 +1,27 @@
-'use strict';
-import React from 'react';
 import Shuffle from 'shuffle';
-import GameScreen from './GameScreen.jsx';
+import GameScreen from './GameScreen.tsx';
 
-class GamePP extends React.Component {
-  state = { openDoor1: null };
+interface Props {
+  mode: 'PP' | 'WP';
+}
 
-  getCupboardContents = (gameParts, size) => {
+function GamePP({ mode }: Props) {
+  const [openDoor1, setOpenDoor1] = useState(null);
+
+  const getCupboardContents = (gameParts, size) => {
     const deck = Shuffle.shuffle({ deck: gameParts });
     const array = deck.drawRandom(Math.floor(size / 2));
-    if (this.props.mode === 'PP') {
+    if (mode === 'PP') {
       return array.concat(array).map((elm) => {
         return { key: elm.key, image: elm.image };
       });
-    } else if (this.props.mode === 'WP') {
-      return [array.map((elm) => {
-            return { key: elm.key, image: elm.image };
-          })].flat()
+    } else if (mode === 'WP') {
+      return [
+        array.map((elm) => {
+          return { key: elm.key, image: elm.image };
+        }),
+      ]
+        .flat()
         .concat(
           array.map((elm) => {
             return { key: elm.key, image: elm.text };
@@ -26,7 +31,7 @@ class GamePP extends React.Component {
     return [];
   };
 
-  isEndGame = () => {
+  const isEndGame = () => {
     if (!this.gamescreen) {
       return false;
     }
@@ -39,14 +44,14 @@ class GamePP extends React.Component {
     );
   };
 
-  isPerfectGame = () => {
+  const isPerfectGame = () => {
     return (
       this.gamescreen.state.triesScore ===
       Math.floor(this.gamescreen.numberOfDoors() / 2)
     );
   };
 
-  clickedOnDoor = (cupboard) => {
+  const clickedOnDoor = (cupboard) => {
     if (!this.gamescreen.hasStarted()) {
       this.gamescreen.start();
       return false;
@@ -91,15 +96,14 @@ class GamePP extends React.Component {
     return true;
   };
 
-  render() {
-    const properties = Object.assign({}, this.props, {
-      getCupboardContents: this.getCupboardContents,
-      isEndGame: this.isEndGame,
-      isPerfectGame: this.isPerfectGame,
-      clickedOnDoor: this.clickedOnDoor,
-    });
-    return <GameScreen ref={(node) => (this.gamescreen = node)} {...properties} />;
-  }
+  const properties = {
+    mode: mode,
+    getCupboardContents: getCupboardContents,
+    isEndGame: isEndGame,
+    isPerfectGame: isPerfectGame,
+    clickedOnDoor: clickedOnDoor,
+  };
+  return <GameScreen {...properties} />;
 }
 
 export default GamePP;

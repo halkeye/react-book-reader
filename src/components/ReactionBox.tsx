@@ -1,94 +1,122 @@
-'use strict';
-import React from 'react';
-import BookStore from '../stores/BookStore';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { AnimFrame } from '../constants/BookUtilities';
+import { AssetManagerAudioType, AssetManagerContext } from '../AssetManager';
 
-class ReactionBox extends React.Component {
-  constructor() {
-    super();
-    this.state = { frameNo: 0 };
-  }
+interface ReactionBoxProps {
+  animations?: { [mode: string]: Array<AnimFrame> };
+  mode?: 'good' | 'bad' | 'neutral';
+  style: React.CSSProperties;
+  onComplete?: (mode: string) => void;
+}
 
-  static defaultProps = {
-    mode: 'neutral',
-  };
+const ReactionBox: React.FC<ReactionBoxProps> = ({
+  animations,
+  mode = 'neutral',
+  style,
+  onComplete,
+}) => {
+  const assetManager = useContext(AssetManagerContext);
+  const canvasReference = useRef<HTMLCanvasElement>(null);
+  const [animationInterval, setAnimationInterval] = useState<NodeJS.Timeout>();
+  const [frameNo, setFrameNo] = useState(0);
 
-  stopAnimation() {
-    if (this._animInterval) {
-      clearTimeout(this._animInterval);
-      delete this._animInterval;
+  const stopAnimation = useCallback(() => {
+    if (animationInterval) {
+      clearTimeout(animationInterval);
+      setAnimationInterval(undefined);
     }
-  }
+  }, [animationInterval]);
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.mode !== this.props.mode) {
-      this.updateAnims(nextProps.animations[nextProps.mode]);
+  useEffect(() => {
+    let mp3 = '';
+    if (mode == 'good') {
+      mp3 = 'game/game_cupbard_correct.mp3';
+    } else if (mode == 'bad') {
+      mp3 = 'game/game_cupbard_incorrect.mp3';
     }
-  }
+    if (mp3) {
+      assetManager
+        .getAsset('audio', mp3)
+        .then((asset) => {
+          if (
+            asset.asset instanceof AssetManagerAudioType &&
+            asset.asset.audio
+          ) {
+            asset.asset.audio.play();
+          }
+          return;
+        })
+        .catch((error) => {
+          console.error('error playing audio:', error);
+        });
+    }
+  }, [assetManager, mode]);
 
-  updateAnims(anims) {
-    this.stopAnimation();
-    this._animInterval = setTimeout(this.getNextFrame, anims[0].nextTiming);
-    this.setState({ anims: anims, frameNo: 0 });
-  }
+  const getNextFrame = useCallback(() => {
+    if (!animations || !animations[mode]) return;
 
-  getNextFrame() {
-    let frameNo = this.state.frameNo + 1;
-    if (frameNo >= this.props.animations[this.props.mode].length) {
-      frameNo = 0;
-      if (this.props.onComplete) {
-        this.props.onComplete(this.props.mode);
+    const nextFrameNo = (frameNo + 1) % animations[mode].length;
+    const frame = animations[mode][nextFrameNo];
+
+    stopAnimation();
+    setAnimationInterval(setTimeout(getNextFrame, frame.nextTiming));
+    setFrameNo(nextFrameNo);
+
+    if (nextFrameNo === 0 && onComplete) {
+      onComplete(mode);
+    }
+  }, [animations, frameNo, mode, onComplete, stopAnimation]);
+
+  const updateAnims = useCallback(
+    (anims?: Array<AnimFrame>) => {
+      stopAnimation();
+      if (anims) {
+        setAnimationInterval(setTimeout(getNextFrame, anims[0].nextTiming));
+        setFrameNo(0);
       }
-    }
-    const frame = this.props.animations[this.props.mode][frameNo];
-    this.stopAnimation();
-    this._animInterval = setTimeout(this.getNextFrame, frame.nextTiming);
-    this.setState({ frameNo: frameNo });
-  }
+    },
+    [getNextFrame, stopAnimation]
+  );
 
-  getCanvas() {
-    return this.canvas;
-  }
-
-  draw() {
-    if (!this.props.animations) {
+  useEffect(() => {
+    updateAnims(animations?.[mode]);
+    if (
+      !animations ||
+      !animations[mode] ||
+      !animations[mode][frameNo] ||
+      !animations[mode][frameNo].frame
+    ) {
       return;
     }
-    const canvas = this.getCanvas();
-    const context = canvas.getContext('2d');
-    this.props.animations[this.props.mode][this.state.frameNo]
-      .frame()
-      .then((img) => {
-        if (!img) {
-          return;
-        }
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(img, 0, 0);
-      });
-  }
+    const draw = async () => {
+      const canvas = canvasReference.current;
+      if (!canvas) return;
 
-  componentDidMount() {
-    this.updateAnims(this.props.animations[this.props.mode]);
-    this.draw();
-  }
+      const context = canvas.getContext('2d');
+      if (!context) return;
 
-  componentDidUpdate(previousProps, previousState) {
-    this.draw();
-  }
+      const asset = await animations[mode][frameNo].frame;
+      if (!asset || !asset.asset) {
+        throw new Error('No Image');
+      }
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(asset.asset as HTMLImageElement, 0, 0);
+    };
+    draw().catch((error) => {
+      console.error("ReactionBox can't play animation frame:", error);
+    });
 
-  render() {
-    return (
-      <canvas
-        ref={(node) => (this.canvas = node)}
-        width={this.props.style.width}
-        height={this.props.style.height}
-        style={this.props.style}
-      />
-    );
-  }
+    return () => stopAnimation();
+  }, [updateAnims, animations, mode, stopAnimation, frameNo]);
 
-  componentWillUnmount() {
-    this.stopAnimation();
-  }
-}
+  return (
+    <canvas
+      ref={canvasReference}
+      width={style.width as number}
+      height={style.height as number}
+      style={style}
+    />
+  );
+};
 
 export default ReactionBox;

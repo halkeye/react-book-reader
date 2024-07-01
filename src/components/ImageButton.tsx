@@ -1,19 +1,18 @@
-'use strict';
 import AppConstants from '../constants/AppConstants';
 import IconButton from '@mui/material/IconButton';
-import { useContext } from 'react';
+import { CSSProperties, useContext } from 'react';
 import { AssetManagerContext } from '../AssetManager';
 
 interface Props {
   image: string;
   enabled?: boolean;
 
-  width?: number;
-  height?: number;
-  top?: string;
-  left?: string;
-  right?: string;
-  bottom?: string;
+  width?: CSSProperties['width'];
+  height?: CSSProperties['height'];
+  top?: CSSProperties['top'];
+  left?: CSSProperties['left'];
+  right?: CSSProperties['right'];
+  bottom?: CSSProperties['bottom'];
   onClick: () => void;
 }
 
@@ -28,7 +27,7 @@ const ImageButton = (properties: Props) => {
     properties.height || AppConstants.Dimensions.BUTTON_HEIGHT;
   const img = assetManager.getAssetSrc(properties.image);
 
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     position: 'absolute',
     height: `${buttonHeight}px`,
     width: `${buttonWidth}px`,

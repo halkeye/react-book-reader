@@ -1,47 +1,52 @@
-'use strict';
-import React from 'react';
-import PropTypes from 'prop-types';
 import Shuffle from 'shuffle';
-import { choosePage } from '../actions';
-import Screen from './Screen.jsx';
-import ScoreCardBox from './ScoreCardBox.jsx';
-import ReactionBox from './ReactionBox.jsx';
-import CupboardWithDoor from './CupboardWithDoor.jsx';
-import GameOverDialog from './GameOverDialog.jsx';
-import BookUtilities from '../constants/BookUtilities.jsx';
+import Screen from './Screen.tsx';
+import ScoreCardBox from './ScoreCardBox.tsx';
+import ReactionBox from './ReactionBox.tsx';
+import CupboardWithDoor from './CupboardWithDoor.tsx';
+import GameOverDialog from './GameOverDialog.tsx';
+import { BookGame } from '../models/Book.ts';
+import { Component } from 'react';
 
-class GameScreen extends React.Component {
-  static defaultProps = {
-    getCupboardContents() {
-      return [];
-    },
-    clickedOnDoor(isOpen) {
-      return true;
-    },
-    isEndGame() {
-      throw new Error('overwrite please');
-    },
-  };
+interface Properties {
+  getCupboardContents: () => Array<{ key: string; image: string }>;
+  clickedOnDoor: (isOpen: boolean) => boolean;
+  isEndGame: () => boolean;
+  page: BookGame;
+}
 
-  static propTypes = {
-    dispatch: PropTypes.func.isRequired,
-    getCupboardContents: PropTypes.func.isRequired,
-    clickedOnDoor: PropTypes.func.isRequired,
-    isEndGame: PropTypes.func.isRequired,
-    page: PropTypes.object,
-  };
+interface State {
+  started: boolean;
+  triesScore: number;
+  matchesScore: number;
+  defaultAnimation?: Reaction;
+  gameParts: Array<GamePart>;
+  reaction: Reaction;
+}
 
+type Reaction = 'bad' | 'good' | 'neutral';
+
+interface GamePart {
+  key: string;
+  image?: string;
+  text?: string;
+}
+
+class GameScreen extends Component<Properties, State> {
   startingState() {
     return {
       started: false,
       triesScore: 0,
       matchesScore: 0,
+      reaction: this.getDefaultReaction(),
     };
   }
 
-  constructor() {
-    super();
-    this.state = this.startingState();
+  constructor(properties: Properties) {
+    super(properties);
+    this.state = {
+      gameParts: [],
+      ...this.startingState(),
+    };
   }
 
   getDefaultReaction() {
@@ -51,10 +56,10 @@ class GameScreen extends React.Component {
   componentDidMount() {
     const promises = [];
     const gameAssets = {};
-    const gameParts = [];
+    const gameParts: Array<GamePart> = [];
 
     for (const part of this.props.page.gameBoardParts) {
-      const gamePart = { key: part.key, image: null, text: null };
+      const gamePart = { key: part.key };
       gameParts.push(gamePart);
       promises.push(
         this.props.page.asset_manager.getAsset(part.image).then((img) => {
@@ -164,7 +169,6 @@ class GameScreen extends React.Component {
     if (this.props.isEndGame()) {
       gameOverDialog = (
         <GameOverDialog
-          asset_manager={this.props.page.asset_manager}
           onBackGameMenu={this.onBackGameMenu}
           onChangeDiff={this.onChangeDiff}
           onPlayAgain={this.onPlayAgain}
@@ -176,11 +180,11 @@ class GameScreen extends React.Component {
         <Screen {...this.props}>
           <ScoreCardBox
             style={triesBoxStyle}
-            text={BookUtilities.pad(this.state.triesScore, 2, '0')}
+            text={this.state.triesScore.padStart('0', 2)}
           />
           <ScoreCardBox
             style={matchBoxStyle}
-            text={BookUtilities.pad(this.state.matchesScore, 2, '0')}
+            text={this.state.matchesScore.padStart('0', 2)}
           />
           <ReactionBox
             onComplete={this.onCompleteReaction}
@@ -207,11 +211,13 @@ class GameScreen extends React.Component {
   }
 
   onChangeDiff() {
-    return this.props.dispatch(choosePage(this.props.page.back));
+    const [, setBookPage] = useAtom(bookPageAtom);
+    setBookPage(properties.page.back);
   }
 
   onBackGameMenu() {
-    return this.props.dispatch(choosePage('game'));
+    const [, setBookPage] = useAtom(bookPageAtom);
+    setBookPage('game');
   }
 
   onCupboardClick(index) {
@@ -238,7 +244,7 @@ class GameScreen extends React.Component {
     this.setState({ started: true });
   }
 
-  onCompleteReaction(reaction) {
+  onCompleteReaction(reaction: Reaction) {
     const defaultMode = this.getDefaultReaction();
     if (reaction !== defaultMode) {
       this.setState({ reaction: defaultMode });
@@ -247,7 +253,10 @@ class GameScreen extends React.Component {
 
   playMp3(mp3) {
     this.props.page.asset_manager.getAsset('audio', mp3).then((asset) => {
-      asset.audio.play();
+      if (asset.asset instanceof AssetManagerAudioType) {
+        asset.asset.audio.play();
+      }
+      return;
     });
   }
 
