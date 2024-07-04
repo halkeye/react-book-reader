@@ -1,4 +1,4 @@
-import diacritics from 'diacritics';
+import { remove as removeDiacritics } from 'diacritics';
 import { Asset } from '../AssetManager';
 
 export class AnimFrame {
@@ -58,8 +58,7 @@ export const rewritePageName = (pageName: string) => {
 
 export const audioFilename = (filename: string) => {
   filename += '';
-  return diacritics
-    .remove(filename)
+  return removeDiacritics(filename)
     .toLowerCase()
     .replaceAll(/[^\w ]/g, '')
     .replaceAll(/\s+$/g, '');

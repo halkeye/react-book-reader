@@ -1,23 +1,42 @@
-'use strict';
-import React from 'react';
+import { Component, createRef, CSSProperties, MouseEventHandler } from 'react';
+import { AssetManagerAudioType, AssetManagerContext } from '../AssetManager';
 
-class CupboardWithDoor extends React.Component {
-  constructor() {
-    super();
+interface Props {
+  style: CSSProperties;
+  objectImage?: HTMLImageElement;
+  openImage?: HTMLImageElement;
+  closedImage?: HTMLImageElement;
+  onClick?: MouseEventHandler<HTMLCanvasElement>;
+}
+
+interface State {
+  status: 'open' | 'closed';
+}
+
+class CupboardWithDoor extends Component<Props, State> {
+  static contextType = AssetManagerContext;
+  declare context: React.ContextType<typeof AssetManagerContext>;
+
+  canvas = createRef<HTMLCanvasElement>();
+
+  constructor(properties: Props) {
+    super(properties);
     this.state = { status: 'open' };
   }
 
   reset() {
-    this.replaceState({ status: 'open' });
-  }
-
-  getCanvas() {
-    return this.canvas;
+    this.setState({ status: 'open' });
   }
 
   draw() {
-    const canvas = this.getCanvas();
+    const canvas = this.canvas.current;
+    if (!canvas) {
+      return;
+    }
     const context = canvas.getContext('2d');
+    if (!context) {
+      return;
+    }
     context.clearRect(0, 0, canvas.width, canvas.height);
     if (this.props.objectImage) {
       context.drawImage(this.props.objectImage, 0, 0);
@@ -32,14 +51,14 @@ class CupboardWithDoor extends React.Component {
     this.draw();
   }
 
-  componentDidUpdate(previousProps, previousState) {
+  componentDidUpdate() {
     this.draw();
   }
 
   render() {
     return (
       <canvas
-        ref={(node) => (this.canvas = node)}
+        ref={this.canvas}
         width={this.props.style.width}
         height={this.props.style.height}
         style={this.props.style}
@@ -49,15 +68,21 @@ class CupboardWithDoor extends React.Component {
   }
 
   playDoorSound() {
-    this.props.asset_manager
+    this.context
       .getAsset('audio', 'game/game_cupbard_door_sound.mp3')
       .then((asset) => {
-        asset.audio.play();
+        if (asset.asset instanceof AssetManagerAudioType && asset.asset.audio) {
+          asset.asset.audio.play();
+        }
+        return asset;
+      })
+      .catch((error) => {
+        console.error('unable to load audio', error);
       });
   }
 
   isOpen() {
-    return this.doorState === 'open';
+    return this.state.status === 'open';
   }
 
   isClosed() {
@@ -66,16 +91,14 @@ class CupboardWithDoor extends React.Component {
 
   // Actions
   open(playSound = true) {
-    this.doorState = 'open';
-    this.setState({ status: this.doorState });
+    this.setState({ status: 'open' });
     if (playSound === true) {
       this.playDoorSound();
     }
   }
 
   close(playSound = true) {
-    this.doorState = 'closed';
-    this.setState({ status: this.doorState });
+    this.setState({ status: 'closed' });
     if (playSound === true) {
       this.playDoorSound();
     }

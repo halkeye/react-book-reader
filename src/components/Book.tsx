@@ -17,6 +17,7 @@ import { dirname } from '../constants/BookUtilities';
 import Screen from './Screen.tsx';
 import CircularProgress from '@mui/material/CircularProgress';
 import AssetManager, { AssetManagerContext } from '../AssetManager';
+import GamePP from './GamePP.tsx';
 
 const Book = () => {
   const [bookData] = useAtom(bookAtom);

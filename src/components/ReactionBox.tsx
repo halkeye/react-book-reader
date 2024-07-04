@@ -1,31 +1,31 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import { AnimFrame } from '../constants/BookUtilities';
 import { AssetManagerAudioType, AssetManagerContext } from '../AssetManager';
 
+export type Reaction = 'bad' | 'good' | 'neutral';
+
 interface ReactionBoxProps {
   animations?: { [mode: string]: Array<AnimFrame> };
-  mode?: 'good' | 'bad' | 'neutral';
+  mode: Reaction;
   style: React.CSSProperties;
-  onComplete?: (mode: string) => void;
+  onComplete?: (reaction: Reaction) => void;
 }
 
-const ReactionBox: React.FC<ReactionBoxProps> = ({
+export function ReactionBox({
   animations,
-  mode = 'neutral',
-  style,
+  mode,
   onComplete,
-}) => {
+  style,
+}: ReactionBoxProps) {
   const assetManager = useContext(AssetManagerContext);
   const canvasReference = useRef<HTMLCanvasElement>(null);
-  const [animationInterval, setAnimationInterval] = useState<NodeJS.Timeout>();
-  const [frameNo, setFrameNo] = useState(0);
 
-  const stopAnimation = useCallback(() => {
-    if (animationInterval) {
-      clearTimeout(animationInterval);
-      setAnimationInterval(undefined);
+  const modeAnimations = useMemo(() => {
+    if (!animations || !animations[mode] || animations[mode].length === 0) {
+      return;
     }
-  }, [animationInterval]);
+    return animations[mode];
+  }, [animations, mode]);
 
   useEffect(() => {
     let mp3 = '';
@@ -52,71 +52,67 @@ const ReactionBox: React.FC<ReactionBoxProps> = ({
     }
   }, [assetManager, mode]);
 
-  const getNextFrame = useCallback(() => {
-    if (!animations || !animations[mode]) return;
-
-    const nextFrameNo = (frameNo + 1) % animations[mode].length;
-    const frame = animations[mode][nextFrameNo];
-
-    stopAnimation();
-    setAnimationInterval(setTimeout(getNextFrame, frame.nextTiming));
-    setFrameNo(nextFrameNo);
-
-    if (nextFrameNo === 0 && onComplete) {
-      onComplete(mode);
-    }
-  }, [animations, frameNo, mode, onComplete, stopAnimation]);
-
-  const updateAnims = useCallback(
-    (anims?: Array<AnimFrame>) => {
-      stopAnimation();
-      if (anims) {
-        setAnimationInterval(setTimeout(getNextFrame, anims[0].nextTiming));
-        setFrameNo(0);
-      }
-    },
-    [getNextFrame, stopAnimation]
-  );
-
   useEffect(() => {
-    updateAnims(animations?.[mode]);
-    if (
-      !animations ||
-      !animations[mode] ||
-      !animations[mode][frameNo] ||
-      !animations[mode][frameNo].frame
-    ) {
+    if (!modeAnimations) {
       return;
     }
-    const draw = async () => {
-      const canvas = canvasReference.current;
-      if (!canvas) return;
 
-      const context = canvas.getContext('2d');
-      if (!context) return;
+    const canvas = canvasReference.current;
+    if (!canvas) return;
 
-      const asset = await animations[mode][frameNo].frame;
-      if (!asset || !asset.asset) {
-        throw new Error('No Image');
-      }
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(asset.asset as HTMLImageElement, 0, 0);
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    let setTimeoutId: number = 0;
+    let frameNo = -1;
+    let frame = modeAnimations[0];
+
+    // Check if null context has been replaced on component mount
+    if (context) {
+      //Our draw came here
+      const render = () => {
+        if (!modeAnimations) {
+          return;
+        }
+
+        const nextFrameNo = (frameNo + 1) % modeAnimations.length;
+        if (frameNo != -1 && frameNo == modeAnimations.length && onComplete) {
+          onComplete(mode);
+        }
+        frame = modeAnimations[nextFrameNo];
+        frameNo = nextFrameNo;
+
+        const draw = async () => {
+          const asset = await frame.frame;
+          if (!asset || !asset.asset) {
+            throw new Error('No Image');
+          }
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          context.drawImage(asset.asset as HTMLImageElement, 0, 0);
+          setTimeoutId = setTimeout(
+            render,
+            frame.nextTiming
+          ) as unknown as number;
+        };
+        draw().catch((error) => {
+          console.error("ReactionBox can't play animation frame:", error);
+        });
+      };
+      render();
+    }
+    return () => {
+      clearTimeout(setTimeoutId);
     };
-    draw().catch((error) => {
-      console.error("ReactionBox can't play animation frame:", error);
-    });
-
-    return () => stopAnimation();
-  }, [updateAnims, animations, mode, stopAnimation, frameNo]);
+  }, [modeAnimations, onComplete, mode]);
 
   return (
     <canvas
       ref={canvasReference}
-      width={style.width as number}
-      height={style.height as number}
+      width={style.width}
+      height={style.height}
       style={style}
     />
   );
-};
+}
 
 export default ReactionBox;

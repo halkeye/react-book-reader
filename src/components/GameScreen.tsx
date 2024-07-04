@@ -1,15 +1,21 @@
-import Shuffle from 'shuffle';
+import arrayShuffle from 'array-shuffle';
 import Screen from './Screen.tsx';
 import ScoreCardBox from './ScoreCardBox.tsx';
-import ReactionBox from './ReactionBox.tsx';
+import { ReactionBox, Reaction } from './ReactionBox.tsx';
 import CupboardWithDoor from './CupboardWithDoor.tsx';
 import GameOverDialog from './GameOverDialog.tsx';
 import { BookGame } from '../models/Book.ts';
-import { Component } from 'react';
+import { Component, createRef, CSSProperties, ReactNode } from 'react';
+import { AssetManagerContext } from '../AssetManager.ts';
+import { useAtom } from 'jotai';
+import { bookPageAtom } from '../atoms.ts';
 
 interface Properties {
-  getCupboardContents: () => Array<{ key: string; image: string }>;
-  clickedOnDoor: (isOpen: boolean) => boolean;
+  getCupboardContents: (
+    gameParts: Array<GamePart>,
+    size: number
+  ) => Array<GamePart>;
+  clickedOnDoor: (cupboard: CupboardWithDoor) => boolean;
   isEndGame: () => boolean;
   page: BookGame;
 }
@@ -19,25 +25,31 @@ interface State {
   triesScore: number;
   matchesScore: number;
   defaultAnimation?: Reaction;
+  cupboardContents: Array<GamePart>;
   gameParts: Array<GamePart>;
+  gameAssets: Record<string, string>;
   reaction: Reaction;
 }
 
-type Reaction = 'bad' | 'good' | 'neutral';
-
-interface GamePart {
+export interface GamePart {
   key: string;
   image?: string;
   text?: string;
 }
 
-class GameScreen extends Component<Properties, State> {
-  startingState() {
+export class GameScreen extends Component<Properties, State> {
+  static contextType = AssetManagerContext;
+  declare context: React.ContextType<typeof AssetManagerContext>;
+
+  cupboards: Array<CupboardWithDoor | null> = [];
+
+  startingState(): Omit<Omit<State, 'gameParts'>, 'gameAssets'> {
     return {
       started: false,
       triesScore: 0,
       matchesScore: 0,
       reaction: this.getDefaultReaction(),
+      cupboardContents: [],
     };
   }
 
@@ -45,108 +57,123 @@ class GameScreen extends Component<Properties, State> {
     super(properties);
     this.state = {
       gameParts: [],
+      gameAssets: {},
       ...this.startingState(),
     };
   }
 
   getDefaultReaction() {
-    return this.state.defaultAnimation || 'neutral';
+    return this?.state?.defaultAnimation || 'neutral';
   }
 
   componentDidMount() {
     const promises = [];
-    const gameAssets = {};
+    const gameAssets: Record<string, string> = {};
     const gameParts: Array<GamePart> = [];
 
     for (const part of this.props.page.gameBoardParts) {
-      const gamePart = { key: part.key };
+      const gamePart: GamePart = { key: part.key };
       gameParts.push(gamePart);
       promises.push(
-        this.props.page.asset_manager.getAsset(part.image).then((img) => {
-          gamePart.image = img;
-        })
-      );
-      promises.push(
-        this.props.page.asset_manager.getAsset(part.text).then((img) => {
-          gamePart.text = img;
+        this.context.getAsset('img', part.image).then((img) => {
+          gamePart.image = img.src;
+          return img;
+        }),
+        this.context.getAsset('img', part.text).then((img) => {
+          gamePart.text = img.src;
+          return img;
         })
       );
     }
     for (const assetName of Object.keys(this.props.page.gameAssets)) {
-      const promise = this.props.page.asset_manager
-        .getAsset(this.props.page.gameAssets[assetName])
-        .then((img) => {
-          gameAssets[assetName] = img;
-        });
-      promises.push(promise);
+      promises.push(
+        this.context
+          .getAsset('img', this.props.page.gameAssets[assetName])
+          .then((img) => {
+            gameAssets[assetName] = img.src;
+            return img;
+          })
+      );
     }
 
-    Promise.all(promises).then((parts) => {
-      this.setState({ gameAssets, gameParts }, () => {
-        this.resetGame(this.props);
+    Promise.all(promises)
+      .then(() => {
+        this.setState({ gameAssets, gameParts }, () => {
+          this.resetGame(this.props);
+        });
+        return;
+      })
+      .catch((error) => {
+        console.error('Unable to load game assets', error);
+        throw error;
       });
-    });
   }
 
   numberOfDoors() {
     return this.props.page.boxes.matchLocs.length;
   }
 
-  resetGame(properties) {
+  resetGame(properties: Properties) {
     const state = this.startingState();
-    const contents = Shuffle.shuffle({
-      deck: properties.getCupboardContents(
-        this.state.gameParts,
-        this.numberOfDoors()
-      ),
-    });
-    for (const [index, loc] of this.props.page.boxes.matchLocs.entries()) {
-      const cupboard = this[`cupboard_${index}`];
+    const contents = arrayShuffle(
+      properties.getCupboardContents(this.state.gameParts, this.numberOfDoors())
+    );
+    for (const [index] of this.props.page.boxes.matchLocs.entries()) {
+      const cupboard = this.cupboards[index];
+      if (!cupboard) {
+        continue;
+      }
       cupboard.reset();
 
-      const content = contents.draw();
+      const content = contents.shift();
       if (!content) {
         continue;
       }
-      state[`cupboard_${index}`] = content;
+      state.cupboardContents[index] = content;
     }
     this.setState(state);
   }
 
   render() {
-    const triesBoxStyle = Object.assign(
-      { position: 'absolute' },
-      this.props.page.boxes.tries
-    );
-    const matchBoxStyle = Object.assign(
-      { position: 'absolute' },
-      this.props.page.boxes.match
-    );
-    const reactionBoxStyle = Object.assign(
-      { position: 'absolute' },
-      this.props.page.boxes.reactionBox
-    );
-    let cupboardLocations = <div />;
+    const triesBoxStyle: CSSProperties = {
+      position: 'absolute',
+      ...(this.props.page.boxes.tries as CSSProperties),
+    };
+    const matchBoxStyle: CSSProperties = {
+      position: 'absolute',
+      ...(this.props.page.boxes.match as CSSProperties),
+    };
+    const reactionBoxStyle: CSSProperties = {
+      position: 'absolute',
+      ...(this.props.page.boxes.reactionBox as CSSProperties),
+    };
+    let cupboardLocations: Array<ReactNode> = [];
     let displayBox = <div />;
     let gameOverDialog = <div />;
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, index) => {
         const style = Object.assign({ position: 'absolute' }, loc);
-        const cupbardObject = this.state[`cupboard_${index}`] || {};
+        const cupboardObject: GamePart =
+          this.state.cupboardContents[index] || {};
 
         const properties = {
-          ref: (node) => (this[`cupboard_${index}`] = node),
-          key: index,
           style,
-          asset_manager: this.props.page.asset_manager,
-          openImage: this.state.gameAssets.game_cupbard_door_open,
-          closedImage: this.state.gameAssets.game_cupbard_door_closed,
-          objectImage: cupbardObject.image,
-          objectName: cupbardObject.key,
+          openImage: this.state.gameAssets.game_cupboard_door_open,
+          closedImage: this.state.gameAssets.game_cupboard_door_closed,
+          objectImage: cupboardObject.image,
+          objectName: cupboardObject.key,
           onClick: this.onCupboardClick.bind(this, index),
         };
-        return <CupboardWithDoor key={index} {...properties} />;
+        return (
+          <CupboardWithDoor
+            key={index}
+            ref={(node) => {
+              this.cupboards[index] = node;
+            }}
+            {...properties}
+          />
+        );
       });
     }
     if (
@@ -180,11 +207,11 @@ class GameScreen extends Component<Properties, State> {
         <Screen {...this.props}>
           <ScoreCardBox
             style={triesBoxStyle}
-            text={this.state.triesScore.padStart('0', 2)}
+            text={this.state.triesScore.toString().padStart(2, '0')}
           />
           <ScoreCardBox
             style={matchBoxStyle}
-            text={this.state.matchesScore.padStart('0', 2)}
+            text={this.state.matchesScore.toString().padStart(2, '0')}
           />
           <ReactionBox
             onComplete={this.onCompleteReaction}
@@ -201,8 +228,8 @@ class GameScreen extends Component<Properties, State> {
   }
 
   getCupboards() {
-    return this.props.page.boxes.matchLocs.map((loc, index) => {
-      return this[`cupboard_${index}`];
+    return this.props.page.boxes.matchLocs.map((_loc, index) => {
+      return this.cupboards[index];
     });
   }
 
@@ -212,7 +239,7 @@ class GameScreen extends Component<Properties, State> {
 
   onChangeDiff() {
     const [, setBookPage] = useAtom(bookPageAtom);
-    setBookPage(properties.page.back);
+    setBookPage(this.props.page.back);
   }
 
   onBackGameMenu() {
@@ -220,55 +247,46 @@ class GameScreen extends Component<Properties, State> {
     setBookPage('game');
   }
 
-  onCupboardClick(index) {
+  onCupboardClick = (index: number) => {
     // FIXME - let stateVar = {};
     // FIXME - let isClosed = this.state[`cupboard_${idx}_state`] === 'closed';
-    this.props.clickedOnDoor(this[`cupboard_${index}`]);
-  }
+    if (this.cupboards[index]) {
+      this.props.clickedOnDoor(this.cupboards[index]);
+    }
+  };
 
-  hasStarted() {
+  hasStarted = () => {
     return this.state.started;
-  }
+  };
 
-  closeAllDoors() {
+  closeAllDoors = () => {
     const doors = Object.entries(this).filter(([key]) => {
       return key.startsWith('cupboard_');
     });
     for (const [, door] of doors) {
       door.close(false);
     }
-  }
+  };
 
-  start() {
+  start = () => {
     this.closeAllDoors();
     this.setState({ started: true });
-  }
+  };
 
-  onCompleteReaction(reaction: Reaction) {
+  onCompleteReaction = (reaction: Reaction) => {
     const defaultMode = this.getDefaultReaction();
     if (reaction !== defaultMode) {
       this.setState({ reaction: defaultMode });
     }
-  }
+  };
 
-  playMp3(mp3) {
-    this.props.page.asset_manager.getAsset('audio', mp3).then((asset) => {
-      if (asset.asset instanceof AssetManagerAudioType) {
-        asset.asset.audio.play();
-      }
-      return;
-    });
-  }
-
-  showGoodReaction() {
+  showGoodReaction = () => {
     this.setState({ reaction: 'good' });
-    this.playMp3('game/game_cupbard_correct.mp3');
-  }
+  };
 
-  showBadReaction() {
+  showBadReaction = () => {
     this.setState({ reaction: 'bad' });
-    this.playMp3('game/game_cupbard_incorrect.mp3');
-  }
+  };
 }
 
 export default GameScreen;

@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import AssetManager, { Asset } from '../AssetManager';
 import { LanguageCode } from '../atoms';
 import Constants from '../constants/AppConstants';
@@ -30,10 +31,10 @@ export type BookStyles = {
 };
 
 export interface BookItemPosition {
-  top: number;
-  left: number;
-  height: number;
-  width: number;
+  top: CSSProperties['top'];
+  left: CSSProperties['left'];
+  height: CSSProperties['height'];
+  width: CSSProperties['width'];
 }
 
 export interface BookImage extends BookItemPosition {
@@ -68,7 +69,6 @@ export interface BookImageHotspot {
 export type BookScreen = {
   back: string;
   id: string;
-  assetManager: AssetManager;
   image: string;
   styles: BookStyles;
   images: Array<BookImage>;
@@ -277,7 +277,7 @@ export class Book {
       for (const [key, uiData] of Object.entries(bookData.UI)) {
         /* Ignore GAMES key, its not a page - HAACK */
         if (key === 'GAMES') {
-          return;
+          continue;
         }
         const lckey = rewritePageName(key.replace(/^PAGE_/, '').toLowerCase());
 
@@ -294,8 +294,9 @@ export class Book {
       }
 
       if (bookData.UI.GAMES) {
-        for (const gameName of enumKeys(RawBookGames)) {
-          const gamePageData = bookData.UI.GAMES[RawBookGames[gameName]];
+        for (const gameKey of enumKeys(RawBookGames)) {
+          const gameName = RawBookGames[gameKey];
+          const gamePageData = bookData.UI.GAMES[gameName];
           if (!gamePageData) {
             continue;
           }
@@ -419,7 +420,6 @@ export class Book {
     // HOTSPOTS
     const pageData: BookPage = {
       id: pageName,
-      assetManager: this.assetManager,
       image: '',
       audio: '',
       lines: [],
@@ -477,7 +477,7 @@ export class Book {
         });
       }
     }
-    if ('LINES' in page && page.LINES) {
+    if ('LINES' in page && page.LINES && page.LINES.length > 0) {
       for (const line of page.LINES) {
         const lineStyle = Object.assign(
           {},
@@ -513,7 +513,11 @@ export class Book {
         }
       }
     }
-    if ('HOTSPOTS' in page && page.HOTSPOTS) {
+    if (
+      'HOTSPOTS' in page &&
+      page.HOTSPOTS &&
+      Object.keys(page.HOTSPOTS).length > 0
+    ) {
       pageData.hotspot = { mask: '', hotspots: {} };
       const hotspotData = pageData.hotspot;
       this.promises.push(

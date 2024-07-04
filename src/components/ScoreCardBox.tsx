@@ -1,36 +1,43 @@
-'use strict';
-import React from 'react';
+import { Component, createRef, CSSProperties } from 'react';
 
-class ScoreCardBox extends React.Component {
+interface Props {
+  style: CSSProperties;
+  text: string;
+}
+
+class ScoreCardBox extends Component<Props> {
+  canvas = createRef<HTMLCanvasElement>();
+
   render() {
     return (
       <canvas
-        ref={(node) => (this.canvas = node)}
+        ref={this.canvas}
         width={this.props.style.width}
         height={this.props.style.height}
-        style={this.props.style}
+        style={{
+          ...this.props.style,
+        }}
       />
     );
   }
 
-  getCanvas() {
-    return this.canvas;
-  }
-
   draw() {
-    const canvas = this.getCanvas();
+    const canvas = this.canvas.current;
+    if (!canvas) {
+      return;
+    }
     const context = canvas.getContext('2d');
+    if (!context) {
+      return;
+    }
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.textBaseline = 'middle';
+    context.textBaseline = 'top';
     context.textAlign = 'center';
-    context.fillStyle = this.props.style.color;
-    context.font = `${canvas.width}px ${this.props.style.fontFamily}`; // FIXME
-    context.fillText(
-      this.props.text,
-      canvas.width / 2,
-      canvas.height / 2,
-      canvas.width
-    );
+    if (this.props.style.color) {
+      context.fillStyle = this.props.style.color.toString();
+    }
+    context.font = `${canvas.height + 15}px ${this.props.style.fontFamily}`; // FIXME
+    context.fillText(this.props.text, canvas.width / 2, 0, canvas.width);
 
     /*
     let fontSize = 80;
@@ -47,7 +54,7 @@ class ScoreCardBox extends React.Component {
     this.draw();
   }
 
-  componentDidUpdate(previousProps, previousState) {
+  componentDidUpdate() {
     this.draw();
   }
 }

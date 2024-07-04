@@ -1,59 +1,69 @@
-import Shuffle from 'shuffle';
-import GameScreen from './GameScreen.tsx';
+import arrayShuffle from 'array-shuffle';
+import { GameScreen, GamePart } from './GameScreen.tsx';
+import { useRef, useState } from 'react';
+import { BookGame } from '../models/Book.ts';
+import CupboardWithDoor from './CupboardWithDoor.tsx';
 
 interface Props {
   mode: 'PP' | 'WP';
+  page: BookGame;
 }
 
-function GamePP({ mode }: Props) {
-  const [openDoor1, setOpenDoor1] = useState(null);
+function GamePP({ mode, page }: Props) {
+  const [openDoor1, setOpenDoor1] = useState<CupboardWithDoor>();
+  const gamescreen = useRef<GameScreen | null>(null);
 
-  const getCupboardContents = (gameParts, size) => {
-    const deck = Shuffle.shuffle({ deck: gameParts });
-    const array = deck.drawRandom(Math.floor(size / 2));
+  const getCupboardContents = (
+    gameParts: Array<GamePart>,
+    size: number
+  ): Array<GamePart> => {
+    const shuffledGameParts = arrayShuffle(gameParts).slice(
+      0,
+      Math.floor(size / 2)
+    );
     if (mode === 'PP') {
-      return array.concat(array).map((elm) => {
+      return [...shuffledGameParts, ...shuffledGameParts].map((elm) => {
         return { key: elm.key, image: elm.image };
       });
     } else if (mode === 'WP') {
       return [
-        array.map((elm) => {
+        ...shuffledGameParts.map((elm) => {
           return { key: elm.key, image: elm.image };
         }),
-      ]
-        .flat()
-        .concat(
-          array.map((elm) => {
-            return { key: elm.key, image: elm.text };
-          })
-        );
+        ...shuffledGameParts.map((elm) => {
+          return { key: elm.key, image: elm.text };
+        }),
+      ];
     }
     return [];
   };
 
   const isEndGame = () => {
-    if (!this.gamescreen) {
+    if (!gamescreen?.current) {
       return false;
     }
-    if (!this.gamescreen.state) {
+    if (!gamescreen?.current?.state) {
       return false;
     }
     return (
-      this.gamescreen.state.matchesScore ===
-      Math.floor(this.gamescreen.numberOfDoors() / 2)
+      gamescreen?.current?.state.matchesScore ===
+      Math.floor(gamescreen?.current?.numberOfDoors() / 2)
     );
   };
 
   const isPerfectGame = () => {
+    if (!gamescreen?.current) {
+      return false;
+    }
     return (
-      this.gamescreen.state.triesScore ===
-      Math.floor(this.gamescreen.numberOfDoors() / 2)
+      gamescreen.current.state.triesScore ===
+      Math.floor(gamescreen.current.numberOfDoors() / 2)
     );
   };
 
-  const clickedOnDoor = (cupboard) => {
-    if (!this.gamescreen.hasStarted()) {
-      this.gamescreen.start();
+  const clickedOnDoor = (cupboard: CupboardWithDoor) => {
+    if (!gamescreen?.current?.hasStarted()) {
+      gamescreen?.current?.start();
       return false;
     }
 
@@ -62,48 +72,48 @@ function GamePP({ mode }: Props) {
       return false;
     }
 
-    if (this.state.openDoor1 === null) {
-      this.setState({ openDoor1: cupboard });
+    if (openDoor1 === null) {
+      setOpenDoor1(cupboard);
       cupboard.open();
       return true;
     }
 
     // Don't click on the same door
-    if (this.state.openDoor1 === cupboard) {
+    if (openDoor1 === cupboard) {
       return false;
     }
-    this.gamescreen.setState(function (previousState, currentProps) {
+    gamescreen?.current?.setState(function (previousState) {
       return { triesScore: previousState.triesScore + 1 };
     });
 
     // If contents match, then yay!
-    if (this.state.openDoor1.props.objectName === cupboard.props.objectName) {
+    if (openDoor1?.props.objectName === cupboard.props.objectName) {
       cupboard.open();
-      this.gamescreen.setState(function (previousState, currentProps) {
+      gamescreen?.current?.setState(function (previousState, currentProps) {
         return { matchesScore: previousState.matchesScore + 1 };
       });
-      this.setState({ openDoor1: null });
-      this.gamescreen.showGoodReaction();
+      setOpenDoor1(null);
+      gamescreen?.current?.showGoodReaction();
       return true;
     }
-    this.gamescreen.showBadReaction();
+    gamescreen?.current?.showBadReaction();
     setTimeout(() => {
-      this.state.openDoor1.close(false);
+      openDoor1.close(false);
       cupboard.close(false);
-      this.setState({ openDoor1: null });
+      setOpenDoor1(null);
     }, 300);
     cupboard.open();
     return true;
   };
 
   const properties = {
-    mode: mode,
+    page: page,
     getCupboardContents: getCupboardContents,
     isEndGame: isEndGame,
     isPerfectGame: isPerfectGame,
     clickedOnDoor: clickedOnDoor,
   };
-  return <GameScreen {...properties} />;
+  return <GameScreen ref={gamescreen} {...properties} />;
 }
 
 export default GamePP;

@@ -7,6 +7,8 @@ import {
   useState,
   KeyboardEvent,
   useContext,
+  ReactNode,
+  PropsWithChildren,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { bookAutoplayAtom, bookPageAtom } from '../atoms.ts';
@@ -21,7 +23,7 @@ import { AssetManagerContext } from '../AssetManager.ts';
 
 const clickThreshold = 5;
 
-interface Props {
+interface Props extends PropsWithChildren {
   page: BookPage;
 }
 
@@ -448,6 +450,7 @@ function Screen(properties: Props) {
       />
       {extraImages}
       {extraLines}
+      {properties.children}
     </div>
   );
 }
