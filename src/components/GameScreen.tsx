@@ -27,14 +27,14 @@ interface State {
   defaultAnimation?: Reaction;
   cupboardContents: Array<GamePart>;
   gameParts: Array<GamePart>;
-  gameAssets: Record<string, string>;
+  gameAssets: Record<string, HTMLImageElement>;
   reaction: Reaction;
 }
 
 export interface GamePart {
   key: string;
-  image?: string;
-  text?: string;
+  image?: HTMLImageElement;
+  text?: HTMLImageElement;
 }
 
 export class GameScreen extends Component<Properties, State> {
@@ -68,7 +68,7 @@ export class GameScreen extends Component<Properties, State> {
 
   componentDidMount() {
     const promises = [];
-    const gameAssets: Record<string, string> = {};
+    const gameAssets: Record<string, HTMLImageElement> = {};
     const gameParts: Array<GamePart> = [];
 
     for (const part of this.props.page.gameBoardParts) {
@@ -76,11 +76,15 @@ export class GameScreen extends Component<Properties, State> {
       gameParts.push(gamePart);
       promises.push(
         this.context.getAsset('img', part.image).then((img) => {
-          gamePart.image = img.src;
+          if (img.asset && img.asset instanceof HTMLImageElement) {
+            gamePart.image = img.asset;
+          }
           return img;
         }),
         this.context.getAsset('img', part.text).then((img) => {
-          gamePart.text = img.src;
+          if (img.asset && img.asset instanceof HTMLImageElement) {
+            gamePart.text = img.asset;
+          }
           return img;
         })
       );
@@ -90,7 +94,9 @@ export class GameScreen extends Component<Properties, State> {
         this.context
           .getAsset('img', this.props.page.gameAssets[assetName])
           .then((img) => {
-            gameAssets[assetName] = img.src;
+            if (img.asset && img.asset instanceof HTMLImageElement) {
+              gameAssets[assetName] = img.asset;
+            }
             return img;
           })
       );
@@ -153,41 +159,41 @@ export class GameScreen extends Component<Properties, State> {
 
     if (this.state.gameAssets) {
       cupboardLocations = this.props.page.boxes.matchLocs.map((loc, index) => {
-        const style = Object.assign({ position: 'absolute' }, loc);
+        const style: CSSProperties = { position: 'absolute', ...loc };
         const cupboardObject: GamePart =
           this.state.cupboardContents[index] || {};
 
-        const properties = {
-          style,
-          openImage: this.state.gameAssets.game_cupboard_door_open,
-          closedImage: this.state.gameAssets.game_cupboard_door_closed,
-          objectImage: cupboardObject.image,
-          objectName: cupboardObject.key,
-          onClick: this.onCupboardClick.bind(this, index),
-        };
         return (
           <CupboardWithDoor
             key={index}
             ref={(node) => {
               this.cupboards[index] = node;
             }}
-            {...properties}
+            style={style}
+            openImage={this.state.gameAssets.game_cupboard_door_open}
+            closedImage={this.state.gameAssets.game_cupboard_door_closed}
+            objectImage={cupboardObject.image}
+            objectName={cupboardObject.key?.toString()}
+            onClick={this.onCupboardClick.bind(this, index)}
           />
         );
       });
+    } else {
+      console.log('no game assets');
     }
     if (
       this.props.page.boxes.displayBox &&
       this.state.displayBox &&
       this.state.displayBox.props.objectImage
     ) {
-      const style = Object.assign(
-        { position: 'absolute' },
-        this.props.page.boxes.displayBox
-      );
+      const style: CSSProperties = {
+        position: 'absolute',
+        ...this.props.page.boxes.displayBox,
+      };
       displayBox = (
         <img
           key="displaybox"
+          alt="box containing object to match to"
           style={style}
           src={this.state.displayBox.props.objectImage.src}
         />

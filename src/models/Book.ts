@@ -381,8 +381,8 @@ export class Book {
               };
             }
             if (gameDifficultyData.matchLocs) {
+              difficultyPageData.boxes.matchLocs = [];
               for (const gameBoxData of gameDifficultyData.matchLocs) {
-                difficultyPageData.boxes.matchLocs = [];
                 difficultyPageData.boxes.matchLocs.push({
                   top: gameBoxData[0] * Constants.Dimensions.HEIGHT,
                   left: gameBoxData[1] * Constants.Dimensions.WIDTH,

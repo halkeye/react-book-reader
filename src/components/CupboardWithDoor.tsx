@@ -4,6 +4,7 @@ import { AssetManagerAudioType, AssetManagerContext } from '../AssetManager';
 interface Props {
   style: CSSProperties;
   objectImage?: HTMLImageElement;
+  objectName?: string;
   openImage?: HTMLImageElement;
   closedImage?: HTMLImageElement;
   onClick?: MouseEventHandler<HTMLCanvasElement>;

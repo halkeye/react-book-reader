@@ -1,6 +1,6 @@
 import arrayShuffle from 'array-shuffle';
 import { GameScreen, GamePart } from './GameScreen.tsx';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { BookGame } from '../models/Book.ts';
 import CupboardWithDoor from './CupboardWithDoor.tsx';
 
@@ -38,18 +38,20 @@ function GamePP({ mode, page }: Props) {
     return [];
   };
 
-  const isEndGame = () => {
+  const isEndGame = useCallback(() => {
     if (!gamescreen?.current) {
       return false;
     }
+
     if (!gamescreen?.current?.state) {
       return false;
     }
+
     return (
       gamescreen?.current?.state.matchesScore ===
       Math.floor(gamescreen?.current?.numberOfDoors() / 2)
     );
-  };
+  }, []);
 
   const isPerfectGame = () => {
     if (!gamescreen?.current) {
