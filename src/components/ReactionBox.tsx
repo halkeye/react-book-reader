@@ -76,7 +76,7 @@ export function ReactionBox({
         }
 
         const nextFrameNo = (frameNo + 1) % modeAnimations.length;
-        if (frameNo != -1 && frameNo == modeAnimations.length && onComplete) {
+        if (frameNo != -1 && nextFrameNo == 0 && onComplete) {
           onComplete(mode);
         }
         frame = modeAnimations[nextFrameNo];
@@ -101,6 +101,7 @@ export function ReactionBox({
       render();
     }
     return () => {
+      console.log('clearing animation');
       clearTimeout(setTimeoutId);
     };
   }, [modeAnimations, onComplete, mode]);

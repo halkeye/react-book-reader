@@ -91,18 +91,18 @@ function GamePP({ mode, page }: Props) {
     // If contents match, then yay!
     if (openDoor1?.props.objectName === cupboard.props.objectName) {
       cupboard.open();
-      gamescreen?.current?.setState(function (previousState, currentProps) {
+      gamescreen?.current?.setState(function (previousState) {
         return { matchesScore: previousState.matchesScore + 1 };
       });
-      setOpenDoor1(null);
+      setOpenDoor1(undefined);
       gamescreen?.current?.showGoodReaction();
       return true;
     }
     gamescreen?.current?.showBadReaction();
     setTimeout(() => {
-      openDoor1.close(false);
+      openDoor1?.close(false);
       cupboard.close(false);
-      setOpenDoor1(null);
+      setOpenDoor1(undefined);
     }, 300);
     cupboard.open();
     return true;

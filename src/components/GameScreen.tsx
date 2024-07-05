@@ -26,6 +26,7 @@ interface State {
   matchesScore: number;
   defaultAnimation?: Reaction;
   cupboardContents: Array<GamePart>;
+  displayBox?: CupboardWithDoor;
   gameParts: Array<GamePart>;
   gameAssets: Record<string, HTMLImageElement>;
   reaction: Reaction;
@@ -170,8 +171,8 @@ export class GameScreen extends Component<Properties, State> {
               this.cupboards[index] = node;
             }}
             style={style}
-            openImage={this.state.gameAssets.game_cupboard_door_open}
-            closedImage={this.state.gameAssets.game_cupboard_door_closed}
+            openImage={this.state.gameAssets.game_cupbard_door_open}
+            closedImage={this.state.gameAssets.game_cupbard_door_closed}
             objectImage={cupboardObject.image}
             objectName={cupboardObject.key?.toString()}
             onClick={this.onCupboardClick.bind(this, index)}
@@ -266,11 +267,10 @@ export class GameScreen extends Component<Properties, State> {
   };
 
   closeAllDoors = () => {
-    const doors = Object.entries(this).filter(([key]) => {
-      return key.startsWith('cupboard_');
-    });
-    for (const [, door] of doors) {
-      door.close(false);
+    for (const door of this.cupboards) {
+      if (door) {
+        door.close(false);
+      }
     }
   };
 

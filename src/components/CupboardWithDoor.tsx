@@ -20,6 +20,12 @@ class CupboardWithDoor extends Component<Props, State> {
 
   canvas = createRef<HTMLCanvasElement>();
 
+  /* FIXME
+   * move state to prop, then component can be propless
+   * Also doesn't need to be canvas, can just layer images
+   * https://jsfiddle.net/Jan_Miksovsky/yy7Zs/
+   */
+
   constructor(properties: Props) {
     super(properties);
     this.state = { status: 'open' };
